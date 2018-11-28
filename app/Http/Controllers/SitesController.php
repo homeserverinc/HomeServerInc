@@ -230,6 +230,6 @@ class SitesController extends HomeServerController
                                             $query->with('services')
                                                 ->whereHas('services');
                                         }])
-                                        ->where('uuid', $uuid)->get());
+                                        ->where('uuid', $uuid)->first());
     }
 }

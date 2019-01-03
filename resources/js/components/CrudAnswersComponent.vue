@@ -189,7 +189,7 @@ export default {
         setQuestionType() {
             if (this.questionTypes.length > 0) {
                 let qt = this.questionTypes.find(t => t.uuid === this.questionTypeUuid);
-                this.singleChoiceQuestion = (qt) ? qt.single_choice : false;
+                this.singleChoiceQuestion = (qt) ? parseInt(qt.single_choice) : false;
             } else {
                 this.singleChoiceQuestion = false;
             } 

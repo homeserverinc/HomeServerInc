@@ -7,6 +7,7 @@
         'model' => 'question',
         'tableTitle' => 'Question',
         'displayField' => 'question',
+        'keyField' => 'uuid',
         'actions' => ['edit', 'destroy']
         ]);
     @endcomponent

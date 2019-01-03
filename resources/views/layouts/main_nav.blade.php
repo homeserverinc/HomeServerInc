@@ -63,13 +63,18 @@
                     Services
                 </a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdownServices">
+                    @permission('read-category')
+                    <a class="dropdown-item" href="{{ route('category.index') }}">Categories</a>
+                    @endpermission
+                    @permission('read-quiz')
+                    <a class="dropdown-item" href="{{ route('quiz.index') }}">Quizzes</a>
+                    @endpermission
+                    @permission('read-question')
+                    <a class="dropdown-item" href="{{ route('question.index') }}">Questions</a>
+                    @endpermission
                     @permission('read-service')
                     <a class="dropdown-item" href="{{ route('service.index') }}">Services</a>
                     @endpermission
-                    <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" href="{{ route('category.index') }}">Categories</a>
-                    <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" href="{{ route('question.index') }}">Questions</a>
                 </div>
             </li>
             {{--  cities  --}}

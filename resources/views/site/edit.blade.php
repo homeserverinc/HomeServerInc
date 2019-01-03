@@ -4,7 +4,7 @@
     <div class=" card  ">
         @component('components.form', [
             'title' => 'Change Site', 
-            'routeUrl' => route('site.update', $site->id), 
+            'routeUrl' => route('site.update', $site->uuid), 
             'method' => 'PUT',
             'formButtons' => [
                 ['type' => 'submit', 'label' => 'Save', 'icon' => 'check'],
@@ -103,8 +103,8 @@
                             @foreach($categories as $category)
                                 <div class="col-sm-1 col-md-3 col-lg-3">
                                     <div class="custom-control custom-checkbox">
-                                        <input type="checkbox" class="custom-control-input category_checkbox" value="{{$category->id}}" name="categories[]" id="category_{{$category->id}}" {{in_array($category->id, $assigned_categories) ? 'checked' : ''}}>
-                                        <label class="custom-control-label" for="category_{{$category->id}}">{{$category->category}}</label>
+                                        <input type="checkbox" class="custom-control-input category_checkbox" value="{{$category->uuid}}" name="categories[]" id="category_{{$category->uuid}}" {{in_array($category->uuid, $assigned_categories) ? 'checked' : ''}}>
+                                        <label class="custom-control-label" for="category_{{$category->uuid}}">{{$category->category}}</label>
                                     </div>
                                 </div>
                             @endforeach

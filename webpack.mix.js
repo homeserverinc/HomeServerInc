@@ -15,4 +15,6 @@ mix.js('resources/js/app.js', 'public/js')
    .js('resources/js/bs4navbar.js', 'public/js')
    .js('resources/js/questions.js', 'public/js')
    .js('resources/js/leadQuestionsForm.js', 'public/js')
+   .js('resources/js/multiQuestionsForm.js', 'public/js')
+   .js('resources/js/configs.js', 'public/js')
    .sass('resources/sass/app.scss', 'public/css');

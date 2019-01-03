@@ -7,6 +7,7 @@
         'model' => 'category',
         'tableTitle' => 'Category',
         'displayField' => 'category',
+        'keyField' => 'uuid',
         'actions' => ['edit', 'destroy']
         ]);
     @endcomponent

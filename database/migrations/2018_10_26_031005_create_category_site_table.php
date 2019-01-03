@@ -18,7 +18,7 @@ class CreateCategorySiteTable extends Migration
             $table->unsignedInteger('site_id')->index();
             $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
             $table->foreign('site_id')->references('id')->on('sites')->onDelete('cascade');
-            $table->timestamps();
+            $table->timestamps(); 
         });
     }
 

@@ -27,7 +27,7 @@
 
 @permission($permission)
 @if($action == 'destroy')    
-    <form id="deleteForm{{$row->id}}" action="{{route($model.'.'.$action, ['$model' => $row->$keyField])}}" method="POST" style="display: inline">
+    <form id="deleteForm{{$row->$keyField}}" action="{{route($model.'.'.$action, ['$model' => $row->$keyField])}}" method="POST" style="display: inline">
         <span data-toggle="tooltip" data-placement="top" title="{{$tooltip}}" data-original-title="{{$tooltip}}">
              <button class="btn btn-sm btn-danger" type="button" data-toggle="modal" data-target="#confirmDelete" data-title="{{__('Remove Confirmation') }}" 
                 data-message="{{ __('strings.Remove').' '.__('models.'.$model).': "'.$row->$displayField.'"'}}?">

@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AlterTableServicePropertyAddColumnFieldSize extends Migration
+class DropQuestionServiceTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,7 @@ class AlterTableServicePropertyAddColumnFieldSize extends Migration
      */
     public function up()
     {
-        Schema::table('property_service', function (Blueprint $table) {
-            $table->integer('field_size')->default(12);
-        });
+        Schema::drop('question_service');
     }
 
     /**
@@ -25,8 +23,6 @@ class AlterTableServicePropertyAddColumnFieldSize extends Migration
      */
     public function down()
     {
-        Schema::table('property_service', function (Blueprint $table) {
-            $table->dropColumn('fieldSize');
-        });
+        //
     }
 }

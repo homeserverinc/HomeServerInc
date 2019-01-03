@@ -30,32 +30,46 @@
                 @component('components.form-group', [
                     'inputs' => [
                         [
+                            'type' => 'select',
+                            'field' => 'quiz_uuid',
+                            'label' => 'Quiz',
+                            'required' => true,
+                            'inputSize' => 4,
+                            'defaultNone' => true,
+                            'items' => $quizzes,
+                            'displayField' => 'quiz',
+                            'keyField' => 'uuid',
+                            'liveSearch' => true,
+                            'vModel' => 'quizUuid'
+                        ],
+                        [
                             'type' => 'text',
                             'field' => 'field_name',
                             'label' => 'Field name',
                             'required' => true,
-                            'inputSize' => 6,
+                            'inputSize' => 4,
                             'readOnly' => true
                         ],
                         [
                             'type' => 'select',
-                            'field' => 'question_type_id',
+                            'field' => 'question_type_uuid',
                             'label' => 'Question type',
                             'required' => true,
-                            'inputSize' => 6,
+                            'inputSize' => 4,
                             'defaultNone' => true,
                             'items' => $questionTypes,
                             'displayField' => 'question_type',
-                            'keyField' => 'id',
+                            'keyField' => 'uuid',
                             'liveSearch' => true,
-                            'vModel' => 'questionTypeId'
-                        ],
+                            'vModel' => 'questionTypeUuid'
+                        ]
                     ]
                 ])
                 @endcomponent
                 <div class="form-group">
                 <crudanswers 
-                    v-bind:question-type-id="questionTypeId" 
+                    :question-type-uuid="questionTypeUuid" 
+                    :quiz-uuid="quizUuid"
                     :returned-data="{{ json_encode(old('answers')) }}">
                 </crudanswers>
                 </div>

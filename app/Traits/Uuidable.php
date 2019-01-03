@@ -3,6 +3,7 @@
 namespace App\Traits;
 
 use Ramsey\Uuid\Uuid;
+use Illuminate\Support\Facades\Log;
 
 trait Uuidable {
     /**

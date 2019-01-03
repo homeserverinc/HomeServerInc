@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Quiz;
 use App\Answer;
 use App\Question;
 use App\QuestionType;
@@ -16,7 +17,7 @@ use App\Http\Controllers\HomeServerController;
 class QuestionsController extends HomeServerController
 {
     public $fields = [
-        'id' => 'ID',
+        'uuid' => 'UUID',
         'question' => 'Question',
         'question_type' => 'Type'
     ];
@@ -34,14 +35,14 @@ class QuestionsController extends HomeServerController
         if (Auth::user()->canReadQuestion()) {
             if ($request->searchField) {
                 $questions = Question::select('questions.*', 'question_types.question_type')
-                                        ->join('question_types', 'question_types.id', 'questions.question_type_id')
+                                        ->join('question_types', 'question_types.uuid', 'questions.question_type_uuid')
                                         ->where('questions.question', 'like', '%'.$request->searchField.'%')
-                                        ->orderBy('id', 'desc')
+                                        ->orderBy('created_at', 'desc')
                                         ->paginate();
             } else {
                 $questions = Question::select('questions.*', 'question_types.question_type')
-                                        ->join('question_types', 'question_types.id', 'questions.question_type_id')
-                                        ->orderBy('id', 'desc')
+                                        ->join('question_types', 'question_types.uuid', 'questions.question_type_uuid')
+                                        ->orderBy('created_at', 'desc')
                                         ->paginate();
             }
             /* dd($questions); */
@@ -63,11 +64,13 @@ class QuestionsController extends HomeServerController
         if (Auth::user()->canCreateQuestion()) {
             $questionTypes = QuestionType::all();
             $questions = Question::all();
+            $quizzes = Quiz::all();
 
             return View('question.create', [
                 'next_questions' => $questions,
                 'questions' => $questions,
-                'questionTypes' => $questionTypes
+                'questionTypes' => $questionTypes,
+                'quizzes' => $quizzes
             ]);
         } else {
             return $this->accessDenied();
@@ -83,11 +86,10 @@ class QuestionsController extends HomeServerController
     public function store(Request $request)
     {
         if (Auth::user()->canCreateQuestion()) {
-            //return redirect()->back()->withInput();
             $this->validate($request, [
                 'question' => 'required|string',
-                'question_type_id' => 'required|numeric',
-            // 'answers' => 'required|array|size:1'
+                'question_type_uuid' => 'required',
+                'quiz_uuid' => 'required'
             ]);
 
             try {           
@@ -96,16 +98,30 @@ class QuestionsController extends HomeServerController
                 
                 $question = new Question($request->all());
                 $question->field_name = str_slug($question->question, '-');
+                $question->next_question_uuid = $request->singleNextQuestion;
+                $question->selected_answers = '';
+                $question->custom_answer = '';
 
                 $question = $this->createRecord($question, false);
+                
+                if (!$question->quiz->first_question_uuid) {
+                    $quiz = $question->quiz;
+                    $quiz->first_question_uuid = $question->uuid;
+                    $quiz->save();    
+                }
 
                 $answers = array();
                 foreach ($request->answers as $answer) {
                     $answer['answer_slug'] = str_slug($answer['answer']);
-                    array_push($answers, $answer);
+                    array_push($answers, $answer); 
                 }
 
-                $question->answers()->createMany($answers);
+                try {
+                    $question->answers()->createMany($answers);
+                } catch (\Exception $e) {
+                    throw $e;
+                }
+                
                 
                 DB::commit();
                 
@@ -128,18 +144,23 @@ class QuestionsController extends HomeServerController
     public function edit(Question $question)
     {      
         if (Auth::user()->canUpdateQuestion()) {         
-            $questionTypes = QuestionType::all()->except($question->id);
-            $answers = $question->answers()->with('answer_type')->get();
+            $questionTypes = QuestionType::all()->except(['question_uuid' => $question->uuid]);
+
+            $answers = $question->answers()
+                                ->with('answer_type')
+                                ->orderBy('answers.answer', 'asc')
+                                ->get();
 
             foreach($answers as $answer) {
-                if ($answer->next_question_id) {
-                    $answer->next_question = Question::find($answer->next_question_id);
+                if ($answer->next_question_uuid) {
+                    $answer->next_question = Question::where('uuid', $answer->next_question_uuid)->first();
                 }
             }
 
+
             return View('question.edit', [
                 'question' => $question,
-                'next_questions' => Question::where('id',  '<>', $question->id)->get(),
+                'next_questions' => Question::where('uuid',  '<>', $question->uuid)->get(),
                 'answers' => $answers,
                 'questionTypes' => $questionTypes
             ]);
@@ -168,24 +189,26 @@ class QuestionsController extends HomeServerController
 
                 /* Save the question */
                 $question->question = $request->question;
+                $question->next_question_uuid = $request->singleNextQuestion;
 
                 $question = $this->updateRecord($question, false);
 
                 /* Save the answers */
                 $atualAnswers = array();
                 foreach($request->answers as $answer) {
-                    $a = Answer::find($answer['answer_id']);
+                    $a = Answer::where('uuid', $answer['answer_uuid'])->first();
                     if ($a) {
                         $a->fill($answer);
                         $saved = $question->answers()->save($a);
                     } else {
+                        $answer['answer_slug'] = \str_slug($answer['answer']);
                         $saved = $question->answers()->save(new Answer($answer));
                     }
-                    array_push($atualAnswers, $saved->id);
+                    array_push($atualAnswers, $saved->uuid);
                 }
 
                 /* Remove orphan answers */
-                $question->answers()->whereNotIn('id', $atualAnswers)->delete();
+                $question->answers()->whereNotIn('uuid', $atualAnswers)->delete();
 
                 DB::commit();
                 
@@ -220,7 +243,7 @@ class QuestionsController extends HomeServerController
         } catch (\Exception $e) {
             switch ($e->getCode()) {
                 case 23000:
-                    Session::flash('error', 'This Question are in use, and can not be removed.');
+                    Session::flash('error', 'This Question are in use, and can not be removed.'.$e->getMessage());
                     return redirect()->action('QuestionsController@index');
                     break;
                 default:
@@ -231,19 +254,19 @@ class QuestionsController extends HomeServerController
         }
     }
 
-    public function getQuestionById($question_id) {
-        $question = Question::with('answers')->find($question_id);
+    public function getQuestionByUuid($question_uuid) {
+        $question = Question::with('answers')->where('uuid', $question_uuid)->first();
 
         return $question;
     }
 
-    public function getQuestionsExcept(Int $except = null) {
+    public function getQuestionsExcept(String $except = null) {
         return response()->json(Question::with('answers.answer_type')->get()->except($except)->except($except)); 
     }
 
     public function apiGetQuestion(Question $question) {
         return response()->json(Question::with('question_type')
                                             ->with('answers.answer_type')            
-                                            ->find($question->id));
+                                            ->where('uuid', $question->uuid)->first());
     }
 }

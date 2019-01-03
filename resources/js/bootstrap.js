@@ -16,6 +16,7 @@ try {
     require('jquery-ui/ui/widgets/autocomplete.js');
     require('velocity-animate/velocity');
     require('velocity-animate/velocity.ui');
+    require('bootstrap-vue');
 } catch (e) {}
 
 /**

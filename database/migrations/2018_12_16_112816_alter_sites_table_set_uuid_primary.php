@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreatePropertyTypesTable extends Migration
+class AlterSitesTableSetUuidPrimary extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,10 @@ class CreatePropertyTypesTable extends Migration
      */
     public function up()
     {
-        Schema::create('property_types', function (Blueprint $table) {
-            $table->increments('id');
-            $table->string('property_type_name')->unique();
-            $table->string('property_type_description');
-            $table->timestamps();
+        Schema::table('sites', function (Blueprint $table) {
+            $table->dropColumn('id')
+                  ->dropPrimary('id');
+            $table->primary('uuid');
         });
     }
 
@@ -28,6 +27,8 @@ class CreatePropertyTypesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('property_types');
+        Schema::table('sites', function (Blueprint $table) {
+            //
+        });
     }
 }

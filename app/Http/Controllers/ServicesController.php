@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Quiz;
+use App\Site;
 use App\Service;
 use App\Category;
 use App\Property;
@@ -16,7 +18,7 @@ use App\Http\Controllers\HomeServerController;
 class ServicesController extends HomeServerController
 {
     public $fields = [
-        'id' => 'ID',
+        'uuid' => 'UUID',
         'service_description' => 'Description',
         'category' => 'Category'
     ];
@@ -35,16 +37,16 @@ class ServicesController extends HomeServerController
             if ($request->searchField) {
                 $services = DB::table('services')
                     ->select('services.*', 'categories.category')
-                    ->join('categories', 'categories.id', 'services.category_id')
+                    ->join('categories', 'categories.uuid', 'services.category_uuid')
                     ->where('service_description', 'like', '%'.$request->searchField.'%')
                     ->where('category', 'like', '%'.$request->searchField.'%')
-                    ->orderBy('id', 'desc')
+                    ->orderBy('created_at', 'desc')
                     ->paginate();
             } else {
                 $services = DB::table('services')
                     ->select('services.*', 'categories.category')
-                    ->join('categories', 'categories.id', 'services.category_id')
-                    ->orderBy('id', 'desc')
+                    ->join('categories', 'categories.uuid', 'services.category_uuid')
+                    ->orderBy('created_at', 'desc')
                     ->paginate();
             }
     
@@ -67,10 +69,12 @@ class ServicesController extends HomeServerController
         if (Auth::user()->canCreateService()) {
             $categories = Category::all();
             $questions = Question::all();
+            $quizzes = array();
         
             return View('service.create', [
                 'categories' => $categories,
-                'questions' => $questions
+                'questions' => $questions,
+                'quizzes' => $quizzes
             ]);
         } else {
             return $this->accessDenied();
@@ -88,7 +92,7 @@ class ServicesController extends HomeServerController
         if (Auth::user()->canCreateService()) {
             $this->validate($request, [
                 'service_description' => 'required|string|min:5',
-                'category_id' => 'numeric|required'
+                'category_uuid' => 'required',
             ]);
     
             try {
@@ -115,11 +119,13 @@ class ServicesController extends HomeServerController
 
             $categories = Category::all();
             $questions = Question::all();
+            $quizzes = Quiz::where('category_uuid', $service->category_uuid)->get();
         
             return View('service.edit', [
                 'service' => $service,
                 'categories' => $categories,
-                'questions' => $questions
+                'questions' => $questions,
+                'quizzes' => $quizzes
             ]);
         } else {
             return $this->accessDenied();
@@ -169,9 +175,21 @@ class ServicesController extends HomeServerController
     }
 
     public function apiGetService(Service $service) {
-        return response()->json(Service::with('category')
-                                            ->with('question.question_type')
-                                            ->with('question.answers.answer_type')
-                                            ->find($service->id));
+        return response()->json(Service::where('uuid', $service->uuid)->first());
+    }
+
+    public function apiGetServicesBySite(Site $site) {
+        $data = Site::with('categories.services')
+            ->where('uuid', $site->uuid)
+            ->first();
+        
+        $result = array();
+        foreach($data->categories as $category) {
+            foreach($category->services as $service) {
+                array_push($result, $service);
+            }
+        }
+
+        return response()->json($result);
     }
 }

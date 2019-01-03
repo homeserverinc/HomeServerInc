@@ -20,5 +20,6 @@ return [
     'twilio_activity' => 'Twilio Activity',
     'twilio_workflow' => 'Twilio Workflow',
     'twilio_configuration' => 'Twilio Configuration',
-    'missed_call' => 'Missed Call'
+    'missed_call' => 'Missed Call',
+    'quiz' => 'Quiz'
 ];

@@ -36,6 +36,12 @@ Route::middleware('auth:api')->group(function(){
 
     /* service */
     Route::get('/service/{service}', 'ServicesController@apiGetService');
+
+    /* services by site uuid */
+    Route::get('/services/{site}', 'ServicesController@apiGetServicesBySite');
+
+    /* quiz */
+    Route::get('/quiz/{service}', 'QuizzesController@apiGetQuiz');
     
     /* question */
     Route::get('/question/{question}', 'QuestionsController@apiGetQuestion');

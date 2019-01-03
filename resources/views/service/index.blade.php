@@ -7,6 +7,7 @@
         'model' => 'service',
         'tableTitle' => 'Service',
         'displayField' => 'service_description',
+        'keyField' => 'uuid',
         'actions' => ['edit', 'destroy']
         ]);
     @endcomponent

@@ -31,7 +31,7 @@ Route::get('/callstatus', 'CallsController@callStatus');
 Route::get('/outgoing', 'CallsController@outgoing');
 Route::get('/sipstatus', 'CallsController@sipStatus');
 Route::post('dequeue', 'CallsController@dequeueCall');
-Route::get('/teste', 'TwilioApiController@testTwilio');
+
 Route::post('/workspace-events', 'WebhooksController@workspaceEvents');
 
 Route::post('/pusher-presence', 'WebhooksController@pusherPresenceEvent');
@@ -83,18 +83,22 @@ Route::prefix('/admin')->middleware(['auth:web'])->group(function() {
 
     Route::post('/properties/json', 'PropertiesController@getPropertiesJson')->name('properties.json');
     Route::post('/cities/json', 'CitiesController@getCitiesJson')->name('cities.json');
+    Route::post('/quizzes/json/', 'QuizzesController@getQuizzesJson')->name('quizzes.json');
     Route::post('/customers/autocomplete', 'CustomersController@getCustomerByName')->name('customers.autocomplete');
     Route::post('/customers/customer-by-id', 'CustomersController@getCustomerById')->name('customer-by-id');
     Route::post('/cities/city-by-id', 'CitiesController@getCitiesByStateId')->name('city-by-id');
     Route::post('/property-service/json', 'PropertyServiceController@getServicePropertyJson')->name('service-properties.json');
     Route::post('/dynamic/service', 'DynamicFormController@servicePropertyForm')->name('dynamic-service-form');
+    Route::get('/question-types/json', 'QuestionTypesController@questionTypesJson')->name('question-types.json');
 
     Route::get('/service-first-question/{service_id}', 'ApiController@getServiceFirstQuestion')->name('get-first-service-question');
-    Route::get('/question-by-id/{question_id}', 'ApiController@getQuestion')->name('get-question-by-id');
-    Route::get('/list-answer-types/{question_id}', 'ApiController@getAnswerTypes');
+    Route::get('/question-by-uuid/{question_uuid}', 'ApiController@getQuestion')->name('get-question-by-id');
+    Route::get('/list-answer-types/{question_uuid}', 'ApiController@getAnswerTypes');
+    Route::get('/answer-types', 'ApiController@answerTypes');
+    Route::get('/question-types', 'ApiController@questionTypes');
     Route::get('/list_questions/{except}', 'ApiController@getQuestions');   
     Route::get('/list_questions', 'ApiController@getQuestions');   
-    Route::get('/questions/except/{id}', 'QuestionsController@getQuestionsExcept'); 
+    Route::get('/questions/except/{uuid}', 'QuestionsController@getQuestionsExcept'); 
     Route::get('/questions/except', 'QuestionsController@getQuestionsExcept'); 
     Route::get('/import-phone-numbers', 'PhonesController@importNumbersFromTwilio')->name('import-phone-numbers'); 
     Route::get('/import-twilio-workspaces', 'TwilioWorkspacesController@importWorkspacesFromTwilio')->name('import-twilio-workspaces');
@@ -124,9 +128,16 @@ Route::prefix('/admin')->middleware(['auth:web'])->group(function() {
     Route::resource('/sip_credential', 'SipCredentialsController')->except('show');
     Route::resource('/sip_credential_list_sip_domain', 'SipCredentialListSipDomainsController');
     Route::resource('/question', 'QuestionsController');
+    Route::resource('/quiz', 'QuizzesController')->except('show');
     Route::resource('/missed_call', 'MissedCallsController');
     Route::resource('/twilio_workspace', 'TwilioWorkspacesController')->except('show');
     Route::resource('/twilio_workflow', 'TwilioWorkflowsController')->except(['show', 'create', 'store', 'destroy']);
     Route::resource('/twilio_activity', 'TwilioActivitiesController')->except(['show', 'create', 'store', 'destroy']);
     Route::resource('/twilio_configuration', 'TwilioConfigurationsController')->except(['show', 'create', 'store', 'destroy']);
+
+
+
+    Route::get('/teste', function() {
+        return View('teste');
+    });
 });

@@ -18,7 +18,6 @@
                         'field' => 'category',
                         'label' => 'Category',
                         'required' => true,
-                        'inputSize' => 10
                     ]
                 ]
             ])

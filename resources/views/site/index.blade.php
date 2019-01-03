@@ -7,6 +7,7 @@
         'model' => 'site',
         'tableTitle' => 'Site',
         'displayField' => 'name',
+        'keyField' => 'uuid',
         'actions' => ['edit', 'destroy']
         ]);
     @endcomponent

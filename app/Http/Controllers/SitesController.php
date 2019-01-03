@@ -18,7 +18,6 @@ use App\Http\Controllers\HomeServerController;
 class SitesController extends HomeServerController
 {
     public $fields = [
-        'id' => 'ID',
         'uuid' => 'UUID',
         'name' => 'Name',
         'friendly_name' => 'Phone',
@@ -109,7 +108,7 @@ class SitesController extends HomeServerController
                 
                 DB::beginTransaction();
                 
-                $categories = Category::whereIn('id', $request->categories)->get();
+                $categories = Category::whereIn('uuid', $request->categories)->get();
 
                 $site = new Site($request->all());
                 
@@ -143,14 +142,14 @@ class SitesController extends HomeServerController
         if (Auth::user()->canUpdateSite()) {
             $categories = Category::orderBy('category', 'asc')->get();
             $phones = Phone::whereDoesntHave('site', function($query) use ($site) {
-                $query->where('id', '!=', $site->id);
+                $query->where('uuid', '!=', $site->uuid);
             })->get();
             $states = State::all();
             $cities = City::where('state_id', $site->state_id)->get();
 
             $assigned_categories = array();
             foreach ($site->categories as $category) {
-                $assigned_categories[] = $category->id;
+                $assigned_categories[] = $category->uuid;
             }
 
             return View('site.edit', [
@@ -176,8 +175,9 @@ class SitesController extends HomeServerController
     public function update(Request $request, Site $site)
     {
         if (Auth::user()->canUpdateSite()) {
+            //dd($site);
             $this->validate($request, [
-                'name' => 'string|required|unique:sites,id,'.$site->id,
+                //'name' => 'string|required|unique:sites,uuid,'.$site->uuid,
                 'phone_id' => 'required',
                 'state_id' => 'required',
                 'city_id' => 'required',
@@ -187,7 +187,7 @@ class SitesController extends HomeServerController
                 
                 DB::beginTransaction();
                 
-                $categories = Category::whereIn('id', $request->categories)->get();
+                $categories = Category::whereIn('uuid', $request->categories)->get();
 
                 $site->fill($request->all());
 

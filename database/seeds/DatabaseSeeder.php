@@ -17,11 +17,12 @@ class DatabaseSeeder extends Seeder
             LaratrustSeeder::class,
             AgentStatusesTableSeeder::class,
             PermissionsTableSeeder::class,
-            PropertyTypesTableSeeder::class,
-            CustomersTableSeeder::class,
+            //CustomersTableSeeder::class,
             QuestionTypeTableSeeder::class,
             LanguagesTableSeeder::class,
-            TwilioConfigurationsTableSeeder::class
+            TwilioConfigurationsTableSeeder::class,
+            QuestionTypeTableSeeder::class,
+            AnswerTypeTableSeeder::class,
         ]);
         //$this->call(LaratrustSeeder::class);
         //$this->call(LaratrustSeeder::class);

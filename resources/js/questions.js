@@ -1,14 +1,21 @@
-let crudanswers = require('./components/CrudAnswersComponent.vue');
+import crudanswers from './components/CrudAnswersComponent.vue';
+import store from './questionStore';
 
 const questions = new Vue({
     el: '#questions',
+    store,
     components:{
         crudanswers,
     },
     data() {
         return {
-            questionTypeId: null,
-            questionId: null
+            questionTypeUuid: null,
+            questionUuid: null,
+            quizUuid: null
         }
+    },
+    created() {
+        store.dispatch('getQuestionTypes');
+        store.dispatch('getAnswerTypes'); 
     }
 });

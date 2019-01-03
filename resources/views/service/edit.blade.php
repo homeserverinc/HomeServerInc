@@ -3,7 +3,7 @@
 @section('edit-form')
     @component('components.form', [
         'title' => 'Change Service', 
-        'routeUrl' => route('service.update', $service->id), 
+        'routeUrl' => route('service.update', $service->uuid), 
         'method' => 'PUT',
         'formButtons' => [
             ['type' => 'submit', 'label' => 'Save', 'icon' => 'check'],
@@ -17,22 +17,9 @@
                         'type' => 'text',
                         'field' => 'service_description',
                         'label' => 'Description',
-                        'inputSize' => 6,
                         'required' => true,
                         'inputValue' => $service->service_description
-                    ],
-                    [
-                        'type' => 'select',
-                        'field' => 'category_id',
-                        'label' => 'Category',
-                        'required' => true,
-                        'items' => $categories,
-                        'inputSize' => 6,
-                        'displayField' => 'category',
-                        'keyField' => 'id',
-                        'disabled' => true,
-                        'indexSelected' => $service->category_id
-                    ]                 
+                    ]
                 ]
             ])
             @endcomponent
@@ -40,15 +27,30 @@
                 'inputs' => [
                     [
                         'type' => 'select',
-                        'field' => 'question_id',
-                        'label' => 'First Question',
+                        'field' => 'category_uuid',
+                        'label' => 'Category',
                         'required' => true,
-                        'items' => $questions,
-                        'inputSize' => 12,
-                        'displayField' => 'question',
-                        'keyField' => 'id',
+                        'items' => $categories,
+                        'inputSize' => 6,
+                        'displayField' => 'category',
+                        'keyField' => 'uuid',
                         'defaultNone' => true,
-                        'indexSelected' => $service->question_id
+                        'liveSearch' => true,
+                        'indexSelected' => $service->category_uuid
+                    ],
+                    [
+                        'type' => 'select',
+                        'field' => 'quiz_uuid',
+                        'label' => 'Quiz',
+                        'required' => true,
+                        'items' => $quizzes,
+                        'inputSize' => 6,
+                        'displayField' => 'quiz',
+                        'keyField' => 'uuid',
+                        'defaultNone' => true,
+                        'disabled' => (!$service->category_uuid),
+                        'liveSearch' => true,
+                        'indexSelected' => $service->quiz_uuid
                     ]
                 ]
             ])
@@ -56,3 +58,41 @@
         @endsection
     @endcomponent
 @endsection
+@push('document-ready')
+var doOnSelectCategory = function() {
+    var category = {};
+
+    category.uuid = $('#category_uuid').val();
+    category._token = $('input[name="_token"]').val();
+
+    $.ajax({
+        url: '{{ route("quizzes.json") }}',
+        type: 'POST',
+        data: category,
+        dataType: 'JSON',
+        cache: false,
+        success: function (data) {
+            $("#quiz_uuid")
+                .removeAttr('disabled')
+                .find('option')
+                .remove();
+
+
+            $.each(data, (i, item) => {
+                $('#quiz_uuid').append($('<option>', { 
+                    value: item.uuid,
+                    text : item.quiz 
+                }));
+            });
+
+            @if(old('quiz_uuid'))
+            $('#quiz_uuid').selectpicker('val', {{old('quiz_uuid')}});
+            @endif
+
+            $('.selectpicker').selectpicker('refresh');
+        }
+    });
+}
+
+$('#category_uuid').on('changed.bs.select', doOnSelectCategory);
+@endpush

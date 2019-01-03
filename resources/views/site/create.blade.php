@@ -98,8 +98,8 @@
                         @foreach($categories as $category)
                             <div class="col-sm-1 col-md-3 col-lg-3">
                                 <div class="custom-control custom-checkbox">
-                                    <input type="checkbox" class="custom-control-input category_checkbox" value="{{$category->id}}" name="categories[]" id="category_{{$category->id}}">
-                                    <label class="custom-control-label" for="category_{{$category->id}}">{{$category->category}}</label>
+                                    <input type="checkbox" class="custom-control-input category_checkbox" value="{{$category->uuid}}" name="categories[]" id="category_{{$category->uuid}}">
+                                    <label class="custom-control-label" for="category_{{$category->uuid}}">{{$category->category}}</label>
                                 </div>
                             </div>
                         @endforeach

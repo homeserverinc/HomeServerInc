@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Site;
 use App\Lead;
+use App\Site;
 use App\Service;
-use App\Property;
 use App\Customer;
+use App\Property;
 use App\Question;
 use App\AnswerType;
+use App\QuestionType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -50,18 +51,11 @@ class ApiController extends Controller
         return response()->json($response);
     }
 
-    public function getService($id) {
+    public function getService($uuid) {
         if ($id) {
             $service = Service::with('category')
-                            ->with('question.questionType')
-                            ->with('question.answers')
-                            ->ancestorsAndSelf($id);
-            /* $service = Service::with('category')
-                            ->with('questions.questionType')
-                            ->with('questions.answers')
-                            ->where('services.id', $id)
-                            ->get()
-                            ->toTree(); */
+                            ->with('quiz')
+                            ->where('uuid', $uuid)->first();
             $response = $this->getResponseCode(200);
             $response['data'] = $service;
         } else {
@@ -178,8 +172,8 @@ class ApiController extends Controller
         return response()->json($response);
     }
 
-    public function getQuestionsByServiceId($serviceId) {
-        $questions = Service::with('questions')->with('answers.answer_type')->find($serviceId);
+    public function getQuestionsByServiceUuid($serviceUuid) {
+        $questions = Service::with('questions')->with('answers.answer_type')->where('uuid', $serviceUuid)->first();
 
         $response = $this->getResponseCode(200);
         $response['data'] = $questions;
@@ -187,8 +181,8 @@ class ApiController extends Controller
         return response()->json($response);
     }
 
-    public function getQuestion($questionId) {
-        $question = Question::with('answers.answer_type')->find($questionId);
+    public function getQuestion($questionUuid) {
+        $question = Question::with('answers.answer_type')->where('uuid', $questionUuid)->first();
 
         $response = $this->getResponseCode(200);
         $response['data'] = $question;
@@ -196,9 +190,17 @@ class ApiController extends Controller
         return response()->json($response);
     }
 
-    public function getAnswerTypes($questionTypeId) {
-        $answerTypes = AnswerType::where('question_type_id', $questionTypeId)->get();
+    public function getAnswerTypes($questionTypeUuid) {
+        $answerTypes = AnswerType::where('question_type_uuid', $questionTypeUuid)->get();
 
         return response()->json($answerTypes);
+    }
+
+    public function answerTypes() {
+        return AnswerType::orderBy('answer_type', 'asc')->get()->toJson();
+    }
+
+    public function questionTypes() {
+        return QuestionType::orderBy('question_type', 'asc')->get()->toJson();
     }
 }

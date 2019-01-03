@@ -10,7 +10,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="answer in answers" :key="answer.id">
+                <tr v-for="answer in answers" :key="answer.uuid">
                     <td>{{answer.answer}}</td>
                     <td>{{ answer.answerType }}</td>
                     <td>{{ answer.nextQuestion }}</td>
@@ -22,7 +22,7 @@
                     <td><input type="text" class="form-control" name="" id=""></td>
                     <td>
                         <select ref="inputAnswerType" v-model="currentAnswer.answer_type_id" class="form-control" data-style="btn-secondary" name="inputAnswerType" id="inputAnswerType">
-                            <option v-for="answerType in answerTypes" :key="answerType.id" :value="answerType.id">{{ answerType.answer_type }}</option>
+                            <option v-for="answerType in answerTypes" :key="answerType.uui" :value="answerType.uui">{{ answerType.answer_type }}</option>
                         </select>
                     </td>
                     <td><input type="text" class="form-control" name="" id=""></td>
@@ -38,13 +38,13 @@ export default {
     name:'crudanswers',
     props: [
         'returnedData',
-        'questionTypeId',
+        'questionTypeUuid',
     ],
     data() {
         return {
             answers: [],
             currentAnswer: {
-                'answer_type_id': null
+                'answer_type_uuid': null
             },
             answerTypes: []
         }
@@ -60,7 +60,7 @@ export default {
     mounted() {
         this.answers.push({
             'answer': 'answer',
-            'answerId': '1',
+            'answerUuid': '',
             'answerType': 'type',
             'nextQuestionId': 'next_question_id',
             'nextQuestion': 'next_question'
@@ -69,12 +69,12 @@ export default {
     methods: {
         getAnswerTypes() {
             let self = this;
-            if (this.questionTypeId !== null) {
-                axios.get('/admin/list-answer-types/'+this.questionTypeId) 
+            if (this.questionTypeUuid !== null) {
+                axios.get('/admin/list-answer-types/'+this.questionTypeUuid) 
                     .then(async function(response) {
                         self.answerTypes = response.data;
                         if (self.answerTypes.lenght >= 0) {
-                            self.currentAnswer.answer_type_id = self.answerTypes[0].id;
+                            self.currentAnswer.answer_type_uuid = self.answerTypes[0].uuid;
                         }
                     });
             }

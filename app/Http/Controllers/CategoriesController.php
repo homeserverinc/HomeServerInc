@@ -13,7 +13,7 @@ class CategoriesController extends HomeServerController
 {
 
     public $fields = [
-        'id' => 'ID',
+        'uuid' => 'UUID',
         'category' => 'Category',
     ];
 

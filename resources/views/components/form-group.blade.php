@@ -206,7 +206,7 @@
             @if($input['type'] == 'hidden')
                 @component('components.input-hidden', [
                     'field' => $input['field'],
-                    'value' => $input['inputValue'],
+                    'inputValue' => $input['inputValue'],
                     'id' => $input['id'],
                     'name' => $input['name'],
                     'vModel' => $input['vModel']

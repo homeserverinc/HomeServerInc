@@ -3,7 +3,7 @@
 @section('edit-form')
     @component('components.form', [
         'title' => 'Change Category', 
-        'routeUrl' => route('category.update', $category->id), 
+        'routeUrl' => route('category.update', $category->uuid), 
         'method' => 'PUT',
         'formButtons' => [
             ['type' => 'submit', 'label' => 'Save', 'icon' => 'check'],
@@ -18,7 +18,6 @@
                         'field' => 'category',
                         'label' => 'Category',
                         'required' => true,
-                        'inputSize' => 10,
                         'inputValue' => $category->category
                     ]
                 ]

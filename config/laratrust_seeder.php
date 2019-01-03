@@ -14,6 +14,7 @@ return [
             'question' => 'c,r,u,d',
             'lead' => 'c,r,u,d',
             'site' => 'c,r,u,d',
+            'quiz' => 'c,r,u,d',
             'phone' => 'r,u,d',
             'twilio-configuration' => 'r,u',
             'sip-domain' => 'c,r,u,d',

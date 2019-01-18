@@ -49,6 +49,9 @@ Route::middleware('auth:api')->group(function(){
     /* lead */
     Route::post('/lead', 'LeadsController@apiPostLead');
 
+    /* Site contact */
+    Route::post('/site_contact', 'SiteContactsController@store');
+
     /* Route::get('/service/{id}', 'ApiController@getService');
     Route::get('/services', 'ApiController@getServices');
 

@@ -21,7 +21,7 @@ class CreateSiteContactsTable extends Migration
             $table->string('email');
             $table->text('message');
             $table->enum('contact_type_preference', ['phone', 'email']);
-            $table->enum('contact_time_preference', ['morning', 'afternoon', 'night']);
+            $table->enum('contact_time_preference', ['morning', 'afternoon', 'evening']);
             $table->unsignedInteger('user_id')->nullable();
             $table->boolean('contacted')->default(false);
             $table->timestamp('contact_date')->nullable();

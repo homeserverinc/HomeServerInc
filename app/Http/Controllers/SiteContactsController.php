@@ -3,13 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\SiteContact;
+use App\traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\HomeServerController;
 
 class SiteContactsController extends HomeServerController
 {
+    use ApiResponse;
+
     public $fields = [
         'uuid' => 'UUID',
         'site_name' => 'Site',
@@ -49,22 +53,31 @@ class SiteContactsController extends HomeServerController
      */
     public function store(Request $request)
     {
-        if ($request->all()) {
-            try {
-                
-                DB::beginTransaction();
-                
-                $siteContact = new SiteContact($request->all());
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|min:3',
+            'phone' => 'required',
+            'email' => 'required|email',
+            'message' => 'required'
+        ]);
 
-                $siteContact->save();
-                DB::commit();
+        if ($validator->fails()) {
+            return $this->getApiResponse($validator, 'fail');
+        }
+       
+        try {
+            
+            DB::beginTransaction();
+            
+            $siteContact = new SiteContact($request->all());
 
-                return response()->json($siteContact);
-            } catch (\Exception $e) {
-                
-                DB::rollback();
-                return response()->json($e);
-            }
+            $siteContact->save();
+            DB::commit();
+
+            return response()->json($siteContact);
+        } catch (\Exception $e) {
+            
+            DB::rollback();
+            return response()->json($e);
         }
     }
 

@@ -11,7 +11,7 @@ html,body{
 <div class="container-fluid bg-dark text-white h-100">
     <div class="row align-items-center h-100">
         <div class="col-md-4 mx-auto">
-            <h1 class="display-5" align="center">{{ config('app.name', 'Laravel') }}</h1>    
+            <h1 class="display-5 text-center">{{ config('app.name', 'Laravel') }}</h1>    
             <form method="POST" action="{{ route('login') }}">
                 {{ csrf_field() }}
                 <div class="form-group">
@@ -24,7 +24,7 @@ html,body{
                     @endif
                 </div>
                 <div class="form-group">
-                    <input class="form-control form-control-lg{{ $errors->has('password') ? ' is-invalid' : '' }}" placeholder="Password" id="password" type="password" name="password" value="{{ old('password') }}" required autofocus>
+                    <input class="form-control form-control-lg{{ $errors->has('password') ? ' is-invalid' : '' }}" placeholder="Password" id="password" type="password" name="password" value="{{ old('password') }}" required>
 
                     @if ($errors->has('password'))
                         <span class="invalid-feedback">

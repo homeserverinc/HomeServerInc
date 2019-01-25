@@ -20,6 +20,8 @@ use Illuminate\Http\Request;
 
 
 Route::post('login', 'AuthController@login');
+
+Route::get('/testando/{site}', 'SitesController@apiGetSite');
 /* 
 Route::get('/teste/{id}', 'ApiController@getService');
 

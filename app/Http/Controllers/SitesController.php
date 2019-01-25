@@ -8,6 +8,7 @@ use App\Phone;
 use App\State;
 use App\Service;
 use App\Category;
+use App\traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -17,6 +18,8 @@ use App\Http\Controllers\HomeServerController;
 
 class SitesController extends HomeServerController
 {
+    use ApiResponse;
+
     public $fields = [
         'uuid' => 'UUID',
         'name' => 'Name',
@@ -225,11 +228,16 @@ class SitesController extends HomeServerController
     }
 
     public function apiGetSite($uuid) {
-        return response()->json(Site::with(['city.state', 'phone'])
-                                        ->with(['categories' => function($query) {
-                                            $query->with('services')
-                                                ->whereHas('services');
-                                        }])
-                                        ->where('uuid', $uuid)->first());
+        try {
+            $site = Site::with(['city.state', 'phone'])
+                        ->with(['categories' => function($query) {
+                            $query->with('services')
+                                ->whereHas('services');
+                        }])
+                        ->where('uuid', $uuid)->first();
+            return $this->getApiResponse($site);
+        } catch (\Exception $e) {
+            return $this->getApiResponse($e, 'error');
+        } 
     }
 }

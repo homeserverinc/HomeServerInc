@@ -179,17 +179,21 @@ class ServicesController extends HomeServerController
     }
 
     public function apiGetServicesBySite(Site $site) {
-        $data = Site::with('categories.services')
-            ->where('uuid', $site->uuid)
-            ->first();
-        
-        $result = array();
-        foreach($data->categories as $category) {
-            foreach($category->services as $service) {
-                array_push($result, $service);
+        try {
+            $data = Site::with('categories.services')
+                ->where('uuid', $site->uuid)
+                ->first();
+            
+            $result = array();
+            foreach($data->categories as $category) {
+                foreach($category->services as $service) {
+                    array_push($result, $service);
+                }
             }
-        }
 
-        return response()->json($result);
+            return $this->getApiResponse($result);
+        } catch (\Exception $e) {
+            return $this->getApiResponse($e, 'error');
+        } 
     }
 }

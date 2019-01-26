@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Validator;
 /* API Response trait */
 trait ApiResponse 
 {
-    public function getApiErrorMsg(Object $error) {
+    public function getApiErrorMsg($error) {
         return [ 
             'error' => [
                 'code' => $error->getCode(),
@@ -16,7 +16,7 @@ trait ApiResponse
         ];
     }
 
-    public function getApiResponse(Object $data, $status = 'success') {
+    public function getApiResponse($data, $status = 'success') {
         switch ($status) {
             case 'error':
                 return response()->json([

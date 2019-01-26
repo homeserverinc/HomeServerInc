@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Contractor;
 use App\traits\ApiResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class ContractorsController extends Controller
 {

@@ -61,7 +61,7 @@ class SiteContactsController extends HomeServerController
         ]);
 
         if ($validator->fails()) {
-            return $this->getApiResponse($validator, 'fail');
+            return $this->getApiResponse($validator, 'fail', $request->all());
         }
        
         try {

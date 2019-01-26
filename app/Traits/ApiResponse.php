@@ -16,7 +16,7 @@ trait ApiResponse
         ];
     }
 
-    public function getApiResponse($data, $status = 'success') {
+    public function getApiResponse($data, $status = 'success', Array $old = []) {
         switch ($status) {
             case 'error':
                 return response()->json([
@@ -33,11 +33,12 @@ trait ApiResponse
                         'message' => $message[0]
                     ]);
                 }
-                $errors = [
-                    'errors' => $aux
-                ];
+
                 return response()->json([
-                    'data' => $errors,
+                    'data' => Array(
+                        'errors' => $aux,
+                        'old' => $old
+                    ),
                     'status' => $status
                 ]);
 

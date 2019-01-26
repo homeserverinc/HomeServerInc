@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Contractor;
+use App\traits\ApiResponse;
 use Illuminate\Http\Request;
 
 class ContractorsController extends Controller
 {
+    use ApiResponse;
     /**
      * Display a listing of the resource.
      *
@@ -81,5 +83,33 @@ class ContractorsController extends Controller
     public function destroy(Contractor $contractor)
     {
         //
+    }
+
+    public function apiStore(Contractor $contractor) {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|min:3',
+            'company' => 'required',
+            'email' => 'required|email'
+        ]);
+
+        if ($validator->fails()) {
+            return $this->getApiResponse($validator, 'fail', $request->all());
+        }
+       
+        try {
+            
+            DB::beginTransaction();
+            
+            $contractor = new Contractor($request->all());
+
+            $contractor->save();
+            DB::commit();
+
+            return $this->getApiResponse($contractor);
+        } catch (\Exception $e) {
+            
+            DB::rollback();
+            return $this->getApiResponse($e->getMessage(), 'error', $request->all());
+        }
     }
 }

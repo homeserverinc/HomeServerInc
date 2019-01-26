@@ -6,6 +6,7 @@ use App\Quiz;
 use App\Service;
 use App\Category;
 use App\Question;
+use App\traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -14,6 +15,9 @@ use App\Http\Controllers\HomeServerController;
 
 class QuizzesController extends HomeServerController
 {
+
+    use ApiResponse;
+
     public $fields = [
         'uuid' => 'UUID',
         'quiz' => 'Quiz',
@@ -167,9 +171,15 @@ class QuizzesController extends HomeServerController
     }
 
     public function apiGetQuiz(Service $service) {
-        return response()->json(Quiz::where('uuid', $service->quiz_uuid)
-                        ->with('questions.question_type')
-                        ->with('questions.answers.answer_type')
-                        ->first());
+        try {
+            $quiz = Quiz::where('uuid', $service->quiz_uuid)
+                ->with('questions.question_type')
+                ->with('questions.answers.answer_type')
+                ->first();
+
+            return $this->getApiResponse($quiz);
+        } catch (\Exception $e) {
+            return $this->getApiResponse($e, 'error');
+        }
     }
 }

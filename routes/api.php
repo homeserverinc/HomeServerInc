@@ -54,6 +54,9 @@ Route::middleware('auth:api')->group(function(){
     /* Site contact */
     Route::post('/site_contact', 'SiteContactsController@store');
 
+    /* New contractor request post */
+    Route::post('/contractor', 'ContractorsController@apiStore');
+
     /* Route::get('/service/{id}', 'ApiController@getService');
     Route::get('/services', 'ApiController@getServices');
 

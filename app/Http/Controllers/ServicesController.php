@@ -8,6 +8,7 @@ use App\Service;
 use App\Category;
 use App\Property;
 use App\Question;
+use App\traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -17,6 +18,9 @@ use App\Http\Controllers\HomeServerController;
 
 class ServicesController extends HomeServerController
 {
+
+    use ApiResponse;
+
     public $fields = [
         'uuid' => 'UUID',
         'service_description' => 'Description',

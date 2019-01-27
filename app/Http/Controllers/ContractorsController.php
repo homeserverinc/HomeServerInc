@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Contractor;
 use App\traits\ApiResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class ContractorsController extends Controller
@@ -86,7 +88,7 @@ class ContractorsController extends Controller
         //
     }
 
-    public function apiStore(Contractor $contractor) {
+    public function apiStore(Request $request) {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|min:3',
             'company' => 'required',

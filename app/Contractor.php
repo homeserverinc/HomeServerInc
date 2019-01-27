@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Contractor extends Model
 {
+
+    use Uuidable;
+    
     /**
      * The primary key for the model.
      *

@@ -64,20 +64,13 @@ class SiteContactsController extends HomeServerController
             return $this->getApiResponse($validator, 'fail', $request->all());
         }
        
-        try {
-            
-            DB::beginTransaction();
-            
+        try {            
             $siteContact = new SiteContact($request->all());
 
             $siteContact->save();
-            DB::commit();
-
             return $this->getApiResponse($siteContact);
         } catch (\Exception $e) {
-            
-            DB::rollback();
-            return $this->getApiResponse($e, 'error', $request->all());
+            return $this->getApiResponse($e->getMessage(), 'error', $request->all());
         }
     }
 

@@ -9,8 +9,10 @@ use App\State;
 use App\Contact;
 use App\Service;
 use App\Customer;
+use App\traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Session;
@@ -18,6 +20,9 @@ use App\Http\Controllers\HomeServerController;
 
 class LeadsController extends HomeServerController
 {
+
+    use ApiResponse;
+
     public $fields = [
         'id' => 'ID',
         'service_description' => 'Service',
@@ -214,8 +219,11 @@ class LeadsController extends HomeServerController
         return json_encode($values);
     }
 
-    public function apiPostLead(Request $request) {
-        try {
+    public function apiStore(Request $request) {
+        Log::debug($request->all());
+        $data = $request->all();
+        Log::debug($data['service_uuid']);
+        /* try {
             DB::beginTransaction();
 
             $customer = Customer::firstOrNew([
@@ -228,19 +236,19 @@ class LeadsController extends HomeServerController
             $customer = $this->createRecord($customer, false);
             
             $lead = new Lead($request->all());
-            $lead->user_id = Auth::id();
-            $lead->customer_id = $customer->id;
+            $lead->service_uuid = $request->service;
+            $lead->customer_uuid = $customer->uuid;
 
             $newLead = $this->createRecord($lead, false);
             
             DB::commit();
 
-            return response()->json($newLead);
+            return $this->getApiResponse($newLead);
     
         } catch (\Exception $e) {
             DB::rollback();
 
-            return response()->json($e->getMessage);
-        } 
+            return $this->getApiResponse($e->getMessage(), 'error');
+        }  */
     }
 }

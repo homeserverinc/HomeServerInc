@@ -9,12 +9,36 @@ use Illuminate\Database\Eloquent\Model;
 
 class Lead extends Model
 {
+    use Uuidable;
+
+    /**
+     * The primary key for the model.
+     *
+     * @var string
+     */
+    protected $primaryKey = 'uuid';
+
+    /**
+     * The "type" of the auto-incrementing ID.
+     *
+     * @var string
+     */
+    protected $keyType = 'string';
+
+    /**
+     * Indicates if the IDs are auto-incrementing.
+     *
+     * @var bool
+     */
+    public $incrementing = false;
+    
     public $fillable = [
-        'customer_id',
-        'service_id',
-        'user_id',
-        'service_properties',
-        'description',
+        'customer_uuid',
+        'service_uuid',
+        'deadline',
+        'project_details',
+        'questions',
+        'verified_data',
         'closed'
     ];
 
@@ -24,9 +48,5 @@ class Lead extends Model
 
     public function service() {
         return $this->belongsTo(Service::class);
-    }
-
-    public function user() {
-        return $this->belongsTo(User::class);
     }
 }

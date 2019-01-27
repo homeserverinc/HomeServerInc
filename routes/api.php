@@ -49,7 +49,7 @@ Route::middleware('auth:api')->group(function(){
     Route::get('/question/{question}', 'QuestionsController@apiGetQuestion');
 
     /* lead */
-    Route::post('/lead', 'LeadsController@apiPostLead');
+    Route::post('/lead', 'LeadsController@apiStore');
 
     /* Site contact */
     Route::post('/site_contact', 'SiteContactsController@store');

@@ -73,11 +73,11 @@ class SiteContactsController extends HomeServerController
             $siteContact->save();
             DB::commit();
 
-            return $this->apiGetResponse($siteContact);
+            return $this->getApiResponse($siteContact);
         } catch (\Exception $e) {
             
             DB::rollback();
-            return $this->apiGetResponse($e, 'error', $request->all());
+            return $this->getApiResponse($e, 'error', $request->all());
         }
     }
 

@@ -6,7 +6,8 @@
         'rows' => $leads, 
         'model' => 'lead',
         'tableTitle' => 'Lead',
-        'displayField' => 'name',
+        'displayField' => 'first_name',
+        'keyField' => 'uuid',
         'actions' => ['edit', 'destroy']
         ]);
     @endcomponent

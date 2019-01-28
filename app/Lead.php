@@ -5,6 +5,7 @@ namespace App;
 use App\Site;
 use App\Service;
 use App\Customer;
+use App\Traits\Uuidable;
 use Illuminate\Database\Eloquent\Model;
 
 class Lead extends Model

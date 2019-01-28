@@ -17,4 +17,5 @@ mix.js('resources/js/app.js', 'public/js')
    .js('resources/js/leadQuestionsForm.js', 'public/js')
    .js('resources/js/multiQuestionsForm.js', 'public/js')
    .js('resources/js/configs.js', 'public/js')
+   .js('resources/js/quiz.js', 'public/js')
    .sass('resources/sass/app.scss', 'public/css');

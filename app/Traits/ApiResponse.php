@@ -2,12 +2,14 @@
 
 namespace App\traits;
 
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 /* API Response trait */
 trait ApiResponse 
 {
     public function getApiErrorMsg($error) {
+        Log::debug($error);
         return [ 
             'error' => [
                 'code' => $error->getCode(),

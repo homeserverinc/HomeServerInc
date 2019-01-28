@@ -24,9 +24,9 @@ class LeadsController extends HomeServerController
     use ApiResponse;
 
     public $fields = [
-        'id' => 'ID',
+        'uuid' => 'UUID',
         'service_description' => 'Service',
-        'name' => 'Customer',
+        'first_name' => 'Customer',
         'created_at' => 'Created',
         'closed' => [
             'label' => 'Closed',
@@ -35,7 +35,7 @@ class LeadsController extends HomeServerController
     ];
 
     protected $modelName = 'lead';
-    protected $recordName = 'id';
+    protected $recordName = 'uuid';
 
     /**
      * Display a listing of the resource.
@@ -47,19 +47,19 @@ class LeadsController extends HomeServerController
         if (Auth::user()->canReadLead()) {
             if ($request->searchField) {
                 $leads = DB::table('leads')
-                            ->select('leads.*', 'customers.name', 'services.service_description')
-                            ->join('customers', 'customers.id', 'leads.customer_id')
-                            ->join('services', 'services.id', 'leads.service_id')
-                            ->where('customers.name', 'like', '%'.$request->searchField.'%')
+                            ->select('leads.*', 'customers.first_name', 'services.service_description')
+                            ->join('customers', 'customers.uuid', 'leads.customer_uuid')
+                            ->join('services', 'services.uuid', 'leads.service_uuid')
+                            ->where('customers.first_name', 'like', '%'.$request->searchField.'%')
                             ->orWhere('services.service_description', 'like', '%'.$request->searchField.'%')
-                            ->orderBy('leads.id', 'desc')
+                            ->orderBy('leads.created_at', 'desc')
                             ->paginate();
             } else {
                 $leads = DB::table('leads')
-                            ->select('leads.*', 'customers.name', 'services.service_description')
-                            ->join('customers', 'customers.id', 'leads.customer_id')
-                            ->join('services', 'services.id', 'leads.service_id')
-                            ->orderBy('leads.id', 'desc')
+                            ->select('leads.*', 'customers.first_name', 'services.service_description')
+                            ->join('customers', 'customers.uuid', 'leads.customer_uuid')
+                            ->join('services', 'services.uuid', 'leads.service_uuid')
+                            ->orderBy('leads.created_at', 'desc')
                             ->paginate();
             }
 
@@ -155,14 +155,9 @@ class LeadsController extends HomeServerController
      */
     public function edit(Lead $lead)
     {
-        $lead = Lead::find($lead->id);
-        $states = State::all();
-        $cities = City::where('state_id', $lead->customer->city->state_id)->get();
         $services = Service::all();
 
         return View('lead.edit')->withLead($lead)
-                                ->withStates($states)
-                                ->withCities($cities)
                                 ->withServices($services);
     }
 
@@ -186,7 +181,11 @@ class LeadsController extends HomeServerController
      */
     public function destroy(Lead $lead)
     {
-        //
+        if (Auth::user()->canDeleteLead()) {
+            return $this->deleteRecord($lead);
+        } else {
+            return $this->accessDenied();
+        }
     }
 
     public function createFromContact($id) {
@@ -220,24 +219,32 @@ class LeadsController extends HomeServerController
     }
 
     public function apiStore(Request $request) {
-        Log::debug($request->all());
-        $data = $request->all();
-        Log::debug($data['service_uuid']);
-        /* try {
+        $data = json_decode(json_encode($request->all()));
+        
+        try {
             DB::beginTransaction();
 
             $customer = Customer::firstOrNew([
-                'name' => $request->customer,
-                'email1' => $request->email1
+                'first_name' => $data->customer->first_name,
+                'last_name' => $data->customer->last_name,
+                'email1' => $data->customer->email1
             ]);            
 
-            $customer->fill($request->all());
+            $customer->fill(json_decode(json_encode($data->customer), true));
 
             $customer = $this->createRecord($customer, false);
             
-            $lead = new Lead($request->all());
-            $lead->service_uuid = $request->service;
+            $lead = Lead::firstOrNew([
+                'uuid' => $data->lead_uuid
+            ]);
+
+            $lead->deadline = $data->deadline;
+            $lead->project_details = $data->additionalInfo;
+            $lead->service_uuid = $data->service_uuid;
+            $lead->quiz_uuid = $data->quiz_uuid;
             $lead->customer_uuid = $customer->uuid;
+            $lead->verified_data = ($data->verified_data == 'true');
+            $lead->questions = json_encode($data->questions);
 
             $newLead = $this->createRecord($lead, false);
             
@@ -248,7 +255,7 @@ class LeadsController extends HomeServerController
         } catch (\Exception $e) {
             DB::rollback();
 
-            return $this->getApiResponse($e->getMessage(), 'error');
-        }  */
+            return $this->getApiResponse($e, 'error');
+        } 
     }
 }

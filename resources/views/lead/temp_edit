@@ -1,0 +1,63 @@
+@push('bottom-scripts')
+    <script>
+        function doOnSelectCustomer(data) {
+            var customer = {};
+    
+            customer.uuid = $('#customer_uuid').val();
+            customer._token = $('input[name="_token"]').val();
+    
+            $.ajax({
+                url: '{{ route("customer-by-id") }}',
+                type: 'POST',
+                data: customer,
+                dataType: 'JSON',
+                cache: false,
+                success: function (data) {
+                    $('#address').val(data.address);
+                    $('#email1').val(data.email1);
+                    $('#email2').val(data.email2);
+                    $('#phone1').val(data.phone1);
+                    $('#phone2').val(data.phone2);  
+                    setCityId(data.city_id);
+                }
+            });
+        }  
+        
+    
+        $('document').ready(function() {    
+            $( "#customer" ).autocomplete({
+                source: function(request, response) {
+                    var customer = {};
+                    customer.name = request.term;
+                    customer._token = $('input[name="_token"]').val();
+    
+                    //console.log(customer);
+                    $.ajax({
+                        url: '{{ route("customers.autocomplete") }}',
+                        type: 'POST',
+                        data: customer,
+                        dataType: 'JSON',
+                        cache: false,
+                        success: function (data) {
+                            //console.log(data);
+                            //response(data);
+                            response($.map( data, function(item) {
+                                return {
+                                    value: item.name,
+                                    id: item.id
+                                };
+                            }));
+                        }
+    
+                    });
+                },
+                select: function (event, ui) {
+                    //console.log(ui);
+                    //$("#customer").val(ui.item.label); // display the selected text
+                    $("#customer_id").val(ui.item.id); // save selected id to hidden input
+                    doOnSelectCustomer(ui.item);
+                }   
+            });
+        });
+    </script>
+    @endpush

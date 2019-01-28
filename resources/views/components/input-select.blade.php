@@ -16,13 +16,14 @@
         @endcomponent
     @endif  
     <select ref="{{'ref_'.$name}}" class="form-control selectpicker {{$css}}" {{ ($vModel) ? 'v-model='.$vModel : '' }} data-style="btn-secondary" {{ $liveSearch ? 'data-live-search=true' : '' }} id="{{$id}}" name="{{$name}}" {{ $required ? 'required' : '' }}  {{ $autofocus ? 'autofocus' : '' }} {{ $disabled ? 'disabled="disabled"' : '' }}>
-        @if(isset($items))
+        {{--  @if(isset($items))
+            {{ dd($items) }}  --}}
             @if($defaultNone)
                 <option {{--  disabled  --}} selected value="" {{--  style="display:none"  --}}> {{__('strings.NothingSelected')}} </option>
             @endif
             @if(is_array($items))
                 @foreach($items as $key => $value) 
-                    <option v-bind:value="{{ $key }}" {{($key==$indexSelected) ? 'selected=selected' : ''}}>{{ $value }}</option>
+                    <option {{ ($vModel) ? 'v-bind:' : '' }}value="{{ $key }}" {{($key==$indexSelected) ? 'selected=selected' : ''}}>{{ $value }}</option>
                 @endforeach
                 {{--  @for ($i = 0; $i < count($items); $i++)
                     <option v-bind:value="{{ $i }}" {{($i==$indexSelected) ? 'selected=selected' : ''}}>{{ $items[$i] }}</option>
@@ -36,7 +37,7 @@
                     @endif
                 @endforeach
             @endif
-        @endif
+        {{--  @endif  --}}
     </select>
 
     @if ($errors->has($field))

@@ -1,5 +1,10 @@
 <template>
-    
+    <div class="card">
+        <div class="card-header">Questions</div>
+        <div class="card-body">
+
+        </div>
+    </div>
 </template>
 
 <script>

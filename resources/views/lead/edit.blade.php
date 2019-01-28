@@ -142,53 +142,7 @@
             </div>
             {{--  end customer information  --}}
             {{--  begin lead information  --}}
-            <div class=" card  ">
-                <div class="card-header">
-                    <strong>Lead Information</strong>
-                </div>
-                <div class="card-body"> 
-                    @component('components.form-group', [
-                        'inputs' => [
-                            [
-                                'type' => 'textarea',
-                                'field' => 'project_details',
-                                'label' => 'Project Details',
-                                'inputValue' => $lead->project_details
-                            ]
-                        ]
-                    ])
-                    @endcomponent
-                    @component('components.form-group', [
-                        'inputs' => [
-                            [
-                                'type' => 'select',
-                                'field' => 'deadline',
-                                'label' => 'Deadline',
-                                'items' => [
-                                    'im-flexible' => 'Im flexible', 
-                                    'within-48-hours' => 'Within 48 hours',
-                                    'within-a-week' => 'Within a week',
-                                    'within-a-month' => 'Within a month',
-                                    'within-a-year' => 'Within a year'],
-                                'indexSelected' => $lead->deadline,
-                                'inputSize' => 6
-                            ],
-                            [
-                                'type' => 'select',
-                                'field' => 'service_uuid',
-                                'label' => 'Service',
-                                'items' => $services,
-                                'displayField' => 'service_description',
-                                'keyField' => 'uuid',
-                                'disabled' => true, 
-                                'inputSize' => 6,
-                                'indexSelected' => $lead->service_uuid                            
-                            ]
-                        ]
-                    ])
-                    @endcomponent
-                </div>
-            </div>
+            
             {{--  end lead information  --}}
             {{--  begin quiz  --}}
             <div id="quiz-component">

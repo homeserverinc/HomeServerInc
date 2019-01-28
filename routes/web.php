@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Events\CallEndedEvent;
 use App\Events\CallRingingEvent;
 use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\CallsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,6 +23,11 @@ use Illuminate\Support\Facades\Log;
 Route::get('/', function() {
     return redirect()->route('admin.dashboard');
 });
+
+/* Route::get('/sms', function() {
+    $teste = new CallsController;
+    $teste->sendSMSMessage('+17815580318', '+18572142300', 'funcionou?');
+}); */
 
 Route::get('/incoming', 'CallsController@incoming'); 
 Route::get('/ura', 'CallsController@ura'); 

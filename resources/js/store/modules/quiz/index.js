@@ -6,7 +6,8 @@ const VALID_MUTATIONS = {
 
 const state = {
     service: {},
-    answeredQuestions: []
+    answeredQuestions: [],
+    isEditing: false
 }
 
 const actions = {

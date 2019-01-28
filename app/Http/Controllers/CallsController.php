@@ -61,6 +61,15 @@ class CallsController extends Controller
         return $response;
     }
 
+    public function sendSMSMessage($to, $from,  $message) {
+        return $response = $this->getClient()
+            ->messages
+            ->create($to, [
+                'from' => $from,
+                'body' => $message
+            ]);
+    }
+
     public function getPhoneNumberFromSip($number) {
         $numberTo = explode('@', $number)[0];
         $numberTo = explode(':', $numberTo)[1];

@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\HomeServerController;
+use App\Http\Controllers\SiteContactsController;
 
 class SiteContactsController extends HomeServerController
 {
@@ -68,6 +69,10 @@ class SiteContactsController extends HomeServerController
             $siteContact = new SiteContact($request->all());
 
             $siteContact->save();
+
+            /* send an SMS */
+            (new SiteContactsController)->sendSMSMessage('+17815580318', '+18572142300', 'New contact. link: '.url('/'));
+
             return $this->getApiResponse($siteContact);
         } catch (\Exception $e) {
             return $this->getApiResponse($e->getMessage(), 'error', $request->all());

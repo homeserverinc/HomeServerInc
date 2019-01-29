@@ -11,7 +11,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 class SendNewSiteContactNotification
 {
 
-    use TwimlClientTraitI;
+    use TwimlClientTrait;
 
     /**
      * Create the event listener.

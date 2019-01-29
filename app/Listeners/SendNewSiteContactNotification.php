@@ -35,7 +35,7 @@ class SendNewSiteContactNotification
         $twilio = $this->getClient()
                         ->messages
                         ->create($event->to, [
-                            'from' => $event->site->phone->phone_number,
+                            'from' => $event->contact->site->phone->phone_number,
                             'body' => 'New contact from '.$event->site->name.'.'
                         ]);
     }

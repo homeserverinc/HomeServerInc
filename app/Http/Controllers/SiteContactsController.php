@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\SiteContact;
 use App\traits\ApiResponse;
 use Illuminate\Http\Request;
+use App\Events\NewSiteContact;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
@@ -71,7 +72,7 @@ class SiteContactsController extends HomeServerController
             $siteContact->save();
 
             /* send an SMS */
-            (new SiteContactsController)->sendSMSMessage('+17815580318', '+18572142300', 'New contact. link: '.url('/'));
+            event(new NewSiteContact($siteContact, '+17815580318'));
 
             return $this->getApiResponse($siteContact);
         } catch (\Exception $e) {
@@ -123,4 +124,6 @@ class SiteContactsController extends HomeServerController
     {
         //
     }
+
+
 }

@@ -2,6 +2,7 @@
 
 namespace App\Events;
 
+use App\SiteContact;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Broadcasting\PrivateChannel;
@@ -10,18 +11,22 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
-class NewContractorFormSubmited
+class NewSiteContact
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
+
+    public $contact;
+    public $to;
 
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(SiteContact $contact, String $to)
     {
-        //
+        $this->contact = $contact;
+        $this->to = $to;
     }
 
     /**
@@ -31,6 +36,6 @@ class NewContractorFormSubmited
      */
     public function broadcastOn()
     {
-        return new PrivateChannel('channel-name');
+        //return new PrivateChannel('channel-name');
     }
 }

@@ -26,7 +26,13 @@ class EventServiceProvider extends ServiceProvider
         ],
         'App\Events\WorkerActivityChanged' => [
             'App\Listeners\SendWorkerActivityChangeNotification'
-        ]
+        ],
+        'App\Events\NewSiteContact' =>  [
+            'App\Listeners\SendNewSiteContactNotification'
+        ],
+        'App\Events\NewContractor' =>  [
+            'App\Listeners\SendNewContractorNotification'
+        ],
     ];
 
     /**

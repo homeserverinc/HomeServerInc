@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Site;
 use App\Traits\Uuidable;
 use Illuminate\Database\Eloquent\Model;
 
@@ -39,4 +40,8 @@ class SiteContact extends Model
         'contact_type_preference',
         'contact_time_preference'
     ];
+
+    public function site() {
+        return $this->belongsTo(Site::class);
+    }
 }

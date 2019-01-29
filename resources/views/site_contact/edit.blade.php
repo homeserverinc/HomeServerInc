@@ -53,11 +53,8 @@
                             'label' => 'Contact Type Preference',
                             'inputSize' => 5,
                             'items' => [
-                                'im-flexible' => 'I\'m flexible',
-                                'within-48-hours' => 'Within 48 hours',
-                                'within-a-week' => 'Within a week',
-                                'within-a-month' => 'Within a mouth',
-                                'within-a-year' => 'Within a year'
+                                'email' => 'E-mail',
+                                'phone' => 'Phone'
                             ],
                             'disabled' => true,
                             'indexSelected' => $siteContact->contact_type_preference

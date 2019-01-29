@@ -35,7 +35,7 @@ class SendNewSiteContactNotification
                         ->messages
                         ->create($event->to, [
                             'from' => $event->contact->site->phone->phone_number,
-                            'body' => 'New contact from '.$event->contact->site->name.'.'
+                            'body' => 'New contact from '.$event->contact->site->name.'. '.action('SiteContactsController@edit', ['uuid' => $event->contact->uuid])
                         ]);
     }
 }

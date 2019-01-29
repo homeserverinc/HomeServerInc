@@ -16,6 +16,8 @@ return [
             'site' => 'c,r,u,d',
             'quiz' => 'c,r,u,d',
             'phone' => 'r,u,d',
+            'site-contact' => 'r,u',
+            'contractor' => 'c,r,u,d',
             'twilio-configuration' => 'r,u',
             'sip-domain' => 'c,r,u,d',
             'sip-credential-list' => 'c,r,u,d',

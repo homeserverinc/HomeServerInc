@@ -31,7 +31,6 @@ class SendNewSiteContactNotification
      */
     public function handle(NewSiteContact $event)
     {
-        Log::debug('Handle NewSiteContact Event');
         $twilio = $this->getClient()
                         ->messages
                         ->create($event->to, [

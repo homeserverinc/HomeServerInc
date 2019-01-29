@@ -36,7 +36,7 @@ class SendNewSiteContactNotification
                         ->messages
                         ->create($event->to, [
                             'from' => $event->contact->site->phone->phone_number,
-                            'body' => 'New contact from '.$event->site->name.'.'
+                            'body' => 'New contact from '.$event->contact->site->name.'.'
                         ]);
     }
 }

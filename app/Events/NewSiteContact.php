@@ -3,6 +3,7 @@
 namespace App\Events;
 
 use App\SiteContact;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Broadcasting\PrivateChannel;
@@ -27,6 +28,7 @@ class NewSiteContact
     {
         $this->contact = $contact;
         $this->to = $to;
+        Log::debug('NewSiteContact cronstructor');
     }
 
     /**

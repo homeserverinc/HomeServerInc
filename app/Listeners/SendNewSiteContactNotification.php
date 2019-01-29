@@ -4,6 +4,7 @@ namespace App\Listeners;
 
 use App\Events\NewSiteContact;
 use App\Traits\TwimlClientTrait;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
@@ -30,6 +31,8 @@ class SendNewSiteContactNotification
      */
     public function handle(NewSiteContact $event)
     {
+        Log::debug('Handle NewSiteContact Event');
+        Log::debug('Payload'.$event);
         $twilio = $this->getClient()
                         ->messages
                         ->create($event->to, [

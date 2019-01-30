@@ -53,7 +53,7 @@ class QuestionsController extends HomeServerController
             /* dd($questions); */
             return View('question.index')
                         ->withFields($this->fields)
-                        ->withQuestions($questions)
+                        ->withQuestions($questions->appends(Input::except('page')))
                         ->withQuizzes(Quiz::orderBy('quiz', 'asc')->get());
         } else {
             $this->accessDenied();

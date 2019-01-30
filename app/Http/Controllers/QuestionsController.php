@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Session;
 use App\Http\Controllers\HomeServerController;
 
@@ -51,10 +52,11 @@ class QuestionsController extends HomeServerController
                                         ->paginate();
             }
             /* dd($questions); */
-            return View('question.index')
-                        ->withFields($this->fields)
-                        ->withQuestions($questions->appends(Input::except('page')))
-                        ->withQuizzes(Quiz::orderBy('quiz', 'asc')->get());
+            return View('question.index', [
+                'fields' => $this->fields,
+                'questions' => $questions->appends(Input::except('page')),
+                'quizzes' => Quiz::orderBy('quiz', 'asc')->get()
+            ]);
         } else {
             $this->accessDenied();
         }

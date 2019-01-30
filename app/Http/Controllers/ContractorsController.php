@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Contractor;
 use App\traits\ApiResponse;
 use Illuminate\Http\Request;
+use App\Events\NewContractor;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;

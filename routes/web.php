@@ -137,6 +137,7 @@ Route::prefix('/admin')->middleware(['auth:web'])->group(function() {
     Route::resource('/quiz', 'QuizzesController')->except('show');
     Route::resource('/missed_call', 'MissedCallsController');
     Route::resource('/site_contact', 'SiteContactsController')->except('show', 'create', 'destroy');
+    Route::resource('/contractor', 'ContractorsController')->except('show');
     Route::resource('/twilio_workspace', 'TwilioWorkspacesController')->except('show');
     Route::resource('/twilio_workflow', 'TwilioWorkflowsController')->except(['show', 'create', 'store', 'destroy']);
     Route::resource('/twilio_activity', 'TwilioActivitiesController')->except(['show', 'create', 'store', 'destroy']);

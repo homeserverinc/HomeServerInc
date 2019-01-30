@@ -26,6 +26,11 @@ class SendNewContractorNotification
      */
     public function handle(NewContractor $event)
     {
-        //
+        $twilio = $this->getClient()
+                    ->messages
+                    ->create($event->to, [
+                        'from' => $event->contractor->site->phone->phone_number,
+                        'body' => 'New contractor from '.$event->contractor->site->name.'. '.action('ContractorsController@edit', ['uuid' => $event->contractor->uuid])
+                    ]);
     }
 }

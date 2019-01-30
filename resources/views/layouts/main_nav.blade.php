@@ -53,6 +53,7 @@
                     <a class="dropdown-item" href="{{ route('site.index') }}">Sites</a>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item" href="{{ route('site_contact.index') }}">Contacts</a>
+                    <a class="dropdown-item" href="{{ route('contractor.index') }}">Contractors</a>
                     {{--  <a class="dropdown-item" href="#">Another action</a>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item" href="#">Something else here</a>  --}}

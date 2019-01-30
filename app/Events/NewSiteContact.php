@@ -28,7 +28,6 @@ class NewSiteContact
     {
         $this->contact = $contact;
         $this->to = $to;
-        Log::debug('NewSiteContact cronstructor');
     }
 
     /**

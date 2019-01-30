@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Site;
 use App\Traits\Uuidable;
 use Illuminate\Database\Eloquent\Model;
 
@@ -36,6 +37,11 @@ class Contractor extends Model
         'company', 
         'address', 
         'phone', 
-        'email'
+        'email',
+        'site_uuid'
     ];
+
+    public function site() {
+        return $this->belongsTo(Site::class);
+    }
 }

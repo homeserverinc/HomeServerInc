@@ -7,11 +7,23 @@ use App\traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use App\Http\Controllers\HomeServerController;
 
-class ContractorsController extends Controller
+class ContractorsController extends HomeServerController
 {
     use ApiResponse;
+
+    public $fields = [
+        'uuid' => 'UUID',
+        'name' => 'Name',
+        'company' => 'Company',
+        'created_at' => 'Created',
+    ];
+
+    public $modelName = 'contractor';
+    public $recordName = 'name';
     /**
      * Display a listing of the resource.
      *
@@ -19,7 +31,24 @@ class ContractorsController extends Controller
      */
     public function index(Request $request)
     {
-        
+        if (Auth::user()->canReadContractor()) {
+            if ($request->searchField) {
+                $contractors = Contractor::where('name', 'like', '%'.$request->searchField.'%')
+                    ->orWhere('company', 'like', '%'.$request->searchField.'%')
+                    ->orderBy('created_at', 'desc')
+                    ->paginate();
+            } else {
+                $contractors = Contractor::orderBy('created_at', 'desc')
+                    ->paginate();
+            }
+        } else {
+            return $this->accessDenied();
+        }
+
+        return View('contractor.index', [
+            'fields' => $this->fields,
+            'contractors' => $contractors
+        ]);
     }
 
     /**
@@ -107,6 +136,9 @@ class ContractorsController extends Controller
 
             $contractor->save();
             DB::commit();
+
+            /* send an SMS */
+            event(new NewContractor($contractor, env('SMS_TO_NUMBER')));
 
             return $this->getApiResponse($contractor);
         } catch (\Exception $e) {

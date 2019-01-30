@@ -21,11 +21,12 @@ class SiteContactsController extends HomeServerController
         'uuid' => 'UUID',
         'site_name' => 'Site',
         'name' => 'Name',
+        'created_at' => 'Date',
         'contacted' => [
             'label' => 'Contacted',
             'type' => 'bool'
         ],
-        'contact_date' => 'Date'
+        'contact_date' => 'Date contacted'
     ];
 
     public $modelName = 'site_contact';
@@ -88,7 +89,7 @@ class SiteContactsController extends HomeServerController
             $siteContact->save();
 
             /* send an SMS */
-            event(new NewSiteContact($siteContact, '+17815580318'));
+            event(new NewSiteContact($siteContact, env('SMS_TO_NUMBER')));
 
             return $this->getApiResponse($siteContact);
         } catch (\Exception $e) {
@@ -124,17 +125,4 @@ class SiteContactsController extends HomeServerController
     {
         //
     }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\SiteContact  $siteContact
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(SiteContact $siteContact)
-    {
-        //
-    }
-
-
 }

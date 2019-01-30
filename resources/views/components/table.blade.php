@@ -12,44 +12,51 @@
 @endphp
 <div class="card card-primary">
     <div class="card-header">
-                <div class="row">
-                    <div class="col">
-                        <h3>{{__(isset($tableTitle) ? $tableTitle : 'tableTitle not informed...') }}</h3>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col">
-                        <form id="searchForm" class="form" method="GET" action="{{ route($model.'.index') }}">
-                            {{ csrf_field() }}
-                        <div class="form-group">
-                            <div class="input-group">
-                                <input type="text" class="form-control" id="searchField" name="searchField" placeholder="{{__('strings.TypeToSearch')}}" value="{{isset($_GET['searchField']) ? $_GET['searchField'] : ''}}">
-                                <span class="input-group-append" data-toggle="tooltip" data-placement="top" title="{{__('strings.Search')}}" data-original-title="{{__('Search')}}">
-                                    <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i></span></button>
-                                </span>
-                            </div>
+        <div class="row">
+            <div class="col">
+                <h3>{{__(isset($tableTitle) ? $tableTitle : 'tableTitle not informed...') }}</h3>
+            </div>
+        </div>
+        <form id="searchForm" class="form" method="GET" action="{{ route($model.'.index') }}">
+            {{ csrf_field() }}
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="searchField" name="searchField" placeholder="{{__('strings.TypeToSearch')}}" value="{{isset($_GET['searchField']) ? $_GET['searchField'] : ''}}">
+                            <span class="input-group-append" data-toggle="tooltip" data-placement="top" title="{{__('strings.Search')}}" data-original-title="{{__('Search')}}">
+                                <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i></span></button>
+                            </span>
                         </div>
                     </div>
-                    
-                    <div class="col-auto">
-                        @permission('create-'.str_replace('_', '-', $model))
-                        @if(route::has($model.'.create'))
-                        <a href="{{ route($model.'.create') }}" class="btn   btn-success" data-toggle="tooltip" data-placement="top" title="{{__('strings.New')}}" data-original-title="{{__('New')}}">
-                            <i class="fas fa-plus"></i>
-                        </a>
-                        @endif
-                        @endpermission
-                        @foreach($customMethods as $customMethod) 
-                            @component($customMethod['component'])
-                            @endcomponent
-                        @endforeach
-                    </div>
-                    @if(isset($searchParms))
+                </div>
+                
+                <div class="col-auto">
+                    @permission('create-'.str_replace('_', '-', $model))
+                    @if(route::has($model.'.create'))
+                    <a href="{{ route($model.'.create') }}" class="btn   btn-success" data-toggle="tooltip" data-placement="top" title="{{__('strings.New')}}" data-original-title="{{__('New')}}">
+                        <i class="fas fa-plus"></i>
+                    </a>
+                    @endif
+                    @endpermission
+                    @foreach($customMethods as $customMethod) 
+                        @component($customMethod['component'])
+                        @endcomponent
+                    @endforeach
+                </div>
+            </div>
+            <div class="row">
+                @if(isset($searchParms))
+                    @if (is_array($searchParms)) 
+                        @component($searchParms['view'], ['data' => $searchParms['data']])
+                        @endcomponent
+                    @else 
                         @component($searchParms)
                         @endcomponent
                     @endif
-                    </form>
-                </div>
+                @endif                        
+            </div>
+        </form>
     </div>
         <table class="table table-sm table-bordered table-striped table-hover" style="margin: 0px">
             <thead class="thead-light">

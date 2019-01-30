@@ -33,22 +33,28 @@ class QuestionsController extends HomeServerController
     public function index(Request $request) 
     {
         if (Auth::user()->canReadQuestion()) {
+            /* filter questions by quiz */            
+            $whereQuiz = ($request->quiz_uuid) ? 'questions.quiz_uuid = "'.$request->quiz_uuid.'"' : '1 = 1'; 
+
             if ($request->searchField) {
                 $questions = Question::select('questions.*', 'question_types.question_type')
                                         ->join('question_types', 'question_types.uuid', 'questions.question_type_uuid')
                                         ->where('questions.question', 'like', '%'.$request->searchField.'%')
+                                        ->whereRaw($whereQuiz)
                                         ->orderBy('created_at', 'desc')
                                         ->paginate();
             } else {
                 $questions = Question::select('questions.*', 'question_types.question_type')
                                         ->join('question_types', 'question_types.uuid', 'questions.question_type_uuid')
+                                        ->whereRaw($whereQuiz)
                                         ->orderBy('created_at', 'desc')
                                         ->paginate();
             }
             /* dd($questions); */
             return View('question.index')
                         ->withFields($this->fields)
-                        ->withQuestions($questions);
+                        ->withQuestions($questions)
+                        ->withQuizzes(Quiz::orderBy('quiz', 'asc')->get());
         } else {
             $this->accessDenied();
         }
@@ -61,7 +67,7 @@ class QuestionsController extends HomeServerController
      */
     public function create()
     {  
-        if (Auth::user()->canCreateQuestion()) {
+        if (Auth::user()->canCreateQuestion()) {            
             $questionTypes = QuestionType::all();
             $questions = Question::all();
             $quizzes = Quiz::all();

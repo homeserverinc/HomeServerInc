@@ -133,7 +133,7 @@ Route::prefix('/admin')->middleware(['auth:web'])->group(function() {
     Route::resource('/sip_credential_list', 'SipCredentialListsController')->except('show');
     Route::resource('/sip_credential', 'SipCredentialsController')->except('show');
     Route::resource('/sip_credential_list_sip_domain', 'SipCredentialListSipDomainsController');
-    Route::resource('/question', 'QuestionsController');
+    Route::resource('/question', 'QuestionsController')->except('show');
     Route::resource('/quiz', 'QuizzesController')->except('show');
     Route::resource('/missed_call', 'MissedCallsController');
     Route::resource('/site_contact', 'SiteContactsController')->except('show', 'create', 'destroy');
@@ -142,7 +142,6 @@ Route::prefix('/admin')->middleware(['auth:web'])->group(function() {
     Route::resource('/twilio_workflow', 'TwilioWorkflowsController')->except(['show', 'create', 'store', 'destroy']);
     Route::resource('/twilio_activity', 'TwilioActivitiesController')->except(['show', 'create', 'store', 'destroy']);
     Route::resource('/twilio_configuration', 'TwilioConfigurationsController')->except(['show', 'create', 'store', 'destroy']);
-
 
 
     Route::get('/teste', function() {

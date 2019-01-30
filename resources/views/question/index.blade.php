@@ -8,7 +8,11 @@
         'tableTitle' => 'Question',
         'displayField' => 'question',
         'keyField' => 'uuid',
-        'actions' => ['edit', 'destroy']
+        'actions' => ['edit', 'destroy'],
+        'searchParms' => [
+                'view' => 'question.search_questions',
+                'data' => $quizzes
+            ]
         ]);
     @endcomponent
 @endsection

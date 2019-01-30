@@ -1,9 +1,6 @@
 @extends('layouts.app')
 
 @section('content-no-app')
-@if(old('answers'))
-    {{--  {{json_encode(old('answers'))}}  --}}
-@endif
 <div id="questions">
     <div class="panel panel-default">
         @component('components.form', [

@@ -191,7 +191,7 @@ class ApiController extends Controller
     }
 
     public function getAnswerTypes($questionTypeUuid) {
-        $answerTypes = AnswerType::where('question_type_uuid', $questionTypeUuid)->get();
+        $answerTypes = AnswerType::where('question_type_uuid', $questionTypeUuid)->orderBy('answer_type', 'asc')->get();
 
         return response()->json($answerTypes);
     }

@@ -70,6 +70,7 @@
                 </div>
             </div>
         </b-modal>
+        <div id="scroll-end"></div>
     </div>
 </template>
 
@@ -127,6 +128,7 @@ export default {
     created() {
         this.registerStoreModule("questionsModule", questionsModule);
         this.$store.dispatch("questionsModule/getQuizzes");
+        console.log(this);
     },
     computed: {
         questions() {

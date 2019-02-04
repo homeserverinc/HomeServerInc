@@ -43,10 +43,10 @@
                         <a class="dropdown-item" href="#" @click="editQuestion">
                             <i class="fas fa-edit"></i> Edit Question
                         </a>
-                        <a class="dropdown-item" href="#" @click="showDeleteQuestionModal">
+                        <a class="dropdown-item" href="#" @click.prevent="showDeleteQuestionModal">
                             <i class="fas fa-trash-alt"></i> Remove Question
                         </a>
-                        <a class="dropdown-item" href="#" @click="addNewAnswer">
+                        <a class="dropdown-item" href="#" @click.prevent="addNewAnswer">
                             <i class="fas fa-list"></i> New Answer
                         </a>
                         <a
@@ -60,7 +60,7 @@
                             class="dropdown-item"
                             href="#"
                             v-if="!isSingleChoiceQuestion && !hasNextQuestion"
-                            @click="showLinkQuestionModal"
+                            @click.prevent="showLinkQuestionModal"
                         >
                             <i class="fas fa-link"></i> Link existing question
                         </a>
@@ -276,6 +276,7 @@ export default {
             this.$store.commit("questionsModule/ADD_ANSWER", this.newAnswer);
             this.newAnswer = this.closeAddNewAnswer();
             this.newAnswer = resetNewAnswer();
+            this.$scrollTo('#uuid-'+this.question.uuid);
         },
         editQuestion() {
             this.currentQuestion = {

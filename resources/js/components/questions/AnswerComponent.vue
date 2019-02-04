@@ -35,7 +35,7 @@
                         class="dropdown-item"
                         href="#"
                         v-if="isSingleChoiceAnswer && !hasNextQuestion"
-                        v-scroll-to="'#uuid-'+answer.next_question_uuid"
+                        @click.prevent="showNewQuestionModal"
                     >
                         <i class="fas fa-question"></i> New Question
                     </a>
@@ -43,7 +43,7 @@
                         class="dropdown-item"
                         href="#"
                         v-if="isSingleChoiceAnswer && !hasNextQuestion"
-                        @click="showLinkQuestionModal"
+                        @click.prevent="showLinkQuestionModal"
                     >
                         <i class="fas fa-link"></i> Link existing question
                     </a>
@@ -150,6 +150,47 @@
                 </div>
             </div>
         </b-modal>
+        <b-modal ref="newQuestionModalRef" size="lg" title="New Question">
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-3">
+                        <label for="question_type">Question Type</label>
+                        <select
+                            name="question_type"
+                            id="question_type"
+                            class="form-control"
+                            v-model="newQuestion.question_type_uuid"
+                        >
+                            <option
+                                v-for="question_type in question_types"
+                                :key="question_type.uuid"
+                                :value="question_type.uuid"
+                            >{{question_type.description}}</option>
+                        </select>
+                    </div>
+                    <div class="col-9">
+                        <label for="question">Question</label>
+                        <input
+                            type="text"
+                            name="question"
+                            id="question"
+                            class="form-control"
+                            v-model="newQuestion.question"
+                        >
+                    </div>
+                </div>
+            </div>
+            <div slot="modal-footer" class="w-100">
+                <div class="float-right">
+                    <button class="btn btn-success" @click="doOnAddNewQuestion">
+                        <i class="fas fa-check"></i>
+                    </button>
+                    <button class="btn btn-danger" @click="closeNewQuestionModal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+        </b-modal>
     </div>
 </template>
 
@@ -157,15 +198,29 @@
 <script>
 import bModal from "bootstrap-vue/es/components/modal/modal";
 import bModalDirective from "bootstrap-vue/es/directives/modal/modal";
+import uuid from "uuid";
 
-const resetEditAnswer = {
-    answer_order: 0,
-    uuid: "",
-    question_uuid: "",
-    answer_type_uuid: "",
-    answer: "",
-    next_question_uuid: ""
-};
+function resetEditAnswer() {
+    return {
+        answer_order: 0,
+        uuid: "",
+        question_uuid: "",
+        answer_type_uuid: "",
+        answer: "",
+        next_question_uuid: ""
+    };
+}
+
+function resetNewQuestion() {
+    return {
+        uuid: "",
+        question_type_uuid: "",
+        question: "",
+        next_question_uuid: "",
+        quiz_uuid: "",
+        answers: []
+    };
+}
 
 export default {
     data() {
@@ -177,6 +232,14 @@ export default {
                 answer_type_uuid: "",
                 answer: "",
                 next_question_uuid: ""
+            },
+            newQuestion: {
+                uuid: "",
+                question_type_uuid: "",
+                question: "",
+                next_question_uuid: "",
+                quiz_uuid: "",
+                answers: []
             },
             nextQuestionUuid: ""
         };
@@ -226,6 +289,27 @@ export default {
                 this.answer.uuid
             );
         },
+        showNewQuestionModal() {
+            this.$refs.newQuestionModalRef.show();
+        },
+        closeNewQuestionModal() {
+            this.newQuestion = resetNewQuestion();
+            this.$refs.newQuestionModalRef.hide();
+        },
+        doOnAddNewQuestion() {
+            
+            this.newQuestion.uuid = uuid();
+            this.$store.commit(
+                "questionsModule/ADD_QUESTION",
+                this.newQuestion
+            );
+            this.$store.commit("questionsModule/LINK_QUESTION", {
+                uuid: this.answer.uuid,
+                link: this.newQuestion.uuid
+            });
+            this.closeNewQuestionModal();
+            this.$scrollTo('#scroll-end');
+        }
     },
     computed: {
         answer_types() {
@@ -252,8 +336,13 @@ export default {
             }
         },
         otherQuestions() {
-            return this.$store.getters["questionsModule/getOtherQuestions"](this.answer.question_uuid);
-        }
+            return this.$store.getters["questionsModule/getOtherQuestions"](
+                this.answer.question_uuid
+            );
+        },
+        question_types() {
+            return this.$store.getters["questionsModule/questionTypes"];
+        },
     }
 };
 </script>

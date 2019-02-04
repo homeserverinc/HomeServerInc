@@ -30,10 +30,8 @@ const mutations = {
     }
 }
 
-const namespaced = true;
-
 export default {    
-    namespaced,
+    namespaced: true,
     state,
     getters,
     actions,

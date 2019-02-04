@@ -182,4 +182,8 @@ class QuizzesController extends HomeServerController
             return $this->getApiResponse($e, 'error');
         }
     }
+
+    public function getQuizzes() {
+        return response()->json(Quiz::all());
+    }
 }

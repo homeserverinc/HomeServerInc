@@ -40,13 +40,13 @@ class Question extends Model
         'question_type_uuid',
         'quiz_uuid',
         'next_question_uuid',
+        'question_type_uuid',
         'selected_answers'
     ];
 
     protected $hidden = [    
         'created_at',
         'updated_at',
-        'question_type_uuid',
         'quiz_uuid'
     ];
 

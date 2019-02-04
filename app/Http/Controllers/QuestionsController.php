@@ -277,4 +277,8 @@ class QuestionsController extends HomeServerController
                                             ->with('answers.answer_type')            
                                             ->where('uuid', $question->uuid)->first());
     }
+
+    public function getQuestionsFromQuiz($quiz_uuid) {
+        return response()->json(Question::with('answers')->where('quiz_uuid', $quiz_uuid)->get());
+    }
 }

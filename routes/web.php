@@ -110,6 +110,8 @@ Route::prefix('/admin')->middleware(['auth:web'])->group(function() {
     Route::get('/import-twilio-workspaces', 'TwilioWorkspacesController@importWorkspacesFromTwilio')->name('import-twilio-workspaces');
     Route::get('/import-twilio-workflows', 'TwilioWorkflowsController@importWorkflowsFromTwilio')->name('import-twilio-workflows');
     Route::get('/import-twilio-activities', 'TwilioActivitiesController@importActivitiesFromTwilio')->name('import-twilio-activities');
+    Route::get('/quizzes/json', 'QuizzesController@getQuizzes');
+    Route::get('/quiz/{quiz_uuid}/questions', 'QuestionsController@getQuestionsFromQuiz');
     Route::post('/update-worker-activity', 'TwilioWorkersController@updateTwilioActivity')->name('update-worker-activity');
     Route::post('/get-current-worker-activity', 'TwilioWorkersController@getCurrentTwilioActivity')->name('get-current-worker-activity');
 

@@ -2756,6 +2756,10 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
 
 
 
@@ -2774,7 +2778,7 @@ function resetEditAnswer() {
 function resetNewQuestion() {
   return {
     uuid: "",
-    question_type_uuid: "",
+    question_type_uuid: "4cd9927e-717a-4726-b5e6-e6532201dfad",
     question: "",
     next_question_uuid: "",
     quiz_uuid: "",
@@ -2795,7 +2799,7 @@ function resetNewQuestion() {
       },
       newQuestion: {
         uuid: "",
-        question_type_uuid: "",
+        question_type_uuid: "4cd9927e-717a-4726-b5e6-e6532201dfad",
         question: "",
         next_question_uuid: "",
         quiz_uuid: "",
@@ -3004,7 +3008,7 @@ __webpack_require__.r(__webpack_exports__);
 function resetNewQuestion() {
   return {
     uuid: "",
-    question_type_uuid: "",
+    question_type_uuid: "4cd9927e-717a-4726-b5e6-e6532201dfad",
     question: "",
     next_question_uuid: "",
     quiz_uuid: "",
@@ -3017,7 +3021,7 @@ function resetNewQuestion() {
     return {
       newQuestion: {
         uuid: "",
-        question_type_uuid: "",
+        question_type_uuid: "4cd9927e-717a-4726-b5e6-e6532201dfad",
         question: "",
         next_question_uuid: "",
         quiz_uuid: "",
@@ -3302,6 +3306,48 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -3313,7 +3359,7 @@ function resetNewAnswer() {
   return {
     uuid: "",
     answer_order: 0,
-    answer_type_uuid: "",
+    answer_type_uuid: "a65f6762-924e-4025-bcc7-a188976dddf0",
     question_uuid: "",
     next_question_uuid: "",
     answer: ""
@@ -3324,7 +3370,18 @@ function resetQuestion() {
   return {
     uuid: "",
     question: "",
-    question_type: ""
+    question_type: "4cd9927e-717a-4726-b5e6-e6532201dfad"
+  };
+}
+
+function resetNewQuestion() {
+  return {
+    uuid: "",
+    question_type_uuid: "4cd9927e-717a-4726-b5e6-e6532201dfad",
+    question: "",
+    next_question_uuid: "",
+    quiz_uuid: "",
+    answers: []
   };
 }
 
@@ -3334,7 +3391,7 @@ function resetQuestion() {
       newAnswer: {
         uuid: "",
         answer_order: 0,
-        answer_type_uuid: "",
+        answer_type_uuid: "a65f6762-924e-4025-bcc7-a188976dddf0",
         question_uuid: "",
         next_question_uuid: "",
         answer: ""
@@ -3342,7 +3399,15 @@ function resetQuestion() {
       currentQuestion: {
         uuid: "",
         question: "",
-        question_type: ""
+        question_type: "4cd9927e-717a-4726-b5e6-e6532201dfad"
+      },
+      newQuestion: {
+        uuid: "",
+        question_type_uuid: "4cd9927e-717a-4726-b5e6-e6532201dfad",
+        question: "",
+        next_question_uuid: "",
+        quiz_uuid: "",
+        answers: []
       },
       nextQuestionUuid: ""
     };
@@ -3359,6 +3424,12 @@ function resetQuestion() {
   },
   methods: {
     addNewAnswer: function addNewAnswer() {
+      if (this.isSingleChoiceQuestion) {
+        this.newAnswer.answer_type_uuid = "a65f6762-924e-4025-bcc7-a188976dddf0";
+      } else {
+        this.newAnswer.answer_type_uuid = "dd0841bc-73fa-423c-99dc-e2f56a476b0b";
+      }
+
       this.$refs.addNewAnswerRef.show();
     },
     cancelAddNewAnswer: function cancelAddNewAnswer() {
@@ -3374,7 +3445,7 @@ function resetQuestion() {
       this.$store.commit("questionsModule/ADD_ANSWER", this.newAnswer);
       this.newAnswer = this.closeAddNewAnswer();
       this.newAnswer = resetNewAnswer();
-      this.$scrollTo('#uuid-' + this.question.uuid);
+      this.$scrollTo("#uuid-" + this.question.uuid);
     },
     editQuestion: function editQuestion() {
       var _this = this;
@@ -3422,6 +3493,23 @@ function resetQuestion() {
         link: this.nextQuestionUuid
       });
       this.closeLinkQuestionModal();
+    },
+    showNewQuestionModal: function showNewQuestionModal() {
+      this.$refs.newQuestionModalRef.show();
+    },
+    closeNewQuestionModal: function closeNewQuestionModal() {
+      this.newQuestion = resetNewQuestion();
+      this.$refs.newQuestionModalRef.hide();
+    },
+    doOnAddNewQuestion: function doOnAddNewQuestion() {
+      this.newQuestion.uuid = uuid__WEBPACK_IMPORTED_MODULE_5___default()();
+      this.$store.commit("questionsModule/ADD_QUESTION", this.newQuestion);
+      this.$store.commit("questionsModule/LINK_QUESTION", {
+        uuid: this.question.uuid,
+        link: this.newQuestion.uuid
+      });
+      this.closeNewQuestionModal();
+      this.$scrollTo("#scroll-end");
     }
   },
   computed: {
@@ -3452,6 +3540,9 @@ function resetQuestion() {
     },
     otherQuestions: function otherQuestions() {
       return this.$store.getters["questionsModule/getOtherQuestions"](this.question.uuid);
+    },
+    question_types: function question_types() {
+      return this.$store.getters["questionsModule/questionTypes"];
     }
   }
 });
@@ -7154,9 +7245,41 @@ var render = function() {
               attrs: { "aria-labelledby": "dropdownMenuButton" }
             },
             [
-              _vm._m(1),
+              _c(
+                "a",
+                {
+                  staticClass: "dropdown-item",
+                  attrs: { href: "#" },
+                  on: {
+                    click: function($event) {
+                      $event.preventDefault()
+                      return _vm.showEditAnswer($event)
+                    }
+                  }
+                },
+                [
+                  _c("i", { staticClass: "fas fa-edit" }),
+                  _vm._v(" Edit Answer\n                ")
+                ]
+              ),
               _vm._v(" "),
-              _vm._m(2),
+              _c(
+                "a",
+                {
+                  staticClass: "dropdown-item",
+                  attrs: { href: "#" },
+                  on: {
+                    click: function($event) {
+                      $event.preventDefault()
+                      return _vm.confirmDelAnswer($event)
+                    }
+                  }
+                },
+                [
+                  _c("i", { staticClass: "fas fa-trash-alt" }),
+                  _vm._v(" Remove Answer\n                ")
+                ]
+              ),
               _vm._v(" "),
               _vm.isSingleChoiceAnswer && !_vm.hasNextQuestion
                 ? _c(
@@ -7632,24 +7755,6 @@ var staticRenderFns = [
       },
       [_c("i", { staticClass: "fas fa-plus" })]
     )
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("a", { staticClass: "dropdown-item", attrs: { href: "#" } }, [
-      _c("i", { staticClass: "fas fa-edit" }),
-      _vm._v(" Edit Answer\n                ")
-    ])
-  },
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("a", { staticClass: "dropdown-item", attrs: { href: "#" } }, [
-      _c("i", { staticClass: "fas fa-trash-alt" }),
-      _vm._v(" remove Answer\n                ")
-    ])
   }
 ]
 render._withStripped = true
@@ -8030,7 +8135,16 @@ var render = function() {
                   !_vm.isSingleChoiceQuestion && !_vm.hasNextQuestion
                     ? _c(
                         "a",
-                        { staticClass: "dropdown-item", attrs: { href: "#" } },
+                        {
+                          staticClass: "dropdown-item",
+                          attrs: { href: "#" },
+                          on: {
+                            click: function($event) {
+                              $event.preventDefault()
+                              return _vm.showNewQuestionModal($event)
+                            }
+                          }
+                        },
                         [
                           _c("i", { staticClass: "fas fa-question" }),
                           _vm._v(" New Question\n                    ")
@@ -8442,6 +8556,128 @@ var render = function() {
                   {
                     staticClass: "btn btn-danger",
                     on: { click: _vm.closeLinkQuestionModal }
+                  },
+                  [_c("i", { staticClass: "fas fa-times" })]
+                )
+              ])
+            ]
+          )
+        ]
+      ),
+      _vm._v(" "),
+      _c(
+        "b-modal",
+        {
+          ref: "newQuestionModalRef",
+          attrs: { size: "lg", title: "New Question" }
+        },
+        [
+          _c("div", { staticClass: "form-group" }, [
+            _c("div", { staticClass: "row" }, [
+              _c("div", { staticClass: "col-3" }, [
+                _c("label", { attrs: { for: "question_type" } }, [
+                  _vm._v("Question Type")
+                ]),
+                _vm._v(" "),
+                _c(
+                  "select",
+                  {
+                    directives: [
+                      {
+                        name: "model",
+                        rawName: "v-model",
+                        value: _vm.newQuestion.question_type_uuid,
+                        expression: "newQuestion.question_type_uuid"
+                      }
+                    ],
+                    staticClass: "form-control",
+                    attrs: { name: "question_type", id: "question_type" },
+                    on: {
+                      change: function($event) {
+                        var $$selectedVal = Array.prototype.filter
+                          .call($event.target.options, function(o) {
+                            return o.selected
+                          })
+                          .map(function(o) {
+                            var val = "_value" in o ? o._value : o.value
+                            return val
+                          })
+                        _vm.$set(
+                          _vm.newQuestion,
+                          "question_type_uuid",
+                          $event.target.multiple
+                            ? $$selectedVal
+                            : $$selectedVal[0]
+                        )
+                      }
+                    }
+                  },
+                  _vm._l(_vm.question_types, function(question_type) {
+                    return _c(
+                      "option",
+                      {
+                        key: question_type.uuid,
+                        domProps: { value: question_type.uuid }
+                      },
+                      [_vm._v(_vm._s(question_type.description))]
+                    )
+                  })
+                )
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "col-9" }, [
+                _c("label", { attrs: { for: "question" } }, [
+                  _vm._v("Question")
+                ]),
+                _vm._v(" "),
+                _c("input", {
+                  directives: [
+                    {
+                      name: "model",
+                      rawName: "v-model",
+                      value: _vm.newQuestion.question,
+                      expression: "newQuestion.question"
+                    }
+                  ],
+                  staticClass: "form-control",
+                  attrs: { type: "text", name: "question", id: "question" },
+                  domProps: { value: _vm.newQuestion.question },
+                  on: {
+                    input: function($event) {
+                      if ($event.target.composing) {
+                        return
+                      }
+                      _vm.$set(_vm.newQuestion, "question", $event.target.value)
+                    }
+                  }
+                })
+              ])
+            ])
+          ]),
+          _vm._v(" "),
+          _c(
+            "div",
+            {
+              staticClass: "w-100",
+              attrs: { slot: "modal-footer" },
+              slot: "modal-footer"
+            },
+            [
+              _c("div", { staticClass: "float-right" }, [
+                _c(
+                  "button",
+                  {
+                    staticClass: "btn btn-success",
+                    on: { click: _vm.doOnAddNewQuestion }
+                  },
+                  [_c("i", { staticClass: "fas fa-check" })]
+                ),
+                _vm._v(" "),
+                _c(
+                  "button",
+                  {
+                    staticClass: "btn btn-danger",
+                    on: { click: _vm.closeNewQuestionModal }
                   },
                   [_c("i", { staticClass: "fas fa-times" })]
                 )

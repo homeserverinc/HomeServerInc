@@ -53,6 +53,7 @@
                             class="dropdown-item"
                             href="#"
                             v-if="!isSingleChoiceQuestion && !hasNextQuestion"
+                            @click.prevent="showNewQuestionModal"
                         >
                             <i class="fas fa-question"></i> New Question
                         </a>
@@ -200,6 +201,47 @@
                 </div>
             </div>
         </b-modal>
+        <b-modal ref="newQuestionModalRef" size="lg" title="New Question">
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-3">
+                        <label for="question_type">Question Type</label>
+                        <select
+                            name="question_type"
+                            id="question_type"
+                            class="form-control"
+                            v-model="newQuestion.question_type_uuid"
+                        >
+                            <option
+                                v-for="question_type in question_types"
+                                :key="question_type.uuid"
+                                :value="question_type.uuid"
+                            >{{question_type.description}}</option>
+                        </select>
+                    </div>
+                    <div class="col-9">
+                        <label for="question">Question</label>
+                        <input
+                            type="text"
+                            name="question"
+                            id="question"
+                            class="form-control"
+                            v-model="newQuestion.question"
+                        >
+                    </div>
+                </div>
+            </div>
+            <div slot="modal-footer" class="w-100">
+                <div class="float-right">
+                    <button class="btn btn-success" @click="doOnAddNewQuestion">
+                        <i class="fas fa-check"></i>
+                    </button>
+                    <button class="btn btn-danger" @click="closeNewQuestionModal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+        </b-modal>
     </div>
 </template>
 
@@ -215,7 +257,7 @@ function resetNewAnswer() {
     return {
         uuid: "",
         answer_order: 0,
-        answer_type_uuid: "",
+        answer_type_uuid: "a65f6762-924e-4025-bcc7-a188976dddf0",
         question_uuid: "",
         next_question_uuid: "",
         answer: ""
@@ -226,7 +268,18 @@ function resetQuestion() {
     return {
         uuid: "",
         question: "",
-        question_type: ""
+        question_type: "4cd9927e-717a-4726-b5e6-e6532201dfad"
+    };
+}
+
+function resetNewQuestion() {
+    return {
+        uuid: "",
+        question_type_uuid: "4cd9927e-717a-4726-b5e6-e6532201dfad",
+        question: "",
+        next_question_uuid: "",
+        quiz_uuid: "",
+        answers: []
     };
 }
 
@@ -236,7 +289,7 @@ export default {
             newAnswer: {
                 uuid: "",
                 answer_order: 0,
-                answer_type_uuid: "",
+                answer_type_uuid: "a65f6762-924e-4025-bcc7-a188976dddf0",
                 question_uuid: "",
                 next_question_uuid: "",
                 answer: ""
@@ -244,7 +297,15 @@ export default {
             currentQuestion: {
                 uuid: "",
                 question: "",
-                question_type: ""
+                question_type: "4cd9927e-717a-4726-b5e6-e6532201dfad"
+            },
+            newQuestion: {
+                uuid: "",
+                question_type_uuid: "4cd9927e-717a-4726-b5e6-e6532201dfad",
+                question: "",
+                next_question_uuid: "",
+                quiz_uuid: "",
+                answers: []
             },
             nextQuestionUuid: ""
         };
@@ -261,6 +322,13 @@ export default {
     },
     methods: {
         addNewAnswer() {
+            if (this.isSingleChoiceQuestion) {
+                this.newAnswer.answer_type_uuid =
+                    "a65f6762-924e-4025-bcc7-a188976dddf0";
+            } else {
+                this.newAnswer.answer_type_uuid =
+                    "dd0841bc-73fa-423c-99dc-e2f56a476b0b";
+            }
             this.$refs.addNewAnswerRef.show();
         },
         cancelAddNewAnswer() {
@@ -276,7 +344,7 @@ export default {
             this.$store.commit("questionsModule/ADD_ANSWER", this.newAnswer);
             this.newAnswer = this.closeAddNewAnswer();
             this.newAnswer = resetNewAnswer();
-            this.$scrollTo('#uuid-'+this.question.uuid);
+            this.$scrollTo("#uuid-" + this.question.uuid);
         },
         editQuestion() {
             this.currentQuestion = {
@@ -332,6 +400,26 @@ export default {
                 link: this.nextQuestionUuid
             });
             this.closeLinkQuestionModal();
+        },
+        showNewQuestionModal() {
+            this.$refs.newQuestionModalRef.show();
+        },
+        closeNewQuestionModal() {
+            this.newQuestion = resetNewQuestion();
+            this.$refs.newQuestionModalRef.hide();
+        },
+        doOnAddNewQuestion() {
+            this.newQuestion.uuid = uuid();
+            this.$store.commit(
+                "questionsModule/ADD_QUESTION",
+                this.newQuestion
+            );
+            this.$store.commit("questionsModule/LINK_QUESTION", {
+                uuid: this.question.uuid,
+                link: this.newQuestion.uuid
+            });
+            this.closeNewQuestionModal();
+            this.$scrollTo("#scroll-end");
         }
     },
     computed: {
@@ -373,8 +461,13 @@ export default {
             );
         },
         otherQuestions() {
-            return this.$store.getters["questionsModule/getOtherQuestions"](this.question.uuid);
-        }
+            return this.$store.getters["questionsModule/getOtherQuestions"](
+                this.question.uuid
+            );
+        },
+        question_types() {
+            return this.$store.getters["questionsModule/questionTypes"];
+        },
     }
 };
 </script>

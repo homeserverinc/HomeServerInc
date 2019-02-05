@@ -25,11 +25,15 @@
                     <i class="fas fa-plus"></i>
                 </button>
                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
-                    <a class="dropdown-item" href="#">
+                    <a class="dropdown-item" href="#"
+                        @click.prevent="showEditAnswer"
+                    >
                         <i class="fas fa-edit"></i> Edit Answer
                     </a>
-                    <a class="dropdown-item" href="#">
-                        <i class="fas fa-trash-alt"></i> remove Answer
+                    <a class="dropdown-item" href="#"
+                        @click.prevent="confirmDelAnswer"
+                    >
+                        <i class="fas fa-trash-alt"></i> Remove Answer
                     </a>
                     <a
                         class="dropdown-item"
@@ -214,7 +218,7 @@ function resetEditAnswer() {
 function resetNewQuestion() {
     return {
         uuid: "",
-        question_type_uuid: "",
+        question_type_uuid: "4cd9927e-717a-4726-b5e6-e6532201dfad",
         question: "",
         next_question_uuid: "",
         quiz_uuid: "",
@@ -235,7 +239,7 @@ export default {
             },
             newQuestion: {
                 uuid: "",
-                question_type_uuid: "",
+                question_type_uuid: "4cd9927e-717a-4726-b5e6-e6532201dfad",
                 question: "",
                 next_question_uuid: "",
                 quiz_uuid: "",

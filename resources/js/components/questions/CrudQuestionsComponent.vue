@@ -96,7 +96,7 @@ import uuid from "uuid";
 function resetNewQuestion() {
     return {
         uuid: "",
-        question_type_uuid: "",
+        question_type_uuid: "4cd9927e-717a-4726-b5e6-e6532201dfad",
         question: "",
         next_question_uuid: "",
         quiz_uuid: "",
@@ -109,7 +109,7 @@ export default {
         return {
             newQuestion: {
                 uuid: "",
-                question_type_uuid: "",
+                question_type_uuid: "4cd9927e-717a-4726-b5e6-e6532201dfad",
                 question: "",
                 next_question_uuid: "",
                 quiz_uuid: "",

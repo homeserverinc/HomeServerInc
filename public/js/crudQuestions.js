@@ -7915,7 +7915,11 @@ var render = function() {
           staticClass: "card-header p-2",
           class: {
             "text-white": _vm.isFirstQuestionOnQuiz,
-            "bg-success": _vm.isFirstQuestionOnQuiz
+            "bg-success": _vm.isFirstQuestionOnQuiz,
+            "bg-danger":
+              !_vm.isFirstQuestionOnQuiz &&
+              !_vm.isSingleChoiceQuestion &&
+              !_vm.hasNextQuestion
           }
         },
         [

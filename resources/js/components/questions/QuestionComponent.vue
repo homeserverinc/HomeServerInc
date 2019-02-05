@@ -2,7 +2,7 @@
     <div class="card" :id="'uuid-'+question.uuid">
         <div
             class="card-header p-2"
-            :class="{'text-white': isFirstQuestionOnQuiz, 'bg-success': isFirstQuestionOnQuiz}"
+            :class="{'text-white': isFirstQuestionOnQuiz, 'bg-success': isFirstQuestionOnQuiz, 'bg-danger': (!isFirstQuestionOnQuiz && !isSingleChoiceQuestion && !hasNextQuestion)}"
         >
             <h5 class="m-1 float-left">
                 <i

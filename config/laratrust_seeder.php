@@ -29,7 +29,8 @@ return [
             'twilio-import-phone-numbers' => 'a',
             'twilio-import-workspaces' => 'a',
             'twilio-import-workflows' => 'a',
-            'twilio-import-activities' => 'a'
+            'twilio-import-activities' => 'a',
+            'quiz-questions-crud' => 'a'
         ],
         'administrator' => [
             'user' => 'c,r,u,d',

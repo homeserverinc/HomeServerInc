@@ -1,6 +1,17 @@
 <template>
     <div class="list-group-item list-group-item-action p-2" :id="answer.uuid">
-        <span class="badge badge-secondary">{{answer.answer_order}}</span>
+        <span
+            class="badge badge-secondary"
+            data-toggle="tooltip"
+            data-placement="top"
+            title="Order"
+        >{{answer.answer_order}}</span>
+        <span
+            class="badge badge-primary"
+            data-toggle="tooltip"
+            data-placement="top"
+            title="Weight"
+        >{{answer.weight}}</span>
         {{ answer.answer }}
         <a
             href="#"
@@ -13,7 +24,7 @@
         <div class="float-right">
             <div class="dropdown">
                 <button
-                    class="btn btn-sm btn-secondary dropdown-toggle"
+                    class="btn btn-sm btn-light dropdown-toggle"
                     type="button"
                     id="dropdownMenuButton"
                     data-toggle="dropdown"
@@ -25,14 +36,10 @@
                     <i class="fas fa-plus"></i>
                 </button>
                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
-                    <a class="dropdown-item" href="#"
-                        @click.prevent="showEditAnswer"
-                    >
+                    <a class="dropdown-item" href="#" @click.prevent="showEditAnswer">
                         <i class="fas fa-edit"></i> Edit Answer
                     </a>
-                    <a class="dropdown-item" href="#"
-                        @click.prevent="confirmDelAnswer"
-                    >
+                    <a class="dropdown-item" href="#" @click.prevent="confirmDelAnswer">
                         <i class="fas fa-trash-alt"></i> Remove Answer
                     </a>
                     <a
@@ -80,7 +87,7 @@
         <b-modal ref="editAnswerRef" size="lg" title="Edit Answer">
             <div class="form-group">
                 <div class="row">
-                    <div class="col-2">
+                    <div class="col-3">
                         <label for="answer_order">#</label>
                         <input
                             type="text"
@@ -90,7 +97,7 @@
                             v-model="editAnswer.answer_order"
                         >
                     </div>
-                    <div class="col-3">
+                    <div class="col-6">
                         <label for="answer_type">Answer Type</label>
                         <select
                             name="answer_type"
@@ -105,13 +112,28 @@
                             >{{answer_type.description}}</option>
                         </select>
                     </div>
-                    <div class="col-7">
+                    <div class="col-3">
+                        <label for="weight">Weight</label>
+                        <input
+                            type="text"
+                            name="weight"
+                            id="weight"
+                            class="form-control"
+                            v-model="editAnswer.weight"
+                        >
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-12">
                         <label for="answer">Answer</label>
                         <input
                             type="text"
                             name="answer"
                             id="answer"
                             class="form-control"
+                            autofocus
                             v-model="editAnswer.answer"
                         >
                     </div>
@@ -119,8 +141,11 @@
             </div>
             <div slot="modal-footer" class="w-100">
                 <div class="float-right">
-                    <button class="btn btn-danger" @click="closeModal">
+                    <button class="btn btn-success" @click="doOnEditAnswer">
                         <i class="fas fa-check"></i>
+                    </button>
+                    <button class="btn btn-danger" @click="closeEditAnswerModal">
+                        <i class="fas fa-times"></i>
                     </button>
                 </div>
             </div>
@@ -133,6 +158,7 @@
                         name="next_question_uuid"
                         id="next_question_uuid"
                         class="form-control"
+                        autofocus
                         v-model="nextQuestionUuid"
                     >
                         <option
@@ -179,6 +205,7 @@
                             name="question"
                             id="question"
                             class="form-control"
+                            autofocus
                             v-model="newQuestion.question"
                         >
                     </div>
@@ -202,7 +229,6 @@
 <script>
 import bModal from "bootstrap-vue/es/components/modal/modal";
 import bModalDirective from "bootstrap-vue/es/directives/modal/modal";
-import uuid from "uuid";
 
 function resetEditAnswer() {
     return {
@@ -222,7 +248,11 @@ function resetNewQuestion() {
         question: "",
         next_question_uuid: "",
         quiz_uuid: "",
-        answers: []
+        answers: [],
+        parent: {
+            type: '',
+            obj: {}
+        }
     };
 }
 
@@ -243,7 +273,11 @@ export default {
                 question: "",
                 next_question_uuid: "",
                 quiz_uuid: "",
-                answers: []
+                answers: [],
+                parent: {
+                    type: '',
+                    obj: {}
+                }
             },
             nextQuestionUuid: ""
         };
@@ -263,14 +297,27 @@ export default {
         },
         closeModal() {
             this.$refs.delAnswerRef.hide();
+        },
+        closeEditAnswerModal() {
+            this.editAnswer = resetEditAnswer();
             this.$refs.editAnswerRef.hide();
         },
         deleteAnswer() {
             this.$store.dispatch("questionsModule/delAnswer", this.answer);
             this.closeModal();
         },
+        populateEditAnswer(next_question = '') {
+            this.editAnswer = {
+                uuid: this.answer.uuid,
+                answer_order: this.answer.answer_order,
+                answer_type_uuid: this.answer.answer_type_uuid,
+                answer: this.answer.answer,
+                weight: this.answer.weight,
+                next_question_uuid: next_question
+            };
+        },
         showEditAnswer() {
-            this.editAnswer = this.answer;
+            this.populateEditAnswer();
             this.$refs.editAnswerRef.show();
         },
         showLinkQuestionModal() {
@@ -278,20 +325,19 @@ export default {
         },
         closeLinkQuestionModal() {
             this.$refs.linkQuestionModalRef.hide();
-            this.nextQuestionUuid = "";
         },
         doOnLinkQuestion() {
-            this.$store.commit("questionsModule/LINK_QUESTION", {
-                uuid: this.answer.uuid,
-                link: this.nextQuestionUuid
-            });
+            this.populateEditAnswer();
+            this.editAnswer.next_question_uuid = this.nextQuestionUuid;
+            this.$store.dispatch('questionsModule/updateExistingAnswer', this.editAnswer);
+            this.editAnswer = resetEditAnswer();
             this.closeLinkQuestionModal();
         },
         unlinkQuestion() {
-            this.$store.commit(
-                "questionsModule/UNLINK_QUESTION",
-                this.answer.uuid
-            );
+            this.populateEditAnswer();
+            this.editAnswer.next_question_uuid = '';
+            this.$store.dispatch('questionsModule/updateExistingAnswer', this.editAnswer);
+            this.editAnswer = resetEditAnswer();
         },
         showNewQuestionModal() {
             this.$refs.newQuestionModalRef.show();
@@ -301,18 +347,24 @@ export default {
             this.$refs.newQuestionModalRef.hide();
         },
         doOnAddNewQuestion() {
-            
-            this.newQuestion.uuid = uuid();
-            this.$store.commit(
-                "questionsModule/ADD_QUESTION",
+            this.newQuestion.quiz_uuid = this.quiz_uuid;
+            this.newQuestion.parent = {
+                type: 'answer',
+                obj: this.answer
+            };
+            this.$store.dispatch(
+                "questionsModule/addNewQuestion",
                 this.newQuestion
             );
-            this.$store.commit("questionsModule/LINK_QUESTION", {
-                uuid: this.answer.uuid,
-                link: this.newQuestion.uuid
-            });
             this.closeNewQuestionModal();
-            this.$scrollTo('#scroll-end');
+            this.$scrollTo("#scroll-end");
+        },
+        doOnEditAnswer() {
+            this.$store.dispatch(
+                "questionsModule/updateExistingAnswer",
+                this.editAnswer
+            );
+            this.closeEditAnswerModal();
         }
     },
     computed: {
@@ -347,6 +399,9 @@ export default {
         question_types() {
             return this.$store.getters["questionsModule/questionTypes"];
         },
+        quiz_uuid() {
+            return this.$store.state.questionsModule.quiz_uuid;
+        }
     }
 };
 </script>

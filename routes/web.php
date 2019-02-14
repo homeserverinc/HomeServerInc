@@ -114,7 +114,13 @@ Route::prefix('/admin')->middleware(['auth:web'])->group(function() {
     Route::get('/quiz/{quiz_uuid}/questions', 'QuestionsController@getQuestionsFromQuiz');
     Route::post('/update-worker-activity', 'TwilioWorkersController@updateTwilioActivity')->name('update-worker-activity');
     Route::post('/get-current-worker-activity', 'TwilioWorkersController@getCurrentTwilioActivity')->name('get-current-worker-activity');
+    
 
+    Route::post('/contractor/subscribe_plan', 'ContractorsController@subscribe_plan')->name('subscribe_plan');
+
+    Route::resource('/card', 'CardsController')->except('show');
+    Route::resource('/plan', 'PlansController')->except('show');
+    Route::resource('/charge', 'ChargesController');
     Route::resource('/category', 'CategoriesController')->except('show');
     Route::resource('/city', 'CitiesController')->except('show');
     Route::resource('/site', 'SitesController')->except('show');

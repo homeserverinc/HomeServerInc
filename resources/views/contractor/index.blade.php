@@ -3,10 +3,11 @@
 @section('content')
     @component('components.table', [
         'captions' => $fields, 
+        'keyField' => 'uuid',
         'rows' => $contractors, 
         'model' => 'contractor',
         'tableTitle' => 'Contractor',
-        'displayField' => 'name',
+        'displayField' => 'company',
         'actions' => ['edit', 'destroy']
         ]);
     @endcomponent

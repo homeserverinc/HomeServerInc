@@ -14,12 +14,13 @@
     $dataOnStyle = isset($dataOnStyle) ? $dataOnStyle : 'success';
     $dataOffStyle = isset($dataOffStyle) ? $dataOffStyle : 'default';
     $checked = isset($inputValue) ? ($value == $inputValue) : false;
+
 @endphp
 
 <input type="checkbox" 
     name="{{$name}}"
     value="{{$value}}"
-    {{ ($checked) ? 'checked' : '' }} 
+    {{ $checked ? 'checked' : '' }} 
     data-toggle="toggle" 
     data-width="{{$dataWidth}}" 
     data-on="{{$dataOn}}" 

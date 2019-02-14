@@ -114,6 +114,12 @@ class HomeServerController extends Controller
         return $this->goToIndex();
     }
 
+    protected function warningMessage(String $message) {
+        Session::flash('error', $message);
+
+        return $this->goToIndex();
+    }
+
     protected function goToIndex() {
         $currentClass = explode('\\', get_called_class());
         $indexRoute = $currentClass[sizeOf($currentClass)-1].'@'.$this->indexUrl;

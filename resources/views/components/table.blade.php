@@ -72,53 +72,66 @@
                 </tr>
             </thead>
             <tbody>
-            @foreach($rows as $row)
-                @if ($colorLineCondition) 
-                <tr {{ ($row->$lineConditionField == $lineConditionValue) ? 'class='.$lineCondicionClass : '' }}>
-                @else
-                <tr {{--  {{(!$row->ativo) ? 'class=danger' : ''}}  --}}>
-                @endif
-                    @foreach($captions as $field => $caption)
-                        @if(is_array($caption))
-                            @if($caption['type'] == 'bool')
-                            <td scope="row">{{ __(($row->$field == '1') ? 'Yes' : 'No') }}</td>
-                            @endif
-                            @if($caption['type'] == 'datetime')
-                            <td scope="row">{{ date_format(date_create($row->$field), 'd/m/Y H:i:s') }}</td>
-                            @endif
-                            @if($caption['type'] == 'date')
-                            <td scope="row">{{ date_format(date_create($row->$field), 'd/m/Y') }}</td>
-                            @endif
-                            @if($caption['type'] == 'decimal')
-                            <td scope="row"><div align="right">{{ number_format($row->$field, $caption['decimais'], ',', '.') }}</div></td>
-                            @endif
-                            @if($caption['type'] == 'list')
-                            <td scope="row"><div align="right">{{ $caption['values'][$row->$field] }}</div></td>
-                            @endif
-                        @else
-                            <td scope="row">
-                                <div {{ is_numeric($row->$field) ? 'align=right' : ''}}>
-                                    {{ $row->$field }}
-                                </div>
-                            </td>
-                        @endif
-                    @endforeach
-                    
-                    <td scope="row" class="text-center">
-                        @if(is_array($actions))
-                            @foreach($actions as $action)
-                                @if(is_array($action))
-                                    @component($action['custom_action'], ['data' => $row])
-                                    @endcomponent
-                                @else
-                                    @component('components.action', ['action' => $action, 'model' => $model, 'row' => $row, 'displayField' => $displayField, 'keyField'=> $keyField])
-                                    @endcomponent
+            
+            @if($rows->count() > 0)
+                @foreach($rows as $row)
+                    @if ($colorLineCondition) 
+                    <tr {{ ($row->$lineConditionField == $lineConditionValue) ? 'class='.$lineCondicionClass : '' }}>
+                    @else
+                    <tr {{--  {{(!$row->ativo) ? 'class=danger' : ''}}  --}}>
+                    @endif
+                        @foreach($captions as $field => $caption)
+                            @if(is_array($caption))
+                                @if($caption['type'] == 'bool')
+                                <td scope="row">{{ __(($row->$field == '1') ? 'Yes' : 'No') }}</td>
                                 @endif
-                            @endforeach
-                        @endif
-                    </td>
-                </tr>
-                @endforeach
+                                @if($caption['type'] == 'datetime')
+                                <td scope="row">{{ date_format(date_create($row->$field), 'd/m/Y H:i:s') }}</td>
+                                @endif
+                                @if($caption['type'] == 'date')
+                                <td scope="row">{{ date_format(date_create($row->$field), 'd/m/Y') }}</td>
+                                @endif
+                                @if($caption['type'] == 'decimal')
+                                <td scope="row"><div align="right">{{ number_format($row->$field, $caption['decimais'], ',', '.') }}</div></td>
+                                @endif
+                                @if($caption['type'] == 'list')
+                                <td scope="row"><div align="right">{{ $caption['values'][$row->$field] }}</div></td>
+                                @endif
+                            @else
+                                @php
+                                    $relation = explode('.', $field);
+                                    $attr = '';
+                                    if(count($relation) > 1){
+                                        $field = $relation[0];
+                                        $attr = $relation[1];
+                                    }
+                                @endphp
+                                <td scope="row">
+                                    <div {{ is_numeric($row->$field) ? 'align=right' : ''}}>
+                                        {{ $row->$field->$attr ?? ($row->$field ?? 'Null')}}
+                                    </div>
+                                </td>
+                            @endif
+                        @endforeach
+                        
+                        <td scope="row" class="text-center">
+                            @if(is_array($actions))
+                                @foreach($actions as $action)
+                                    @if(is_array($action))
+                                        @component($action['custom_action'], ['data' => $row])
+                                        @endcomponent
+                                    @else
+                                        @component('components.action', ['action' => $action, 'model' => $model, 'row' => $row, 'displayField' => $displayField, 'keyField'=> $keyField])
+                                        @endcomponent
+                                    @endif
+                                @endforeach
+                            @endif
+                        </td>
+                    </tr>
+                    @endforeach
+                @else
+                    <tr><td colspan="{{ count($captions) + 1 }}">No results.</td></tr>
+                @endif
             </tbody>
         </table>
         @if($rows->links() != '')

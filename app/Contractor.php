@@ -2,7 +2,6 @@
 
 namespace App;
 
-use App\Site;
 use App\Traits\Uuidable;
 use Illuminate\Database\Eloquent\Model;
 
@@ -32,16 +31,66 @@ class Contractor extends Model
      */
     public $incrementing = false;
     
-    protected $fillable = [
-        'name', 
+    protected $fillable = [ 
         'company', 
         'address', 
         'phone', 
-        'email',
-        'site_uuid'
+        'site_uuid',
+        'user_id',
+        'plan_uuid',
+        'ssn',
+        'ein',
+        'stripe_id',
+        'wallet'
     ];
+
+    public static function boot() {
+        parent::boot();
+        self::uuid();
+        //delete dependencies
+        static::deleting(function($contractor) { // before delete() method call this
+            $contractor->cards()->delete();
+            $contractor->user->roles()->detach();
+            $contractor->charges()->delete();
+            $contractor->subscriptions()->delete();
+        });
+
+        static::deleted(function($contractor) { // after delete() method call this
+            $contractor->user->delete();
+        });
+    }
+
 
     public function site() {
         return $this->belongsTo(Site::class);
     }
+
+    public function user() {
+        return $this->belongsTo(User::class);
+    }
+
+    public function plan() {
+        return $this->belongsTo(Plan::class);
+    }
+
+    public function subscriptions() {
+        return $this->hasMany(Subscription::class);
+    }
+
+    public function cards(){
+        return $this->hasMany(Card::class);
+    }
+
+     public function charges(){
+        return $this->hasMany(Charge::class);
+    }
+
+    public function default_card(){
+        return $this->hasMany(Card::class)->where('default', '=', 1);
+    }
+
+    public function categories() {
+        return $this->belongsToMany(Category::class);
+    }
+
 }

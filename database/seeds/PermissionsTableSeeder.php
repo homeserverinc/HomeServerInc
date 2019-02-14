@@ -351,6 +351,90 @@ class PermissionsTableSeeder extends Seeder
                 'display_name'  => 'Delete SIP Credential List vs SIP Domain',
                 'description'   => 'Allow a User to Delete an existing SIP Credential List vs SIP Domain'
             ],
+            //Plans
+            [
+                'name'          => 'list-plans',
+                'display_name'  => 'List Plans',
+                'description'   => 'Allow a User to List Plans',
+            ],
+            [
+                'name'          => 'create-plans',
+                'display_name'  => 'Create Plans',
+                'description'   => 'Allow a User to Create Plans',
+            ],
+            [
+                'name'          => 'update-plans',
+                'display_name'  => 'Update Plans',
+                'description'   => 'Allow a User to Update Plans',
+            ],
+            [
+                'name'          => 'delete-plans',
+                'display_name'  => 'Delete Plans',
+                'description'   => 'Allow a User to Delete Plans',
+            ],
+            //Cards
+            [
+                'name'          => 'list-cards',
+                'display_name'  => 'List cards',
+                'description'   => 'Allow a User to List cards',
+            ],
+            [
+                'name'          => 'create-cards',
+                'display_name'  => 'Create cards',
+                'description'   => 'Allow a User to Create cards',
+            ],
+            [
+                'name'          => 'update-cards',
+                'display_name'  => 'Update cards',
+                'description'   => 'Allow a User to Update cards',
+            ],
+            [
+                'name'          => 'delete-cards',
+                'display_name'  => 'Delete cards',
+                'description'   => 'Allow a User to Delete cards',
+            ],
+            //Charges
+            [
+                'name'          => 'list-charges',
+                'display_name'  => 'List charges',
+                'description'   => 'Allow a User to List charges',
+            ],
+            [
+                'name'          => 'create-charges',
+                'display_name'  => 'Create charges',
+                'description'   => 'Allow a User to Create charges',
+            ],
+            [
+                'name'          => 'update-charges',
+                'display_name'  => 'Update charges',
+                'description'   => 'Allow a User to Update charges',
+            ],
+            [
+                'name'          => 'delete-charges',
+                'display_name'  => 'Delete charges',
+                'description'   => 'Allow a User to Delete charges',
+            ],
+            //Subscriptions
+            [
+                'name'          => 'list-subscriptions',
+                'display_name'  => 'List subscriptions',
+                'description'   => 'Allow a User to List subscriptions',
+            ],
+            [
+                'name'          => 'create-subscriptions',
+                'display_name'  => 'Create subscriptions',
+                'description'   => 'Allow a User to Create subscriptions',
+            ],
+            [
+                'name'          => 'update-subscriptions',
+                'display_name'  => 'Update subscriptions',
+                'description'   => 'Allow a User to Update subscriptions',
+            ],
+            [
+                'name'          => 'delete-subscriptions',
+                'display_name'  => 'Delete subscriptions',
+                'description'   => 'Allow a User to Delete subscriptions',
+            ],
         ]);
 
         /* define super administratir permissions */

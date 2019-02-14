@@ -68,4 +68,8 @@ class User extends Authenticatable implements JWTSubject
     public function session() {
         return $this->hasOne(Session::class);
     }
+
+    public function contractor() {
+        return $this->hasOne(Contractor::class);
+    }
 }

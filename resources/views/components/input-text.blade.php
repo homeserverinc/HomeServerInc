@@ -8,6 +8,9 @@
     $div_css = isset($div_css) ? $div_css : '';
     $vModel = isset($vModel) ? $vModel : false;
     $readOnly = isset($readOnly) ? $readOnly : false;
+    $rightField = str_replace('[', '.', $field);
+    $rightField = str_replace(']', '', $rightField);
+
 @endphp
 
 {{--  {{dd($inputValue)}}  --}}
@@ -16,12 +19,12 @@
         @component('components.label', ['label' => $label, 'field' => $field, 'required' => $required])
         @endcomponent
     @endif  
+    
+    <input type="text" class="form-control{{ $errors->has($rightField) ? ' is-invalid' : '' }} {{$css}}" {{ ($vModel) ? 'v-model='.$vModel : '' }} name="{{$name}}" id="{{$id}}" value="{{ isset($inputValue) ? $inputValue : old($rightField) }}" {{ $required ? 'required' : '' }}  {{ $autofocus ? 'autofocus' : '' }} {{ $disabled ? 'disabled="disabled"' : '' }} {{ $readOnly ? 'readonly' : '' }}>
 
-    <input type="text" class="form-control{{ $errors->has($field) ? ' is-invalid' : '' }} {{$css}}" {{ ($vModel) ? 'v-model='.$vModel : '' }} name="{{$name}}" id="{{$id}}" value="{{ isset($inputValue) ? $inputValue : old($field) }}" {{ $required ? 'required' : '' }}  {{ $autofocus ? 'autofocus' : '' }} {{ $disabled ? 'disabled="disabled"' : '' }} {{ $readOnly ? 'readonly' : '' }}>
-
-    @if ($errors->has($field))
+    @if ($errors->has($rightField))
         <span class="invalid-feedback"> 
-            <strong>{{ $errors->first($field) }}</strong>
+            <strong>{{ $errors->first($rightField) }}</strong>
         </span>
     @endif
 </div>

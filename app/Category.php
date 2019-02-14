@@ -49,4 +49,8 @@ class Category extends Model
     public function sites() {
         return $this->hasMany(Site::class);
     }
+
+    public function contractors() {
+        return $this->belongsToMany(Contractor::class);
+    }
 }

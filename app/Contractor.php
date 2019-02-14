@@ -49,9 +49,10 @@ class Contractor extends Model
         self::uuid();
         //delete dependencies
         static::deleting(function($contractor) { // before delete() method call this
+            $contractor->charges()->delete();
             $contractor->cards()->delete();
             $contractor->user->roles()->detach();
-            $contractor->charges()->delete();
+            $contractor->categories()->detach();
             $contractor->subscriptions()->delete();
         });
 

@@ -33,7 +33,7 @@ class CardsController extends HomeServerController
     public function index(Request $request)
     {
         if (Auth::user()->canReadCard()) {
-            if(Auth::user()->hasRole('admin')){
+            if(Auth::user()->hasRole('superadministrator')){
                 if ($request->searchField) {
                     $cards = Card::where('brand', 'like', '%'.$request->searchField.'%')
                     ->orWhere('card_last_four', 'like', '%'.$request->searchField.'%')

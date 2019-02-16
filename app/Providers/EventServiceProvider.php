@@ -33,6 +33,9 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\NewContractor' =>  [
             'App\Listeners\SendNewContractorNotification'
         ],
+        'App\Events\NewMissedCall' =>  [
+            'App\Listeners\SendNewMissedCallNotification'
+        ],
     ];
 
     /**

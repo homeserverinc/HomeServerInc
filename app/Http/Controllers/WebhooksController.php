@@ -93,7 +93,7 @@ class WebhooksController extends Controller
 
             $missedCall = new MissedCall([
                 'datetime_call' => $datetime_call,
-                'site_id' => $site->id,
+                'site_uuid' => $site->uuid,
                 'language_id' => $language->id,
                 'from' => $task->{'from'}
             ]);

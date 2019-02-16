@@ -3,11 +3,14 @@
 namespace App\Listeners;
 
 use App\Events\NewMissedCall;
+use App\Traits\TwimlClientTrait;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
 class SendNewMissedCallNotification
 {
+    use TwimlClientTrait;
+    
     /**
      * Create the event listener.
      *

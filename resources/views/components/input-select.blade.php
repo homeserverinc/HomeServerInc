@@ -10,6 +10,8 @@
     $vModel = isset($vModel) ? $vModel : false;
     $div_css = isset($div_css) ? $div_css : '';
     $multiple = isset($multiple) ? "multiple" : '';
+    $extraDisplayInfo =  $extraDisplayInfo ?? '';
+    $extraDisplayField = $extraDisplayField ?? '';
 @endphp
 
 <div class="col col-sm col-md{{$inputSize}} col-lg{{$inputSize}} {{ $errors->has($field) ? ' has-error' : '' }} {{$div_css}}">

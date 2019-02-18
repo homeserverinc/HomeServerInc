@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Lead;
 use App\Site;
-use App\Service;
+use App\Category;
 use App\Customer;
 use App\Property;
 use App\Question;
@@ -42,22 +42,22 @@ class ApiController extends Controller
         }
     }
 
-    public function getServiceFirstQuestion($serviceId) {
-        $service = Service::find($serviceId);
+    public function getCategoryFirstQuestion($categoryUUID) {
+        $category = Category::find($categoryUUID);
 
         $response = $this->getResponseCode(200);
-        $response['data'] = $service->question()->with('answers.answer_type')->first();
+        $response['data'] = $category->question()->with('answers.answer_type')->first();
 
         return response()->json($response);
     }
 
-    public function getService($uuid) {
+    public function getCategory($uuid) {
         if ($id) {
-            $service = Service::with('category')
+            $category = Category::with('category')
                             ->with('quiz')
                             ->where('uuid', $uuid)->first();
             $response = $this->getResponseCode(200);
-            $response['data'] = $service;
+            $response['data'] = $category;
         } else {
             $response = null;
         }
@@ -65,25 +65,25 @@ class ApiController extends Controller
         return response()->json($response);
     }
 
-    public function getServices() {
-        $services = Service::get()->toTree();
+    public function getCategories() {
+        $categories = Category::get()->toTree();
         $response = $this->getResponseCode(200);
-        $response['data'] = $services;
+        $response['data'] = $categories;
 
         return response()->json($response);
     }
 
-    public function getSiteService($siteId) {
+    public function getSiteCategory($siteId) {
         $site = Site::with('city.state')
                             ->with('phone')->find($siteId);
-        $service = Service::with('category')
+        $category = Category::with('category')
                             ->with('question.questionType')
                             ->with('question.answers')
-                            ->ancestorsAndSelf($site->service_id);
+                            ->ancestorsAndSelf($site->category_uuid);
 
         $response = $this->getResponseCode(200);
         $response['data']['site'] = $site;
-        $response['data']['site']['service'] = $service;
+        $response['data']['site']['category'] = $category;
 
         return response()->json($response);
     }
@@ -101,7 +101,7 @@ class ApiController extends Controller
         DB::beginTransaction();
         try {
             $site = Site::find($request->site_id);
-            $service = Service::find($site->service_id);   
+            $category = Category::find($site->category_uuid);   
             $customer = $this->createCustomer($request, $site->city_id);
 
             Log::info($customer);
@@ -110,9 +110,9 @@ class ApiController extends Controller
 
 
             $lead->customer_id = $customer->id;
-            $lead->service_id = $service->id;
+            $lead->category_uuid = $category->id;
             $lead->description = $request->description;
-            $lead->service_properties = $this->getServicePropertiesValues($request, $service->id);
+            $lead->category_properties = $this->getCategoryPropertiesValues($request, $category->id);
             $lead->user_id = Auth::id();
 
             if ($lead->save()) {
@@ -172,8 +172,8 @@ class ApiController extends Controller
         return response()->json($response);
     }
 
-    public function getQuestionsByServiceUuid($serviceUuid) {
-        $questions = Service::with('questions')->with('answers.answer_type')->where('uuid', $serviceUuid)->first();
+    public function getQuestionsByCategoryUuid($categoryUuid) {
+        $questions = Category::with('questions')->with('answers.answer_type')->where('uuid', $categoryUuid)->first();
 
         $response = $this->getResponseCode(200);
         $response['data'] = $questions;

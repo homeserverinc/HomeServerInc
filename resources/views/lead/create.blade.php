@@ -23,13 +23,16 @@
                             'inputs' => [
                                 [
                                     'type' => 'text',
-                                    'field' => 'customer',
-                                    'label' => 'Name',
+                                    'field' => 'first_name',
+                                    'label' => 'First Name',
                                     'required' => true,
-                                ],
-                                [
-                                    'type' => 'hidden',
-                                    'field' => 'customer_id'
+                                    'inputSize' => 6
+                                ],[
+                                    'type' => 'text',
+                                    'field' => 'last_name',
+                                    'label' => 'Last Name',
+                                    'required' => true,
+                                    'inputSize' => 6
                                 ]
                             ]
                         ])
@@ -43,42 +46,14 @@
                                     'inputs' => [
                                         [
                                             'type' => 'text',
-                                            'field' => 'address',
+                                            'field' => 'street',
                                             'label' => 'Address',
                                             'required' => true,
-                                        ]
-                                    ]
-                                ])
-                                @endcomponent
-                                @component('components.form-group', [
-                                    'inputs' => [
-                                        [
-                                            'type' => 'select',
-                                            'field' => 'state_id',
-                                            'label' => 'State',
-                                            'required' => true,
-                                            'items' => $states,
-                                            'inputSize' => 3,
-                                            'displayField' => 'state_name',
-                                            'keyField' => 'id',
-                                            'defaultNone' => true,
-                                            'liveSearch' => true
-                                        ],
-                                        [
-                                            'type' => 'select',
-                                            'field' => 'city_id',
-                                            'label' => 'City',
-                                            'required' => true,
-                                            'items' => $cities,
-                                            'inputSize' => 6,
-                                            'displayField' => 'city',
-                                            'keyField' => 'id',
-                                            'liveSearch' => true,   
-                                            'defaultNone' => true,                               
-                                        ],
-                                        [
+                                            'inputSize' => 9,
+                                            
+                                        ], [
                                             'type' => 'text',
-                                            'field' => 'zipcode',
+                                            'field' => 'zip',
                                             'label' => 'Zip',
                                             'required' => true,
                                             'inputSize' => 3,
@@ -86,9 +61,10 @@
                                     ]
                                 ])
                                 @endcomponent
+    
                             </div>
                         </div>   
-                        <div class=" card  ">
+                        <div class=" card mt-4 ">
                             <div class="card-header">
                                 <strong>Contacts</strong>
                             </div>
@@ -147,15 +123,15 @@
                                 'inputs' => [
                                     [
                                         'type' => 'select',
-                                        'field' => 'service_id',
-                                        'label' => 'Service',
+                                        'field' => 'category_uuid',
+                                        'label' => 'Category',
                                         'required' => true,
-                                        'items' => $services,
-                                        'displayField' => 'service_description',
-                                        'keyField' => 'id',
+                                        'items' => $categories,
+                                        'displayField' => 'category',
+                                        'keyField' => 'uuid',
                                         'liveSearch' => true,   
                                         'defaultNone' => true, 
-                                        'vModel' => 'serviceId'                              
+                                        'vModel' => 'categoryUUID'                
                                     ]
                                 ]
                             ])
@@ -174,7 +150,7 @@
                             
                             {{--  dinamically create form  --}}
                             <div class="form-group">
-                                <lead_questions_form :service-id="serviceId"></lead_questions_form>
+                                <lead_questions_form :category-uuid="categoryUUID"></lead_questions_form>
                             </div>
                         </div>
                     </div>
@@ -185,9 +161,17 @@
     @endcomponent
 </div>
 @push('bottom-scripts')
+<script type="text/javascript">
+    function activatePlacesSearch(){
+        var input = document.getElementById("street");
+        var auto_complete = new google.maps.places.Autocomplete(input);
+    }
+</script>
 <script src="{{ asset('js/leadQuestionsForm.js') }}"></script>
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAXEKDJ6apFhd92r8DaBoNuFru26-8aR_I&libraries=places&callback=activatePlacesSearch"></script>
 @endpush
 @push('document-ready')
+
     function setCityId(city_id) {
         var city = {};
 
@@ -388,7 +372,8 @@
         }   
     });
 
-    var doOnSelectService = function() {      
+    var doOnSelectService = function() {     
+
         var service = {};
         service.id = $('#service_id').val();
         service._token = $('input[name="_token"]').val();
@@ -406,6 +391,9 @@
                 $('#service_properties').html(data);
                 $('.selectpicker').selectpicker('refresh');
                 //createFieldsForService(data);
+            },
+            error: function(err){
+                console.log(err)
             }
         });
     }

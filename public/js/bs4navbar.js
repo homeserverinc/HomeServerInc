@@ -127,7 +127,7 @@ $('.dropdown-menu a.dropdown-toggle').unbind().click(function (e) {
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(/*! /mnt/7EDAA7EFDAA7A1BF/Desenvolvimento/Web/homeserver/resources/js/bs4navbar.js */"./resources/js/bs4navbar.js");
+module.exports = __webpack_require__(/*! /var/www/html/HomeServerInc/resources/js/bs4navbar.js */"./resources/js/bs4navbar.js");
 
 
 /***/ })

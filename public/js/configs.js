@@ -81,7 +81,7 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 10);
+/******/ 	return __webpack_require__(__webpack_require__.s = 12);
 /******/ })
 /************************************************************************/
 /******/ ({
@@ -113,14 +113,14 @@ var LOCAL_URLS = Object.freeze({
 
 /***/ }),
 
-/***/ 10:
+/***/ 12:
 /*!***************************************!*\
   !*** multi ./resources/js/configs.js ***!
   \***************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(/*! /mnt/7EDAA7EFDAA7A1BF/Desenvolvimento/Web/homeserver/resources/js/configs.js */"./resources/js/configs.js");
+module.exports = __webpack_require__(/*! /var/www/html/HomeServerInc/resources/js/configs.js */"./resources/js/configs.js");
 
 
 /***/ })

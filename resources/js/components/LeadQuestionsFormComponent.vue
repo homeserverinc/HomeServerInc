@@ -45,7 +45,7 @@ export default {
         answeredQuestions
     },
     props: [
-        'serviceId'
+        'categoryUUID'
     ],
     data() {
         return {
@@ -65,7 +65,7 @@ export default {
         }
     },
     watch: { 
-        serviceId: function() {
+        categoryUUID: function() {
             this.getFirstQuestion();
         }
     },
@@ -74,12 +74,12 @@ export default {
     },
     methods: {
         getFirstQuestion() {
-            if (!this.serviceId > 0) {
+            if (!this.categoryUUID > 0) {
                 this.clearComponent();
                 return;
             }
             var self = this;
-            axios.get('/admin/service-first-question/'+self.serviceId)
+            axios.get('/admin/service-first-question/'+self.categoryUUID)
                  .then(async (response) => {
                     self.currentQuestion = response.data.data;
             });

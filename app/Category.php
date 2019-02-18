@@ -50,6 +50,10 @@ class Category extends Model
         return $this->hasMany(Site::class);
     }
 
+    public function leads() {
+        return $this->hasMany(Lead::class);
+    }
+    
     public function contractors() {
         return $this->belongsToMany(Contractor::class);
     }

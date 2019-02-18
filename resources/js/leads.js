@@ -7,7 +7,7 @@ const leads = new Vue({
     },
     data() {
         return {
-            serviceId: null
+            categoryUUID: null
         }
     }
 });

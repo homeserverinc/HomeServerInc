@@ -8,7 +8,11 @@
         'tableTitle' => 'Quiz',
         'displayField' => 'quiz',
         'keyField' => 'uuid',
-        'actions' => ['edit', 'destroy']
-        ]);
+        'actions' => ['edit', 'destroy'],
+        'customMethods' => [
+            [
+                'component' => 'components.customMethods.quiz_questions_crud'
+            ]
+        ]]);
     @endcomponent
 @endsection

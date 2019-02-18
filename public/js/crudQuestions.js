@@ -2557,8 +2557,6 @@ module.exports = {
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var bootstrap_vue_es_components_modal_modal__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! bootstrap-vue/es/components/modal/modal */ "./node_modules/bootstrap-vue/es/components/modal/modal.js");
 /* harmony import */ var bootstrap_vue_es_directives_modal_modal__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! bootstrap-vue/es/directives/modal/modal */ "./node_modules/bootstrap-vue/es/directives/modal/modal.js");
-/* harmony import */ var uuid__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! uuid */ "./node_modules/uuid/index.js");
-/* harmony import */ var uuid__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(uuid__WEBPACK_IMPORTED_MODULE_2__);
 //
 //
 //
@@ -2760,7 +2758,33 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -2782,7 +2806,11 @@ function resetNewQuestion() {
     question: "",
     next_question_uuid: "",
     quiz_uuid: "",
-    answers: []
+    answers: [],
+    parent: {
+      type: '',
+      obj: {}
+    }
   };
 }
 
@@ -2803,7 +2831,11 @@ function resetNewQuestion() {
         question: "",
         next_question_uuid: "",
         quiz_uuid: "",
-        answers: []
+        answers: [],
+        parent: {
+          type: '',
+          obj: {}
+        }
       },
       nextQuestionUuid: ""
     };
@@ -2823,14 +2855,28 @@ function resetNewQuestion() {
     },
     closeModal: function closeModal() {
       this.$refs.delAnswerRef.hide();
+    },
+    closeEditAnswerModal: function closeEditAnswerModal() {
+      this.editAnswer = resetEditAnswer();
       this.$refs.editAnswerRef.hide();
     },
     deleteAnswer: function deleteAnswer() {
       this.$store.dispatch("questionsModule/delAnswer", this.answer);
       this.closeModal();
     },
+    populateEditAnswer: function populateEditAnswer() {
+      var next_question = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
+      this.editAnswer = {
+        uuid: this.answer.uuid,
+        answer_order: this.answer.answer_order,
+        answer_type_uuid: this.answer.answer_type_uuid,
+        answer: this.answer.answer,
+        weight: this.answer.weight,
+        next_question_uuid: next_question
+      };
+    },
     showEditAnswer: function showEditAnswer() {
-      this.editAnswer = this.answer;
+      this.populateEditAnswer();
       this.$refs.editAnswerRef.show();
     },
     showLinkQuestionModal: function showLinkQuestionModal() {
@@ -2838,17 +2884,19 @@ function resetNewQuestion() {
     },
     closeLinkQuestionModal: function closeLinkQuestionModal() {
       this.$refs.linkQuestionModalRef.hide();
-      this.nextQuestionUuid = "";
     },
     doOnLinkQuestion: function doOnLinkQuestion() {
-      this.$store.commit("questionsModule/LINK_QUESTION", {
-        uuid: this.answer.uuid,
-        link: this.nextQuestionUuid
-      });
+      this.populateEditAnswer();
+      this.editAnswer.next_question_uuid = this.nextQuestionUuid;
+      this.$store.dispatch('questionsModule/updateExistingAnswer', this.editAnswer);
+      this.editAnswer = resetEditAnswer();
       this.closeLinkQuestionModal();
     },
     unlinkQuestion: function unlinkQuestion() {
-      this.$store.commit("questionsModule/UNLINK_QUESTION", this.answer.uuid);
+      this.populateEditAnswer();
+      this.editAnswer.next_question_uuid = '';
+      this.$store.dispatch('questionsModule/updateExistingAnswer', this.editAnswer);
+      this.editAnswer = resetEditAnswer();
     },
     showNewQuestionModal: function showNewQuestionModal() {
       this.$refs.newQuestionModalRef.show();
@@ -2858,14 +2906,18 @@ function resetNewQuestion() {
       this.$refs.newQuestionModalRef.hide();
     },
     doOnAddNewQuestion: function doOnAddNewQuestion() {
-      this.newQuestion.uuid = uuid__WEBPACK_IMPORTED_MODULE_2___default()();
-      this.$store.commit("questionsModule/ADD_QUESTION", this.newQuestion);
-      this.$store.commit("questionsModule/LINK_QUESTION", {
-        uuid: this.answer.uuid,
-        link: this.newQuestion.uuid
-      });
+      this.newQuestion.quiz_uuid = this.quiz_uuid;
+      this.newQuestion.parent = {
+        type: 'answer',
+        obj: this.answer
+      };
+      this.$store.dispatch("questionsModule/addNewQuestion", this.newQuestion);
       this.closeNewQuestionModal();
-      this.$scrollTo('#scroll-end');
+      this.$scrollTo("#scroll-end");
+    },
+    doOnEditAnswer: function doOnEditAnswer() {
+      this.$store.dispatch("questionsModule/updateExistingAnswer", this.editAnswer);
+      this.closeEditAnswerModal();
     }
   },
   computed: {
@@ -2888,6 +2940,9 @@ function resetNewQuestion() {
     },
     question_types: function question_types() {
       return this.$store.getters["questionsModule/questionTypes"];
+    },
+    quiz_uuid: function quiz_uuid() {
+      return this.$store.state.questionsModule.quiz_uuid;
     }
   }
 });
@@ -2909,8 +2964,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _mixins_RegisterStoreModule__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../mixins/RegisterStoreModule */ "./resources/js/mixins/RegisterStoreModule.js");
 /* harmony import */ var _store_modules_questions__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../store/modules/questions */ "./resources/js/store/modules/questions/index.js");
 /* harmony import */ var vuex_map_fields__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! vuex-map-fields */ "./node_modules/vuex-map-fields/dist/index.esm.js");
-/* harmony import */ var uuid__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! uuid */ "./node_modules/uuid/index.js");
-/* harmony import */ var uuid__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(uuid__WEBPACK_IMPORTED_MODULE_6__);
 //
 //
 //
@@ -2997,7 +3050,8 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-
+//
+//
 
 
 
@@ -3012,7 +3066,8 @@ function resetNewQuestion() {
     question: "",
     next_question_uuid: "",
     quiz_uuid: "",
-    answers: []
+    answers: [],
+    parent: {}
   };
 }
 
@@ -3025,7 +3080,8 @@ function resetNewQuestion() {
         question: "",
         next_question_uuid: "",
         quiz_uuid: "",
-        answers: []
+        answers: [],
+        parent: {}
       }
     };
   },
@@ -3040,9 +3096,11 @@ function resetNewQuestion() {
   created: function created() {
     this.registerStoreModule("questionsModule", _store_modules_questions__WEBPACK_IMPORTED_MODULE_4__["default"]);
     this.$store.dispatch("questionsModule/getQuizzes");
-    console.log(this);
   },
   computed: {
+    addFirstQuestionDisabled: function addFirstQuestionDisabled() {
+      return this.quiz_uuid == '' || this.questions.length > 0;
+    },
     questions: function questions() {
       return this.$store.getters["questionsModule/questions"];
     },
@@ -3075,10 +3133,11 @@ function resetNewQuestion() {
       this.newQuestion = resetNewQuestion;
     },
     doOnAddQuestion: function doOnAddQuestion() {
-      this.newQuestion.uuid = uuid__WEBPACK_IMPORTED_MODULE_6___default()();
-      this.$store.commit("questionsModule/ADD_QUESTION", this.newQuestion);
+      this.newQuestion.quiz_uuid = this.$store.state.questionsModule.quiz_uuid;
+      this.$store.dispatch("questionsModule/addNewQuestion", this.newQuestion);
       this.newQuestion = resetNewQuestion();
       this.closeModal();
+      this.$scrollTo("#scroll-end");
     }
   }
 });
@@ -3099,8 +3158,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _AnswerComponent_vue__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./AnswerComponent.vue */ "./resources/js/components/questions/AnswerComponent.vue");
 /* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../constants */ "./resources/js/constants.js");
 /* harmony import */ var _store_modules_questions__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../store/modules/questions */ "./resources/js/store/modules/questions/index.js");
-/* harmony import */ var uuid__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! uuid */ "./node_modules/uuid/index.js");
-/* harmony import */ var uuid__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(uuid__WEBPACK_IMPORTED_MODULE_5__);
 //
 //
 //
@@ -3348,7 +3405,29 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -3362,7 +3441,8 @@ function resetNewAnswer() {
     answer_type_uuid: "a65f6762-924e-4025-bcc7-a188976dddf0",
     question_uuid: "",
     next_question_uuid: "",
-    answer: ""
+    answer: "",
+    weight: 1
   };
 }
 
@@ -3394,7 +3474,8 @@ function resetNewQuestion() {
         answer_type_uuid: "a65f6762-924e-4025-bcc7-a188976dddf0",
         question_uuid: "",
         next_question_uuid: "",
-        answer: ""
+        answer: "",
+        weight: 1
       },
       currentQuestion: {
         uuid: "",
@@ -3439,10 +3520,9 @@ function resetNewQuestion() {
       this.$refs.addNewAnswerRef.hide();
     },
     doOnAddNewAnswer: function doOnAddNewAnswer() {
-      this.newAnswer.uuid = uuid__WEBPACK_IMPORTED_MODULE_5___default()();
       this.newAnswer.question_uuid = this.question.uuid;
       this.newAnswer.answer_order = this.nextAnswerOrder;
-      this.$store.commit("questionsModule/ADD_ANSWER", this.newAnswer);
+      this.$store.dispatch("questionsModule/addNewAnswer", this.newAnswer);
       this.newAnswer = this.closeAddNewAnswer();
       this.newAnswer = resetNewAnswer();
       this.$scrollTo("#uuid-" + this.question.uuid);
@@ -3463,7 +3543,7 @@ function resetNewQuestion() {
       this.$refs.editQuestionModal.hide();
     },
     doOnEditQuestion: function doOnEditQuestion() {
-      this.$store.commit("questionsModule/UPDATE_QUESTION", this.currentQuestion);
+      this.$store.dispatch("questionsModule/updateExistingQuestion", this.currentQuestion);
       this.currentQuestion = resetQuestion();
       this.closeEditQuestionModal();
     },
@@ -3471,14 +3551,20 @@ function resetNewQuestion() {
       this.$refs.delQuestionRef.hide();
     },
     doOnDeleteQuestion: function doOnDeleteQuestion() {
-      this.$store.commit("questionsModule/REMOVE_QUESTION", this.question.uuid);
+      this.$store.dispatch("questionsModule/deleteQuestion", this.question.uuid);
       this.closeDeleteQuestionModal();
     },
     showDeleteQuestionModal: function showDeleteQuestionModal() {
       this.$refs.delQuestionRef.show();
     },
     unlinkQuestion: function unlinkQuestion() {
-      this.$store.commit("questionsModule/UNLINK_QUESTION", this.question.uuid);
+      this.currentQuestion = {
+        uuid: this.question.uuid,
+        question: this.question.question,
+        next_question_uuid: ''
+      };
+      this.$store.dispatch("questionsModule/updateExistingQuestion", this.currentQuestion);
+      this.currentQuestion = resetQuestion();
     },
     showLinkQuestionModal: function showLinkQuestionModal() {
       this.$refs.linkQuestionModalRef.show();
@@ -3488,10 +3574,13 @@ function resetNewQuestion() {
       this.nextQuestionUuid = "";
     },
     doOnLinkQuestion: function doOnLinkQuestion() {
-      this.$store.commit("questionsModule/LINK_QUESTION", {
+      this.currentQuestion = {
         uuid: this.question.uuid,
-        link: this.nextQuestionUuid
-      });
+        question: this.question.question,
+        next_question_uuid: this.nextQuestionUuid
+      };
+      this.$store.dispatch("questionsModule/updateExistingQuestion", this.currentQuestion);
+      this.currentQuestion = resetQuestion();
       this.closeLinkQuestionModal();
     },
     showNewQuestionModal: function showNewQuestionModal() {
@@ -3502,12 +3591,12 @@ function resetNewQuestion() {
       this.$refs.newQuestionModalRef.hide();
     },
     doOnAddNewQuestion: function doOnAddNewQuestion() {
-      this.newQuestion.uuid = uuid__WEBPACK_IMPORTED_MODULE_5___default()();
-      this.$store.commit("questionsModule/ADD_QUESTION", this.newQuestion);
-      this.$store.commit("questionsModule/LINK_QUESTION", {
-        uuid: this.question.uuid,
-        link: this.newQuestion.uuid
-      });
+      this.newQuestion.quiz_uuid = this.$store.state.questionsModule.quiz_uuid;
+      this.newQuestion.parent = {
+        type: 'question',
+        obj: this.question
+      };
+      this.$store.dispatch('questionsModule/addNewQuestion', this.newQuestion);
       this.closeNewQuestionModal();
       this.$scrollTo("#scroll-end");
     }
@@ -3543,6 +3632,9 @@ function resetNewQuestion() {
     },
     question_types: function question_types() {
       return this.$store.getters["questionsModule/questionTypes"];
+    },
+    isTheLastQuestion: function isTheLastQuestion() {
+      return this.$store.getters["questionsModule/isTheLastQuestion"](this.question.uuid);
     }
   }
 });
@@ -6100,6 +6192,791 @@ process.umask = function() { return 0; };
 
 /***/ }),
 
+/***/ "./node_modules/qs/lib/formats.js":
+/*!****************************************!*\
+  !*** ./node_modules/qs/lib/formats.js ***!
+  \****************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var replace = String.prototype.replace;
+var percentTwenties = /%20/g;
+
+module.exports = {
+    'default': 'RFC3986',
+    formatters: {
+        RFC1738: function (value) {
+            return replace.call(value, percentTwenties, '+');
+        },
+        RFC3986: function (value) {
+            return value;
+        }
+    },
+    RFC1738: 'RFC1738',
+    RFC3986: 'RFC3986'
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/qs/lib/index.js":
+/*!**************************************!*\
+  !*** ./node_modules/qs/lib/index.js ***!
+  \**************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var stringify = __webpack_require__(/*! ./stringify */ "./node_modules/qs/lib/stringify.js");
+var parse = __webpack_require__(/*! ./parse */ "./node_modules/qs/lib/parse.js");
+var formats = __webpack_require__(/*! ./formats */ "./node_modules/qs/lib/formats.js");
+
+module.exports = {
+    formats: formats,
+    parse: parse,
+    stringify: stringify
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/qs/lib/parse.js":
+/*!**************************************!*\
+  !*** ./node_modules/qs/lib/parse.js ***!
+  \**************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var utils = __webpack_require__(/*! ./utils */ "./node_modules/qs/lib/utils.js");
+
+var has = Object.prototype.hasOwnProperty;
+
+var defaults = {
+    allowDots: false,
+    allowPrototypes: false,
+    arrayLimit: 20,
+    charset: 'utf-8',
+    charsetSentinel: false,
+    decoder: utils.decode,
+    delimiter: '&',
+    depth: 5,
+    ignoreQueryPrefix: false,
+    interpretNumericEntities: false,
+    parameterLimit: 1000,
+    parseArrays: true,
+    plainObjects: false,
+    strictNullHandling: false
+};
+
+var interpretNumericEntities = function (str) {
+    return str.replace(/&#(\d+);/g, function ($0, numberStr) {
+        return String.fromCharCode(parseInt(numberStr, 10));
+    });
+};
+
+// This is what browsers will submit when the ✓ character occurs in an
+// application/x-www-form-urlencoded body and the encoding of the page containing
+// the form is iso-8859-1, or when the submitted form has an accept-charset
+// attribute of iso-8859-1. Presumably also with other charsets that do not contain
+// the ✓ character, such as us-ascii.
+var isoSentinel = 'utf8=%26%2310003%3B'; // encodeURIComponent('&#10003;')
+
+// These are the percent-encoded utf-8 octets representing a checkmark, indicating that the request actually is utf-8 encoded.
+var charsetSentinel = 'utf8=%E2%9C%93'; // encodeURIComponent('✓')
+
+var parseValues = function parseQueryStringValues(str, options) {
+    var obj = {};
+    var cleanStr = options.ignoreQueryPrefix ? str.replace(/^\?/, '') : str;
+    var limit = options.parameterLimit === Infinity ? undefined : options.parameterLimit;
+    var parts = cleanStr.split(options.delimiter, limit);
+    var skipIndex = -1; // Keep track of where the utf8 sentinel was found
+    var i;
+
+    var charset = options.charset;
+    if (options.charsetSentinel) {
+        for (i = 0; i < parts.length; ++i) {
+            if (parts[i].indexOf('utf8=') === 0) {
+                if (parts[i] === charsetSentinel) {
+                    charset = 'utf-8';
+                } else if (parts[i] === isoSentinel) {
+                    charset = 'iso-8859-1';
+                }
+                skipIndex = i;
+                i = parts.length; // The eslint settings do not allow break;
+            }
+        }
+    }
+
+    for (i = 0; i < parts.length; ++i) {
+        if (i === skipIndex) {
+            continue;
+        }
+        var part = parts[i];
+
+        var bracketEqualsPos = part.indexOf(']=');
+        var pos = bracketEqualsPos === -1 ? part.indexOf('=') : bracketEqualsPos + 1;
+
+        var key, val;
+        if (pos === -1) {
+            key = options.decoder(part, defaults.decoder, charset);
+            val = options.strictNullHandling ? null : '';
+        } else {
+            key = options.decoder(part.slice(0, pos), defaults.decoder, charset);
+            val = options.decoder(part.slice(pos + 1), defaults.decoder, charset);
+        }
+
+        if (val && options.interpretNumericEntities && charset === 'iso-8859-1') {
+            val = interpretNumericEntities(val);
+        }
+        if (has.call(obj, key)) {
+            obj[key] = utils.combine(obj[key], val);
+        } else {
+            obj[key] = val;
+        }
+    }
+
+    return obj;
+};
+
+var parseObject = function (chain, val, options) {
+    var leaf = val;
+
+    for (var i = chain.length - 1; i >= 0; --i) {
+        var obj;
+        var root = chain[i];
+
+        if (root === '[]' && options.parseArrays) {
+            obj = [].concat(leaf);
+        } else {
+            obj = options.plainObjects ? Object.create(null) : {};
+            var cleanRoot = root.charAt(0) === '[' && root.charAt(root.length - 1) === ']' ? root.slice(1, -1) : root;
+            var index = parseInt(cleanRoot, 10);
+            if (!options.parseArrays && cleanRoot === '') {
+                obj = { 0: leaf };
+            } else if (
+                !isNaN(index)
+                && root !== cleanRoot
+                && String(index) === cleanRoot
+                && index >= 0
+                && (options.parseArrays && index <= options.arrayLimit)
+            ) {
+                obj = [];
+                obj[index] = leaf;
+            } else {
+                obj[cleanRoot] = leaf;
+            }
+        }
+
+        leaf = obj;
+    }
+
+    return leaf;
+};
+
+var parseKeys = function parseQueryStringKeys(givenKey, val, options) {
+    if (!givenKey) {
+        return;
+    }
+
+    // Transform dot notation to bracket notation
+    var key = options.allowDots ? givenKey.replace(/\.([^.[]+)/g, '[$1]') : givenKey;
+
+    // The regex chunks
+
+    var brackets = /(\[[^[\]]*])/;
+    var child = /(\[[^[\]]*])/g;
+
+    // Get the parent
+
+    var segment = brackets.exec(key);
+    var parent = segment ? key.slice(0, segment.index) : key;
+
+    // Stash the parent if it exists
+
+    var keys = [];
+    if (parent) {
+        // If we aren't using plain objects, optionally prefix keys that would overwrite object prototype properties
+        if (!options.plainObjects && has.call(Object.prototype, parent)) {
+            if (!options.allowPrototypes) {
+                return;
+            }
+        }
+
+        keys.push(parent);
+    }
+
+    // Loop through children appending to the array until we hit depth
+
+    var i = 0;
+    while ((segment = child.exec(key)) !== null && i < options.depth) {
+        i += 1;
+        if (!options.plainObjects && has.call(Object.prototype, segment[1].slice(1, -1))) {
+            if (!options.allowPrototypes) {
+                return;
+            }
+        }
+        keys.push(segment[1]);
+    }
+
+    // If there's a remainder, just add whatever is left
+
+    if (segment) {
+        keys.push('[' + key.slice(segment.index) + ']');
+    }
+
+    return parseObject(keys, val, options);
+};
+
+module.exports = function (str, opts) {
+    var options = opts ? utils.assign({}, opts) : {};
+
+    if (options.decoder !== null && options.decoder !== undefined && typeof options.decoder !== 'function') {
+        throw new TypeError('Decoder has to be a function.');
+    }
+
+    options.ignoreQueryPrefix = options.ignoreQueryPrefix === true;
+    options.delimiter = typeof options.delimiter === 'string' || utils.isRegExp(options.delimiter) ? options.delimiter : defaults.delimiter;
+    options.depth = typeof options.depth === 'number' ? options.depth : defaults.depth;
+    options.arrayLimit = typeof options.arrayLimit === 'number' ? options.arrayLimit : defaults.arrayLimit;
+    options.parseArrays = options.parseArrays !== false;
+    options.decoder = typeof options.decoder === 'function' ? options.decoder : defaults.decoder;
+    options.allowDots = typeof options.allowDots === 'undefined' ? defaults.allowDots : !!options.allowDots;
+    options.plainObjects = typeof options.plainObjects === 'boolean' ? options.plainObjects : defaults.plainObjects;
+    options.allowPrototypes = typeof options.allowPrototypes === 'boolean' ? options.allowPrototypes : defaults.allowPrototypes;
+    options.parameterLimit = typeof options.parameterLimit === 'number' ? options.parameterLimit : defaults.parameterLimit;
+    options.strictNullHandling = typeof options.strictNullHandling === 'boolean' ? options.strictNullHandling : defaults.strictNullHandling;
+
+    if (typeof options.charset !== 'undefined' && options.charset !== 'utf-8' && options.charset !== 'iso-8859-1') {
+        throw new Error('The charset option must be either utf-8, iso-8859-1, or undefined');
+    }
+    if (typeof options.charset === 'undefined') {
+        options.charset = defaults.charset;
+    }
+
+    if (str === '' || str === null || typeof str === 'undefined') {
+        return options.plainObjects ? Object.create(null) : {};
+    }
+
+    var tempObj = typeof str === 'string' ? parseValues(str, options) : str;
+    var obj = options.plainObjects ? Object.create(null) : {};
+
+    // Iterate over the keys and setup the new object
+
+    var keys = Object.keys(tempObj);
+    for (var i = 0; i < keys.length; ++i) {
+        var key = keys[i];
+        var newObj = parseKeys(key, tempObj[key], options);
+        obj = utils.merge(obj, newObj, options);
+    }
+
+    return utils.compact(obj);
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/qs/lib/stringify.js":
+/*!******************************************!*\
+  !*** ./node_modules/qs/lib/stringify.js ***!
+  \******************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var utils = __webpack_require__(/*! ./utils */ "./node_modules/qs/lib/utils.js");
+var formats = __webpack_require__(/*! ./formats */ "./node_modules/qs/lib/formats.js");
+
+var arrayPrefixGenerators = {
+    brackets: function brackets(prefix) { // eslint-disable-line func-name-matching
+        return prefix + '[]';
+    },
+    indices: function indices(prefix, key) { // eslint-disable-line func-name-matching
+        return prefix + '[' + key + ']';
+    },
+    repeat: function repeat(prefix) { // eslint-disable-line func-name-matching
+        return prefix;
+    }
+};
+
+var isArray = Array.isArray;
+var push = Array.prototype.push;
+var pushToArray = function (arr, valueOrArray) {
+    push.apply(arr, isArray(valueOrArray) ? valueOrArray : [valueOrArray]);
+};
+
+var toISO = Date.prototype.toISOString;
+
+var defaults = {
+    addQueryPrefix: false,
+    allowDots: false,
+    charset: 'utf-8',
+    charsetSentinel: false,
+    delimiter: '&',
+    encode: true,
+    encoder: utils.encode,
+    encodeValuesOnly: false,
+    // deprecated
+    indices: false,
+    serializeDate: function serializeDate(date) { // eslint-disable-line func-name-matching
+        return toISO.call(date);
+    },
+    skipNulls: false,
+    strictNullHandling: false
+};
+
+var stringify = function stringify( // eslint-disable-line func-name-matching
+    object,
+    prefix,
+    generateArrayPrefix,
+    strictNullHandling,
+    skipNulls,
+    encoder,
+    filter,
+    sort,
+    allowDots,
+    serializeDate,
+    formatter,
+    encodeValuesOnly,
+    charset
+) {
+    var obj = object;
+    if (typeof filter === 'function') {
+        obj = filter(prefix, obj);
+    } else if (obj instanceof Date) {
+        obj = serializeDate(obj);
+    }
+
+    if (obj === null) {
+        if (strictNullHandling) {
+            return encoder && !encodeValuesOnly ? encoder(prefix, defaults.encoder, charset) : prefix;
+        }
+
+        obj = '';
+    }
+
+    if (typeof obj === 'string' || typeof obj === 'number' || typeof obj === 'boolean' || utils.isBuffer(obj)) {
+        if (encoder) {
+            var keyValue = encodeValuesOnly ? prefix : encoder(prefix, defaults.encoder, charset);
+            return [formatter(keyValue) + '=' + formatter(encoder(obj, defaults.encoder, charset))];
+        }
+        return [formatter(prefix) + '=' + formatter(String(obj))];
+    }
+
+    var values = [];
+
+    if (typeof obj === 'undefined') {
+        return values;
+    }
+
+    var objKeys;
+    if (Array.isArray(filter)) {
+        objKeys = filter;
+    } else {
+        var keys = Object.keys(obj);
+        objKeys = sort ? keys.sort(sort) : keys;
+    }
+
+    for (var i = 0; i < objKeys.length; ++i) {
+        var key = objKeys[i];
+
+        if (skipNulls && obj[key] === null) {
+            continue;
+        }
+
+        if (Array.isArray(obj)) {
+            pushToArray(values, stringify(
+                obj[key],
+                generateArrayPrefix(prefix, key),
+                generateArrayPrefix,
+                strictNullHandling,
+                skipNulls,
+                encoder,
+                filter,
+                sort,
+                allowDots,
+                serializeDate,
+                formatter,
+                encodeValuesOnly,
+                charset
+            ));
+        } else {
+            pushToArray(values, stringify(
+                obj[key],
+                prefix + (allowDots ? '.' + key : '[' + key + ']'),
+                generateArrayPrefix,
+                strictNullHandling,
+                skipNulls,
+                encoder,
+                filter,
+                sort,
+                allowDots,
+                serializeDate,
+                formatter,
+                encodeValuesOnly,
+                charset
+            ));
+        }
+    }
+
+    return values;
+};
+
+module.exports = function (object, opts) {
+    var obj = object;
+    var options = opts ? utils.assign({}, opts) : {};
+
+    if (options.encoder !== null && options.encoder !== undefined && typeof options.encoder !== 'function') {
+        throw new TypeError('Encoder has to be a function.');
+    }
+
+    var delimiter = typeof options.delimiter === 'undefined' ? defaults.delimiter : options.delimiter;
+    var strictNullHandling = typeof options.strictNullHandling === 'boolean' ? options.strictNullHandling : defaults.strictNullHandling;
+    var skipNulls = typeof options.skipNulls === 'boolean' ? options.skipNulls : defaults.skipNulls;
+    var encode = typeof options.encode === 'boolean' ? options.encode : defaults.encode;
+    var encoder = typeof options.encoder === 'function' ? options.encoder : defaults.encoder;
+    var sort = typeof options.sort === 'function' ? options.sort : null;
+    var allowDots = typeof options.allowDots === 'undefined' ? defaults.allowDots : !!options.allowDots;
+    var serializeDate = typeof options.serializeDate === 'function' ? options.serializeDate : defaults.serializeDate;
+    var encodeValuesOnly = typeof options.encodeValuesOnly === 'boolean' ? options.encodeValuesOnly : defaults.encodeValuesOnly;
+    var charset = options.charset || defaults.charset;
+    if (typeof options.charset !== 'undefined' && options.charset !== 'utf-8' && options.charset !== 'iso-8859-1') {
+        throw new Error('The charset option must be either utf-8, iso-8859-1, or undefined');
+    }
+
+    if (typeof options.format === 'undefined') {
+        options.format = formats['default'];
+    } else if (!Object.prototype.hasOwnProperty.call(formats.formatters, options.format)) {
+        throw new TypeError('Unknown format option provided.');
+    }
+    var formatter = formats.formatters[options.format];
+    var objKeys;
+    var filter;
+
+    if (typeof options.filter === 'function') {
+        filter = options.filter;
+        obj = filter('', obj);
+    } else if (Array.isArray(options.filter)) {
+        filter = options.filter;
+        objKeys = filter;
+    }
+
+    var keys = [];
+
+    if (typeof obj !== 'object' || obj === null) {
+        return '';
+    }
+
+    var arrayFormat;
+    if (options.arrayFormat in arrayPrefixGenerators) {
+        arrayFormat = options.arrayFormat;
+    } else if ('indices' in options) {
+        arrayFormat = options.indices ? 'indices' : 'repeat';
+    } else {
+        arrayFormat = 'indices';
+    }
+
+    var generateArrayPrefix = arrayPrefixGenerators[arrayFormat];
+
+    if (!objKeys) {
+        objKeys = Object.keys(obj);
+    }
+
+    if (sort) {
+        objKeys.sort(sort);
+    }
+
+    for (var i = 0; i < objKeys.length; ++i) {
+        var key = objKeys[i];
+
+        if (skipNulls && obj[key] === null) {
+            continue;
+        }
+        pushToArray(keys, stringify(
+            obj[key],
+            key,
+            generateArrayPrefix,
+            strictNullHandling,
+            skipNulls,
+            encode ? encoder : null,
+            filter,
+            sort,
+            allowDots,
+            serializeDate,
+            formatter,
+            encodeValuesOnly,
+            charset
+        ));
+    }
+
+    var joined = keys.join(delimiter);
+    var prefix = options.addQueryPrefix === true ? '?' : '';
+
+    if (options.charsetSentinel) {
+        if (charset === 'iso-8859-1') {
+            // encodeURIComponent('&#10003;'), the "numeric entity" representation of a checkmark
+            prefix += 'utf8=%26%2310003%3B&';
+        } else {
+            // encodeURIComponent('✓')
+            prefix += 'utf8=%E2%9C%93&';
+        }
+    }
+
+    return joined.length > 0 ? prefix + joined : '';
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/qs/lib/utils.js":
+/*!**************************************!*\
+  !*** ./node_modules/qs/lib/utils.js ***!
+  \**************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var has = Object.prototype.hasOwnProperty;
+
+var hexTable = (function () {
+    var array = [];
+    for (var i = 0; i < 256; ++i) {
+        array.push('%' + ((i < 16 ? '0' : '') + i.toString(16)).toUpperCase());
+    }
+
+    return array;
+}());
+
+var compactQueue = function compactQueue(queue) {
+    while (queue.length > 1) {
+        var item = queue.pop();
+        var obj = item.obj[item.prop];
+
+        if (Array.isArray(obj)) {
+            var compacted = [];
+
+            for (var j = 0; j < obj.length; ++j) {
+                if (typeof obj[j] !== 'undefined') {
+                    compacted.push(obj[j]);
+                }
+            }
+
+            item.obj[item.prop] = compacted;
+        }
+    }
+};
+
+var arrayToObject = function arrayToObject(source, options) {
+    var obj = options && options.plainObjects ? Object.create(null) : {};
+    for (var i = 0; i < source.length; ++i) {
+        if (typeof source[i] !== 'undefined') {
+            obj[i] = source[i];
+        }
+    }
+
+    return obj;
+};
+
+var merge = function merge(target, source, options) {
+    if (!source) {
+        return target;
+    }
+
+    if (typeof source !== 'object') {
+        if (Array.isArray(target)) {
+            target.push(source);
+        } else if (typeof target === 'object') {
+            if ((options && (options.plainObjects || options.allowPrototypes)) || !has.call(Object.prototype, source)) {
+                target[source] = true;
+            }
+        } else {
+            return [target, source];
+        }
+
+        return target;
+    }
+
+    if (typeof target !== 'object') {
+        return [target].concat(source);
+    }
+
+    var mergeTarget = target;
+    if (Array.isArray(target) && !Array.isArray(source)) {
+        mergeTarget = arrayToObject(target, options);
+    }
+
+    if (Array.isArray(target) && Array.isArray(source)) {
+        source.forEach(function (item, i) {
+            if (has.call(target, i)) {
+                if (target[i] && typeof target[i] === 'object') {
+                    target[i] = merge(target[i], item, options);
+                } else {
+                    target.push(item);
+                }
+            } else {
+                target[i] = item;
+            }
+        });
+        return target;
+    }
+
+    return Object.keys(source).reduce(function (acc, key) {
+        var value = source[key];
+
+        if (has.call(acc, key)) {
+            acc[key] = merge(acc[key], value, options);
+        } else {
+            acc[key] = value;
+        }
+        return acc;
+    }, mergeTarget);
+};
+
+var assign = function assignSingleSource(target, source) {
+    return Object.keys(source).reduce(function (acc, key) {
+        acc[key] = source[key];
+        return acc;
+    }, target);
+};
+
+var decode = function (str, decoder, charset) {
+    var strWithoutPlus = str.replace(/\+/g, ' ');
+    if (charset === 'iso-8859-1') {
+        // unescape never throws, no try...catch needed:
+        return strWithoutPlus.replace(/%[0-9a-f]{2}/gi, unescape);
+    }
+    // utf-8
+    try {
+        return decodeURIComponent(strWithoutPlus);
+    } catch (e) {
+        return strWithoutPlus;
+    }
+};
+
+var encode = function encode(str, defaultEncoder, charset) {
+    // This code was originally written by Brian White (mscdex) for the io.js core querystring library.
+    // It has been adapted here for stricter adherence to RFC 3986
+    if (str.length === 0) {
+        return str;
+    }
+
+    var string = typeof str === 'string' ? str : String(str);
+
+    if (charset === 'iso-8859-1') {
+        return escape(string).replace(/%u[0-9a-f]{4}/gi, function ($0) {
+            return '%26%23' + parseInt($0.slice(2), 16) + '%3B';
+        });
+    }
+
+    var out = '';
+    for (var i = 0; i < string.length; ++i) {
+        var c = string.charCodeAt(i);
+
+        if (
+            c === 0x2D // -
+            || c === 0x2E // .
+            || c === 0x5F // _
+            || c === 0x7E // ~
+            || (c >= 0x30 && c <= 0x39) // 0-9
+            || (c >= 0x41 && c <= 0x5A) // a-z
+            || (c >= 0x61 && c <= 0x7A) // A-Z
+        ) {
+            out += string.charAt(i);
+            continue;
+        }
+
+        if (c < 0x80) {
+            out = out + hexTable[c];
+            continue;
+        }
+
+        if (c < 0x800) {
+            out = out + (hexTable[0xC0 | (c >> 6)] + hexTable[0x80 | (c & 0x3F)]);
+            continue;
+        }
+
+        if (c < 0xD800 || c >= 0xE000) {
+            out = out + (hexTable[0xE0 | (c >> 12)] + hexTable[0x80 | ((c >> 6) & 0x3F)] + hexTable[0x80 | (c & 0x3F)]);
+            continue;
+        }
+
+        i += 1;
+        c = 0x10000 + (((c & 0x3FF) << 10) | (string.charCodeAt(i) & 0x3FF));
+        out += hexTable[0xF0 | (c >> 18)]
+            + hexTable[0x80 | ((c >> 12) & 0x3F)]
+            + hexTable[0x80 | ((c >> 6) & 0x3F)]
+            + hexTable[0x80 | (c & 0x3F)];
+    }
+
+    return out;
+};
+
+var compact = function compact(value) {
+    var queue = [{ obj: { o: value }, prop: 'o' }];
+    var refs = [];
+
+    for (var i = 0; i < queue.length; ++i) {
+        var item = queue[i];
+        var obj = item.obj[item.prop];
+
+        var keys = Object.keys(obj);
+        for (var j = 0; j < keys.length; ++j) {
+            var key = keys[j];
+            var val = obj[key];
+            if (typeof val === 'object' && val !== null && refs.indexOf(val) === -1) {
+                queue.push({ obj: obj, prop: key });
+                refs.push(val);
+            }
+        }
+    }
+
+    compactQueue(queue);
+
+    return value;
+};
+
+var isRegExp = function isRegExp(obj) {
+    return Object.prototype.toString.call(obj) === '[object RegExp]';
+};
+
+var isBuffer = function isBuffer(obj) {
+    if (obj === null || typeof obj === 'undefined') {
+        return false;
+    }
+
+    return !!(obj.constructor && obj.constructor.isBuffer && obj.constructor.isBuffer(obj));
+};
+
+var combine = function combine(a, b) {
+    return [].concat(a, b);
+};
+
+module.exports = {
+    arrayToObject: arrayToObject,
+    assign: assign,
+    combine: combine,
+    compact: compact,
+    decode: decode,
+    encode: encode,
+    isBuffer: isBuffer,
+    isRegExp: isRegExp,
+    merge: merge
+};
+
+
+/***/ }),
+
 /***/ "./node_modules/setimmediate/setImmediate.js":
 /*!***************************************************!*\
   !*** ./node_modules/setimmediate/setImmediate.js ***!
@@ -6912,265 +7789,6 @@ exports.clearImmediate = (typeof self !== "undefined" && self.clearImmediate) ||
 
 /***/ }),
 
-/***/ "./node_modules/uuid/index.js":
-/*!************************************!*\
-  !*** ./node_modules/uuid/index.js ***!
-  \************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-var v1 = __webpack_require__(/*! ./v1 */ "./node_modules/uuid/v1.js");
-var v4 = __webpack_require__(/*! ./v4 */ "./node_modules/uuid/v4.js");
-
-var uuid = v4;
-uuid.v1 = v1;
-uuid.v4 = v4;
-
-module.exports = uuid;
-
-
-/***/ }),
-
-/***/ "./node_modules/uuid/lib/bytesToUuid.js":
-/*!**********************************************!*\
-  !*** ./node_modules/uuid/lib/bytesToUuid.js ***!
-  \**********************************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
-
-/**
- * Convert array of 16 byte values to UUID string format of the form:
- * XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
- */
-var byteToHex = [];
-for (var i = 0; i < 256; ++i) {
-  byteToHex[i] = (i + 0x100).toString(16).substr(1);
-}
-
-function bytesToUuid(buf, offset) {
-  var i = offset || 0;
-  var bth = byteToHex;
-  // join used to fix memory issue caused by concatenation: https://bugs.chromium.org/p/v8/issues/detail?id=3175#c4
-  return ([bth[buf[i++]], bth[buf[i++]], 
-	bth[buf[i++]], bth[buf[i++]], '-',
-	bth[buf[i++]], bth[buf[i++]], '-',
-	bth[buf[i++]], bth[buf[i++]], '-',
-	bth[buf[i++]], bth[buf[i++]], '-',
-	bth[buf[i++]], bth[buf[i++]],
-	bth[buf[i++]], bth[buf[i++]],
-	bth[buf[i++]], bth[buf[i++]]]).join('');
-}
-
-module.exports = bytesToUuid;
-
-
-/***/ }),
-
-/***/ "./node_modules/uuid/lib/rng-browser.js":
-/*!**********************************************!*\
-  !*** ./node_modules/uuid/lib/rng-browser.js ***!
-  \**********************************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
-
-// Unique ID creation requires a high quality random # generator.  In the
-// browser this is a little complicated due to unknown quality of Math.random()
-// and inconsistent support for the `crypto` API.  We do the best we can via
-// feature-detection
-
-// getRandomValues needs to be invoked in a context where "this" is a Crypto
-// implementation. Also, find the complete implementation of crypto on IE11.
-var getRandomValues = (typeof(crypto) != 'undefined' && crypto.getRandomValues && crypto.getRandomValues.bind(crypto)) ||
-                      (typeof(msCrypto) != 'undefined' && typeof window.msCrypto.getRandomValues == 'function' && msCrypto.getRandomValues.bind(msCrypto));
-
-if (getRandomValues) {
-  // WHATWG crypto RNG - http://wiki.whatwg.org/wiki/Crypto
-  var rnds8 = new Uint8Array(16); // eslint-disable-line no-undef
-
-  module.exports = function whatwgRNG() {
-    getRandomValues(rnds8);
-    return rnds8;
-  };
-} else {
-  // Math.random()-based (RNG)
-  //
-  // If all else fails, use Math.random().  It's fast, but is of unspecified
-  // quality.
-  var rnds = new Array(16);
-
-  module.exports = function mathRNG() {
-    for (var i = 0, r; i < 16; i++) {
-      if ((i & 0x03) === 0) r = Math.random() * 0x100000000;
-      rnds[i] = r >>> ((i & 0x03) << 3) & 0xff;
-    }
-
-    return rnds;
-  };
-}
-
-
-/***/ }),
-
-/***/ "./node_modules/uuid/v1.js":
-/*!*********************************!*\
-  !*** ./node_modules/uuid/v1.js ***!
-  \*********************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-var rng = __webpack_require__(/*! ./lib/rng */ "./node_modules/uuid/lib/rng-browser.js");
-var bytesToUuid = __webpack_require__(/*! ./lib/bytesToUuid */ "./node_modules/uuid/lib/bytesToUuid.js");
-
-// **`v1()` - Generate time-based UUID**
-//
-// Inspired by https://github.com/LiosK/UUID.js
-// and http://docs.python.org/library/uuid.html
-
-var _nodeId;
-var _clockseq;
-
-// Previous uuid creation time
-var _lastMSecs = 0;
-var _lastNSecs = 0;
-
-// See https://github.com/broofa/node-uuid for API details
-function v1(options, buf, offset) {
-  var i = buf && offset || 0;
-  var b = buf || [];
-
-  options = options || {};
-  var node = options.node || _nodeId;
-  var clockseq = options.clockseq !== undefined ? options.clockseq : _clockseq;
-
-  // node and clockseq need to be initialized to random values if they're not
-  // specified.  We do this lazily to minimize issues related to insufficient
-  // system entropy.  See #189
-  if (node == null || clockseq == null) {
-    var seedBytes = rng();
-    if (node == null) {
-      // Per 4.5, create and 48-bit node id, (47 random bits + multicast bit = 1)
-      node = _nodeId = [
-        seedBytes[0] | 0x01,
-        seedBytes[1], seedBytes[2], seedBytes[3], seedBytes[4], seedBytes[5]
-      ];
-    }
-    if (clockseq == null) {
-      // Per 4.2.2, randomize (14 bit) clockseq
-      clockseq = _clockseq = (seedBytes[6] << 8 | seedBytes[7]) & 0x3fff;
-    }
-  }
-
-  // UUID timestamps are 100 nano-second units since the Gregorian epoch,
-  // (1582-10-15 00:00).  JSNumbers aren't precise enough for this, so
-  // time is handled internally as 'msecs' (integer milliseconds) and 'nsecs'
-  // (100-nanoseconds offset from msecs) since unix epoch, 1970-01-01 00:00.
-  var msecs = options.msecs !== undefined ? options.msecs : new Date().getTime();
-
-  // Per 4.2.1.2, use count of uuid's generated during the current clock
-  // cycle to simulate higher resolution clock
-  var nsecs = options.nsecs !== undefined ? options.nsecs : _lastNSecs + 1;
-
-  // Time since last uuid creation (in msecs)
-  var dt = (msecs - _lastMSecs) + (nsecs - _lastNSecs)/10000;
-
-  // Per 4.2.1.2, Bump clockseq on clock regression
-  if (dt < 0 && options.clockseq === undefined) {
-    clockseq = clockseq + 1 & 0x3fff;
-  }
-
-  // Reset nsecs if clock regresses (new clockseq) or we've moved onto a new
-  // time interval
-  if ((dt < 0 || msecs > _lastMSecs) && options.nsecs === undefined) {
-    nsecs = 0;
-  }
-
-  // Per 4.2.1.2 Throw error if too many uuids are requested
-  if (nsecs >= 10000) {
-    throw new Error('uuid.v1(): Can\'t create more than 10M uuids/sec');
-  }
-
-  _lastMSecs = msecs;
-  _lastNSecs = nsecs;
-  _clockseq = clockseq;
-
-  // Per 4.1.4 - Convert from unix epoch to Gregorian epoch
-  msecs += 12219292800000;
-
-  // `time_low`
-  var tl = ((msecs & 0xfffffff) * 10000 + nsecs) % 0x100000000;
-  b[i++] = tl >>> 24 & 0xff;
-  b[i++] = tl >>> 16 & 0xff;
-  b[i++] = tl >>> 8 & 0xff;
-  b[i++] = tl & 0xff;
-
-  // `time_mid`
-  var tmh = (msecs / 0x100000000 * 10000) & 0xfffffff;
-  b[i++] = tmh >>> 8 & 0xff;
-  b[i++] = tmh & 0xff;
-
-  // `time_high_and_version`
-  b[i++] = tmh >>> 24 & 0xf | 0x10; // include version
-  b[i++] = tmh >>> 16 & 0xff;
-
-  // `clock_seq_hi_and_reserved` (Per 4.2.2 - include variant)
-  b[i++] = clockseq >>> 8 | 0x80;
-
-  // `clock_seq_low`
-  b[i++] = clockseq & 0xff;
-
-  // `node`
-  for (var n = 0; n < 6; ++n) {
-    b[i + n] = node[n];
-  }
-
-  return buf ? buf : bytesToUuid(b);
-}
-
-module.exports = v1;
-
-
-/***/ }),
-
-/***/ "./node_modules/uuid/v4.js":
-/*!*********************************!*\
-  !*** ./node_modules/uuid/v4.js ***!
-  \*********************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-var rng = __webpack_require__(/*! ./lib/rng */ "./node_modules/uuid/lib/rng-browser.js");
-var bytesToUuid = __webpack_require__(/*! ./lib/bytesToUuid */ "./node_modules/uuid/lib/bytesToUuid.js");
-
-function v4(options, buf, offset) {
-  var i = buf && offset || 0;
-
-  if (typeof(options) == 'string') {
-    buf = options === 'binary' ? new Array(16) : null;
-    options = null;
-  }
-  options = options || {};
-
-  var rnds = options.random || (options.rng || rng)();
-
-  // Per 4.4, set bits for version and `clock_seq_hi_and_reserved`
-  rnds[6] = (rnds[6] & 0x0f) | 0x40;
-  rnds[8] = (rnds[8] & 0x3f) | 0x80;
-
-  // Copy bytes to buffer, if provided
-  if (buf) {
-    for (var ii = 0; ii < 16; ++ii) {
-      buf[i + ii] = rnds[ii];
-    }
-  }
-
-  return buf || bytesToUuid(rnds);
-}
-
-module.exports = v4;
-
-
-/***/ }),
-
 /***/ "./node_modules/vue-functional-data-merge/dist/lib.esm.js":
 /*!****************************************************************!*\
   !*** ./node_modules/vue-functional-data-merge/dist/lib.esm.js ***!
@@ -7209,9 +7827,31 @@ var render = function() {
       attrs: { id: _vm.answer.uuid }
     },
     [
-      _c("span", { staticClass: "badge badge-secondary" }, [
-        _vm._v(_vm._s(_vm.answer.answer_order))
-      ]),
+      _c(
+        "span",
+        {
+          staticClass: "badge badge-secondary",
+          attrs: {
+            "data-toggle": "tooltip",
+            "data-placement": "top",
+            title: "Order"
+          }
+        },
+        [_vm._v(_vm._s(_vm.answer.answer_order))]
+      ),
+      _vm._v(" "),
+      _c(
+        "span",
+        {
+          staticClass: "badge badge-primary",
+          attrs: {
+            "data-toggle": "tooltip",
+            "data-placement": "top",
+            title: "Weight"
+          }
+        },
+        [_vm._v(_vm._s(_vm.answer.weight))]
+      ),
       _vm._v("\n    " + _vm._s(_vm.answer.answer) + "\n    "),
       _vm.hasNextQuestion
         ? _c(
@@ -7385,7 +8025,7 @@ var render = function() {
         [
           _c("div", { staticClass: "form-group" }, [
             _c("div", { staticClass: "row" }, [
-              _c("div", { staticClass: "col-2" }, [
+              _c("div", { staticClass: "col-3" }, [
                 _c("label", { attrs: { for: "answer_order" } }, [_vm._v("#")]),
                 _vm._v(" "),
                 _c("input", {
@@ -7419,7 +8059,7 @@ var render = function() {
                 })
               ]),
               _vm._v(" "),
-              _c("div", { staticClass: "col-3" }, [
+              _c("div", { staticClass: "col-6" }, [
                 _c("label", { attrs: { for: "answer_type" } }, [
                   _vm._v("Answer Type")
                 ]),
@@ -7470,7 +8110,37 @@ var render = function() {
                 )
               ]),
               _vm._v(" "),
-              _c("div", { staticClass: "col-7" }, [
+              _c("div", { staticClass: "col-3" }, [
+                _c("label", { attrs: { for: "weight" } }, [_vm._v("Weight")]),
+                _vm._v(" "),
+                _c("input", {
+                  directives: [
+                    {
+                      name: "model",
+                      rawName: "v-model",
+                      value: _vm.editAnswer.weight,
+                      expression: "editAnswer.weight"
+                    }
+                  ],
+                  staticClass: "form-control",
+                  attrs: { type: "text", name: "weight", id: "weight" },
+                  domProps: { value: _vm.editAnswer.weight },
+                  on: {
+                    input: function($event) {
+                      if ($event.target.composing) {
+                        return
+                      }
+                      _vm.$set(_vm.editAnswer, "weight", $event.target.value)
+                    }
+                  }
+                })
+              ])
+            ])
+          ]),
+          _vm._v(" "),
+          _c("div", { staticClass: "form-group" }, [
+            _c("div", { staticClass: "row" }, [
+              _c("div", { staticClass: "col-12" }, [
                 _c("label", { attrs: { for: "answer" } }, [_vm._v("Answer")]),
                 _vm._v(" "),
                 _c("input", {
@@ -7483,7 +8153,12 @@ var render = function() {
                     }
                   ],
                   staticClass: "form-control",
-                  attrs: { type: "text", name: "answer", id: "answer" },
+                  attrs: {
+                    type: "text",
+                    name: "answer",
+                    id: "answer",
+                    autofocus: ""
+                  },
                   domProps: { value: _vm.editAnswer.answer },
                   on: {
                     input: function($event) {
@@ -7510,10 +8185,19 @@ var render = function() {
                 _c(
                   "button",
                   {
-                    staticClass: "btn btn-danger",
-                    on: { click: _vm.closeModal }
+                    staticClass: "btn btn-success",
+                    on: { click: _vm.doOnEditAnswer }
                   },
                   [_c("i", { staticClass: "fas fa-check" })]
+                ),
+                _vm._v(" "),
+                _c(
+                  "button",
+                  {
+                    staticClass: "btn btn-danger",
+                    on: { click: _vm.closeEditAnswerModal }
+                  },
+                  [_c("i", { staticClass: "fas fa-times" })]
                 )
               ])
             ]
@@ -7548,7 +8232,8 @@ var render = function() {
                   staticClass: "form-control",
                   attrs: {
                     name: "next_question_uuid",
-                    id: "next_question_uuid"
+                    id: "next_question_uuid",
+                    autofocus: ""
                   },
                   on: {
                     change: function($event) {
@@ -7684,7 +8369,12 @@ var render = function() {
                     }
                   ],
                   staticClass: "form-control",
-                  attrs: { type: "text", name: "question", id: "question" },
+                  attrs: {
+                    type: "text",
+                    name: "question",
+                    id: "question",
+                    autofocus: ""
+                  },
                   domProps: { value: _vm.newQuestion.question },
                   on: {
                     input: function($event) {
@@ -7742,7 +8432,7 @@ var staticRenderFns = [
     return _c(
       "button",
       {
-        staticClass: "btn btn-sm btn-secondary dropdown-toggle",
+        staticClass: "btn btn-sm btn-light dropdown-toggle",
         attrs: {
           type: "button",
           id: "dropdownMenuButton",
@@ -7831,21 +8521,20 @@ var render = function() {
               )
             ]),
             _vm._v(" "),
-            _vm.questions.length == 0 && _vm.quiz_uuid !== ""
-              ? _c("div", { staticClass: "col-2" }, [
-                  _c(
-                    "button",
-                    {
-                      staticClass: "btn btn-secondary",
-                      on: { click: _vm.showNewQuestionModal }
-                    },
-                    [
-                      _c("i", { staticClass: "fas fa-plus" }),
-                      _vm._v(" New question\n                    ")
-                    ]
-                  )
-                ])
-              : _vm._e()
+            _c("div", { staticClass: "col-2" }, [
+              _c(
+                "button",
+                {
+                  staticClass: "btn btn-secondary",
+                  attrs: { disabled: _vm.addFirstQuestionDisabled },
+                  on: { click: _vm.showNewQuestionModal }
+                },
+                [
+                  _c("i", { staticClass: "fas fa-plus" }),
+                  _vm._v(" New question\n                    ")
+                ]
+              )
+            ])
           ])
         ]),
         _vm._v(" "),
@@ -7936,7 +8625,12 @@ var render = function() {
                     }
                   ],
                   staticClass: "form-control",
-                  attrs: { type: "text", name: "question", id: "question" },
+                  attrs: {
+                    type: "text",
+                    name: "question",
+                    id: "question",
+                    autofocus: ""
+                  },
                   domProps: { value: _vm.newQuestion.question },
                   on: {
                     input: function($event) {
@@ -8017,14 +8711,11 @@ var render = function() {
       _c(
         "div",
         {
-          staticClass: "card-header p-2",
+          staticClass: "card-header p-2 bg-secondary text-white",
           class: {
-            "text-white": _vm.isFirstQuestionOnQuiz,
+            "text-white": _vm.isFirstQuestionOnQuiz || _vm.isTheLastQuestion,
             "bg-success": _vm.isFirstQuestionOnQuiz,
-            "bg-danger":
-              !_vm.isFirstQuestionOnQuiz &&
-              !_vm.isSingleChoiceQuestion &&
-              !_vm.hasNextQuestion
+            "bg-danger": _vm.isTheLastQuestion
           }
         },
         [
@@ -8041,6 +8732,17 @@ var render = function() {
                 title: "Single choice question"
               }
             }),
+            _vm._v(" "),
+            _vm.isFirstQuestionOnQuiz
+              ? _c("i", {
+                  staticClass: "fas fa-flag-checkered",
+                  attrs: {
+                    "data-toggle": "tooltip",
+                    "data-placement": "top",
+                    title: "First question of the Quiz"
+                  }
+                })
+              : _vm._e(),
             _vm._v(
               "\n            " +
                 _vm._s(_vm.question.question) +
@@ -8058,6 +8760,7 @@ var render = function() {
                         expression: "'#uuid-'+question.next_question_uuid"
                       }
                     ],
+                    staticClass: "text-white",
                     attrs: { href: "#" }
                   },
                   [
@@ -8074,7 +8777,26 @@ var render = function() {
           _vm._v(" "),
           _c("div", { staticClass: "float-right mr-1" }, [
             _c("div", { staticClass: "dropdown" }, [
-              _vm._m(0),
+              _c(
+                "button",
+                {
+                  staticClass: "btn btn-sm dropdown-toggle btn-secondary",
+                  class: {
+                    "btn-success": _vm.isFirstQuestionOnQuiz,
+                    "btn-danger": _vm.isTheLastQuestion
+                  },
+                  attrs: {
+                    type: "button",
+                    id: "dropdownMenuButton",
+                    "data-toggle": "dropdown",
+                    "aria-haspopup": "true",
+                    "aria-expanded": "false",
+                    "data-placement": "top",
+                    title: "New"
+                  }
+                },
+                [_c("i", { staticClass: "fas fa-plus" })]
+              ),
               _vm._v(" "),
               _c(
                 "div",
@@ -8263,7 +8985,33 @@ var render = function() {
                 )
               ]),
               _vm._v(" "),
-              _c("div", { staticClass: "col-9" }, [
+              _c("div", { staticClass: "col-2" }, [
+                _c("label", { attrs: { for: "weight" } }, [_vm._v("Weight")]),
+                _vm._v(" "),
+                _c("input", {
+                  directives: [
+                    {
+                      name: "model",
+                      rawName: "v-model",
+                      value: _vm.newAnswer.weight,
+                      expression: "newAnswer.weight"
+                    }
+                  ],
+                  staticClass: "form-control",
+                  attrs: { type: "text", name: "weight", id: "weight" },
+                  domProps: { value: _vm.newAnswer.weight },
+                  on: {
+                    input: function($event) {
+                      if ($event.target.composing) {
+                        return
+                      }
+                      _vm.$set(_vm.newAnswer, "weight", $event.target.value)
+                    }
+                  }
+                })
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "col-7" }, [
                 _c("label", { attrs: { for: "answer" } }, [_vm._v("Answer")]),
                 _vm._v(" "),
                 _c("input", {
@@ -8276,7 +9024,12 @@ var render = function() {
                     }
                   ],
                   staticClass: "form-control",
-                  attrs: { type: "text", name: "answer", id: "answer" },
+                  attrs: {
+                    type: "text",
+                    name: "answer",
+                    id: "answer",
+                    autofocus: ""
+                  },
                   domProps: { value: _vm.newAnswer.answer },
                   on: {
                     input: function($event) {
@@ -8384,7 +9137,12 @@ var render = function() {
                     }
                   ],
                   staticClass: "form-control",
-                  attrs: { type: "text", name: "question", id: "question" },
+                  attrs: {
+                    type: "text",
+                    name: "question",
+                    id: "question",
+                    autofocus: ""
+                  },
                   domProps: { value: _vm.currentQuestion.question },
                   on: {
                     input: function($event) {
@@ -8504,7 +9262,8 @@ var render = function() {
                   staticClass: "form-control",
                   attrs: {
                     name: "next_question_uuid",
-                    id: "next_question_uuid"
+                    id: "next_question_uuid",
+                    autofocus: ""
                   },
                   on: {
                     change: function($event) {
@@ -8640,7 +9399,12 @@ var render = function() {
                     }
                   ],
                   staticClass: "form-control",
-                  attrs: { type: "text", name: "question", id: "question" },
+                  attrs: {
+                    type: "text",
+                    name: "question",
+                    id: "question",
+                    autofocus: ""
+                  },
                   domProps: { value: _vm.newQuestion.question },
                   on: {
                     input: function($event) {
@@ -8690,29 +9454,7 @@ var render = function() {
     1
   )
 }
-var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c(
-      "button",
-      {
-        staticClass: "btn btn-sm btn-secondary dropdown-toggle",
-        attrs: {
-          type: "button",
-          id: "dropdownMenuButton",
-          "data-toggle": "dropdown",
-          "aria-haspopup": "true",
-          "aria-expanded": "false",
-          "data-placement": "top",
-          title: "New"
-        }
-      },
-      [_c("i", { staticClass: "fas fa-plus" })]
-    )
-  }
-]
+var staticRenderFns = []
 render._withStripped = true
 
 
@@ -21983,19 +22725,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.common.js");
 /* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(vue__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
-/* harmony import */ var uuid_v4__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! uuid/v4 */ "./node_modules/uuid/v4.js");
-/* harmony import */ var uuid_v4__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(uuid_v4__WEBPACK_IMPORTED_MODULE_2__);
-
 
 
 vue__WEBPACK_IMPORTED_MODULE_0___default.a.use(vuex__WEBPACK_IMPORTED_MODULE_1__["default"]);
 /* harmony default export */ __webpack_exports__["default"] = (new vuex__WEBPACK_IMPORTED_MODULE_1__["default"].Store({
   state: {},
-  getters: {
-    newUuid: function newUuid() {
-      return uuid_v4__WEBPACK_IMPORTED_MODULE_2___default()();
-    }
-  },
+  getters: {},
   actions: {},
   mutations: {}
 }));
@@ -22016,6 +22751,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../../constants */ "./resources/js/constants.js");
 /* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
 /* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var qs__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! qs */ "./node_modules/qs/lib/index.js");
+/* harmony import */ var qs__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(qs__WEBPACK_IMPORTED_MODULE_3__);
 
 
 var _mutations;
@@ -22028,24 +22765,26 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 
 
+
 var VALID_MUTATIONS = {
   ADD_QUIZZES: "ADD_QUIZZES",
   SELECT_QUIZ: "SELECT_QUIZ",
   SET_QUESTIONS: "SET_QUESTIONS",
   ADD_QUESTION: "ADD_QUESTION",
-  DEL_QUESTION: "DEL_QUESTION",
   ADD_ANSWER: "ADD_ANSWER",
   DEL_ANSWER: "DEL_ANSWER",
   UPDATE_ANSWER: "UPDATE_ANSWER",
   UPDATE_QUESTION: "UPDATE_QUESTION",
   REMOVE_QUESTION: "REMOVE_QUESTION",
   UNLINK_QUESTION: "UNLINK_QUESTION",
-  LINK_QUESTION: "LINK_QUESTION"
+  LINK_QUESTION: "LINK_QUESTION",
+  NEW_QUESTION_UUID: "NEW_QUESTION_UUID"
 };
 var state = {
   questions: [],
   quizzes: [],
-  quiz_uuid: ""
+  quiz_uuid: "",
+  lastNewQuestionUUID: ""
 };
 var getters = {
   quizzes: function quizzes(state) {
@@ -22061,7 +22800,7 @@ var getters = {
       });
     };
   },
-  answer: function answer(getters) {
+  answer: function answer(state, getters) {
     return function (question_uuid, answer_uuid) {
       return getters.question(question_uuid).answers.find(function (a) {
         return a.uuid === answer_uuid;
@@ -22109,15 +22848,39 @@ var getters = {
     }];
   },
   firstQuizQuestion: function firstQuizQuestion(state) {
-    return state.quizzes.find(function (q) {
-      return q.uuid === state.quiz_uuid;
-    }).first_question_uuid;
+    if (state.quiz_uuid !== '') {
+      return state.quizzes.find(function (q) {
+        return q.uuid === state.quiz_uuid;
+      }).first_question_uuid;
+    }
   },
   getOtherQuestions: function getOtherQuestions(state) {
     return function (uuid) {
       return state.questions.filter(function (q) {
         return q.uuid !== uuid;
       });
+    };
+  },
+  isTheLastQuestion: function isTheLastQuestion(state, getters) {
+    return function (uuid) {
+      if (getters.question(uuid).answers.length === 0) {
+        return true;
+      }
+
+      if (getters.isSingleChoiceQuestion(uuid)) {
+        var answers = getters.question(uuid).answers;
+
+        for (var i = 0; i < answers.length; i++) {
+          if (answers[i].next_question_uuid === null || answers[i].next_question_uuid === '') {
+            return true;
+          }
+        }
+      } else {
+        var q = getters.question(uuid).next_question_uuid;
+        return q === null || q === '';
+      }
+
+      return false;
     };
   }
 };
@@ -22197,16 +22960,179 @@ var actions = {
         return _ref6.apply(this, arguments);
       };
     }());
+  },
+  addNewQuestion: function addNewQuestion(_ref7, question) {
+    var commit = _ref7.commit,
+        getters = _ref7.getters,
+        dispatch = _ref7.dispatch;
+    console.log(question);
+    axios__WEBPACK_IMPORTED_MODULE_2___default.a.post('/admin/crud-questions/add_question', qs__WEBPACK_IMPORTED_MODULE_3___default.a.stringify(question)).then(
+    /*#__PURE__*/
+    function () {
+      var _ref8 = _asyncToGenerator(
+      /*#__PURE__*/
+      _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee3(r) {
+        var a, q;
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee3$(_context3) {
+          while (1) {
+            switch (_context3.prev = _context3.next) {
+              case 0:
+                console.log(r);
+                _context3.t0 = question.parent.type;
+                _context3.next = _context3.t0 === 'answer' ? 4 : _context3.t0 === 'question' ? 8 : 12;
+                break;
+
+              case 4:
+                a = getters.answer(question.parent.obj.question_uuid, question.parent.obj.uuid);
+                a.next_question_uuid = r.data.uuid;
+                dispatch('updateExistingAnswer', a);
+                return _context3.abrupt("break", 12);
+
+              case 8:
+                q = getters.question(question.parent.obj.uuid);
+                q.next_question_uuid = r.data.uuid;
+                dispatch('updateExistingQuestion', q);
+                return _context3.abrupt("break", 12);
+
+              case 12:
+                commit(VALID_MUTATIONS.ADD_QUESTION, r.data);
+                commit(VALID_MUTATIONS.NEW_QUESTION_UUID, r.data.uuid);
+
+              case 14:
+              case "end":
+                return _context3.stop();
+            }
+          }
+        }, _callee3, this);
+      }));
+
+      return function (_x3) {
+        return _ref8.apply(this, arguments);
+      };
+    }()).catch(function (r) {
+      console.log(r);
+    });
+  },
+  addNewAnswer: function addNewAnswer(_ref9, answer) {
+    var commit = _ref9.commit;
+    axios__WEBPACK_IMPORTED_MODULE_2___default.a.post('/admin/crud-questions/add_answer', qs__WEBPACK_IMPORTED_MODULE_3___default.a.stringify(answer)).then(
+    /*#__PURE__*/
+    function () {
+      var _ref10 = _asyncToGenerator(
+      /*#__PURE__*/
+      _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee4(r) {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee4$(_context4) {
+          while (1) {
+            switch (_context4.prev = _context4.next) {
+              case 0:
+                console.log(r.data);
+                commit(VALID_MUTATIONS.ADD_ANSWER, r.data);
+
+              case 2:
+              case "end":
+                return _context4.stop();
+            }
+          }
+        }, _callee4, this);
+      }));
+
+      return function (_x4) {
+        return _ref10.apply(this, arguments);
+      };
+    }()).catch(function (r) {
+      console.log(r);
+    });
+  },
+  updateExistingQuestion: function updateExistingQuestion(_ref11, question) {
+    var commit = _ref11.commit;
+    axios__WEBPACK_IMPORTED_MODULE_2___default.a.post('/admin/crud-questions/edit_question', qs__WEBPACK_IMPORTED_MODULE_3___default.a.stringify(question)).then(
+    /*#__PURE__*/
+    function () {
+      var _ref12 = _asyncToGenerator(
+      /*#__PURE__*/
+      _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee5(r) {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee5$(_context5) {
+          while (1) {
+            switch (_context5.prev = _context5.next) {
+              case 0:
+                console.log(r);
+                commit(VALID_MUTATIONS.UPDATE_QUESTION, r.data);
+
+              case 2:
+              case "end":
+                return _context5.stop();
+            }
+          }
+        }, _callee5, this);
+      }));
+
+      return function (_x5) {
+        return _ref12.apply(this, arguments);
+      };
+    }()).catch(function (r) {
+      console.log(r);
+    });
+  },
+  updateExistingAnswer: function updateExistingAnswer(_ref13, answer) {
+    var commit = _ref13.commit;
+    axios__WEBPACK_IMPORTED_MODULE_2___default.a.post('/admin/crud-questions/edit_answer', qs__WEBPACK_IMPORTED_MODULE_3___default.a.stringify(answer)).then(
+    /*#__PURE__*/
+    function () {
+      var _ref14 = _asyncToGenerator(
+      /*#__PURE__*/
+      _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.mark(function _callee6(r) {
+        return _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default.a.wrap(function _callee6$(_context6) {
+          while (1) {
+            switch (_context6.prev = _context6.next) {
+              case 0:
+                console.log(r);
+                commit(VALID_MUTATIONS.UPDATE_ANSWER, r.data);
+
+              case 2:
+              case "end":
+                return _context6.stop();
+            }
+          }
+        }, _callee6, this);
+      }));
+
+      return function (_x6) {
+        return _ref14.apply(this, arguments);
+      };
+    }()).catch(function (r) {
+      console.log(r);
+    });
+  },
+  deleteQuestion: function deleteQuestion(_ref15, question) {
+    var commit = _ref15.commit,
+        dispatch = _ref15.dispatch;
+    axios__WEBPACK_IMPORTED_MODULE_2___default.a.post('/admin/crud-questions/del_question', qs__WEBPACK_IMPORTED_MODULE_3___default.a.stringify({
+      uuid: question
+    })).then(function (r) {
+      console.log(r);
+      commit(VALID_MUTATIONS.REMOVE_QUESTION, question);
+    }).catch(function (r) {
+      console.log(r);
+    });
+  },
+  persistLinkOnAnswer: function persistLinkOnAnswer(_ref16, link) {
+    var commit = _ref16.commit;
+    var post = {
+      answer_uuid: link.uuid,
+      next_question_uuid: link.link
+    };
+    axios__WEBPACK_IMPORTED_MODULE_2___default.a.post('/admin/crud-questions/link_answer_questinon', qs__WEBPACK_IMPORTED_MODULE_3___default.a.stringify(post)).then(function (r) {
+      console.log(r);
+      commit(VALID_MUTATIONS.LINK_QUESTION, link);
+    }).catch(function (r) {
+      console.log(r);
+    });
   }
 };
 var mutations = (_mutations = {}, _defineProperty(_mutations, VALID_MUTATIONS.SET_QUESTIONS, function (state, questions) {
   state.questions = questions;
 }), _defineProperty(_mutations, VALID_MUTATIONS.ADD_QUESTION, function (state, question) {
   state.questions.push(question);
-}), _defineProperty(_mutations, VALID_MUTATIONS.DEL_QUESTION, function (state, question) {
-  state.questions = state.questions.filter(function (q) {
-    return q.uuid = question.uuid;
-  });
 }), _defineProperty(_mutations, VALID_MUTATIONS.ADD_ANSWER, function (state, answer) {
   state.questions.find(function (x) {
     return x.uuid === answer.question_uuid;
@@ -22224,7 +23150,10 @@ var mutations = (_mutations = {}, _defineProperty(_mutations, VALID_MUTATIONS.SE
   }).answers.find(function (a) {
     return a.uuid === answer.uuid;
   });
-  x = answer;
+  x.answer = answer.answer;
+  x.answer_order = answer.answer_order;
+  x.weight = answer.weight;
+  x.next_question_uuid = answer.next_question_uuid;
 }), _defineProperty(_mutations, VALID_MUTATIONS.ADD_QUIZZES, function (state, quizzes) {
   state.quizzes = quizzes;
 }), _defineProperty(_mutations, VALID_MUTATIONS.SELECT_QUIZ, function (state, uuid) {
@@ -22234,6 +23163,7 @@ var mutations = (_mutations = {}, _defineProperty(_mutations, VALID_MUTATIONS.SE
     return q.uuid === value.uuid;
   });
   x.question = value.question;
+  x.next_question_uuid = value.next_question_uuid;
 }), _defineProperty(_mutations, VALID_MUTATIONS.REMOVE_QUESTION, function (state, uuid) {
   state.questions.forEach(function (q) {
     if (q.next_question_uuid === uuid) {
@@ -22273,6 +23203,8 @@ var mutations = (_mutations = {}, _defineProperty(_mutations, VALID_MUTATIONS.SE
       }
     });
   });
+}), _defineProperty(_mutations, VALID_MUTATIONS.NEW_QUESTION_UUID, function (state, payload) {
+  state.lastNewQuestionUUID = payload;
 }), _mutations);
 /* harmony default export */ __webpack_exports__["default"] = ({
   VALID_MUTATIONS: VALID_MUTATIONS,

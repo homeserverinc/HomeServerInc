@@ -11,7 +11,7 @@ class MissedCall extends Model
 {  
     protected $fillable = [
         'datetime_call',
-        'site_id',
+        'site_uuid',
         'language_id',
         'from',
         'returned',

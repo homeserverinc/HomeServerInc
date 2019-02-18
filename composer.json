@@ -14,7 +14,8 @@
         "pusher/pusher-php-server": "~3.0",
         "santigarcor/laratrust": "5.0.*",
         "twilio/sdk": "^5.24",
-        "tymon/jwt-auth": "1.0.0-rc.3"
+        "tymon/jwt-auth": "1.0.0-rc.3",
+        "cartalyst/stripe-laravel": "9.0.*"
     },
     "require-dev": {
         "beyondcode/laravel-dump-server": "^1.0",

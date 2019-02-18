@@ -11,6 +11,7 @@
         {{--  left align  --}}
         <ul class="nav navbar-nav mr-auto">
             {{--  people  --}}
+            @ability(Auth::user()->roles->first()->name, ['read-agent', 'read-user', 'read-role', 'read-permission'], ['validate_all' => true])
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownPeople" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     People
@@ -36,7 +37,7 @@
                     </li>
                 </ul>
             </li>
-            
+            @endability
             {{--  cities  --}}
             @permission('read-city')
             <li class="nav-item">
@@ -45,6 +46,8 @@
             @endpermission
 
             {{--  sites  --}}
+            
+            @ability(Auth::user()->roles->first()->name, 'read-site|read-contractor|read-site-contact', ['validate_all' => true]) 
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownSites" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Sites
@@ -52,15 +55,21 @@
                 <div class="dropdown-menu" aria-labelledby="navbarDropdownSites">
                     <a class="dropdown-item" href="{{ route('site.index') }}">Sites</a>
                     <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" href="{{ route('site_contact.index') }}">Contacts</a>
-                    <a class="dropdown-item" href="{{ route('contractor.index') }}">Contractors</a>
+                    @permission('read-site-contact') 
+                        <a class="dropdown-item" href="{{ route('site_contact.index') }}">Contacts</a>
+                    @endpermission
+                    @permission('read-contractor') 
+                        <a class="dropdown-item" href="{{ route('contractor.index') }}">Contractors</a>
+                    @endpermission
                     {{--  <a class="dropdown-item" href="#">Another action</a>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item" href="#">Something else here</a>  --}}
                 </div>
             </li>
+            @endability
 
             {{--  services  --}}
+            @ability(Auth::user()->roles->first()->name, 'read-category|read-quiz|read-question|read-service', ['validate_all' => true])
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownServices" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Services
@@ -80,13 +89,38 @@
                     @endpermission
                 </div>
             </li>
+            @endability
+
             {{--  cities  --}}
             @permission('read-lead')
             <li class="nav-item">
                 <a class="nav-link" href="{{route('lead.index')}}">Leads</a>
             </li>  
             @endpermission
+
+            {{-- plans --}}
+            @permission('read-plan')
+            <li class="nav-item">
+                <a class="nav-link" href="{{route('plan.index')}}">Plans</a>
+            </li>  
+            @endpermission
+
+            {{-- cards --}}
+            @permission('read-card')
+            <li class="nav-item">
+                <a class="nav-link" href="{{route('card.index')}}">Cards</a>
+            </li>  
+            @endpermission
+    
+            {{-- cards --}}
+            @permission('read-charge')
+            <li class="nav-item">
+                <a class="nav-link" href="{{route('charge.index')}}">History</a>
+            </li>  
+            @endpermission
+
             {{--  Communications  --}}
+            @ability(Auth::user()->roles->first()->name, 'read-phone|read-sip-domain|read-sip-credential-list|read-twilio-workspace|read-twilio-activity|read-twilio-workflow|read-twilio-configuration|read-missed-call', ['validate_all' => true])
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownCommunications" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Communications
@@ -125,9 +159,16 @@
                     @endpermission
                 </div> 
             </li> 
+            @endability
+            
         </ul>
         {{--  right align  --}}
         <ul class="navbar-nav ml-auto">
+            @ability('contractor', '')
+            <li class="nav-item">
+                <a class="nav-link" href="{{route('charge.index')}}"><span class="text-warning"><b>$ {{Auth::user()->contractor->wallet}}</b></span></a>
+            </li>
+            @endability
             @auth
             @if(session()->get('_WORKER'))
             <li class="nav-item">

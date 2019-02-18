@@ -27,6 +27,9 @@
                 $input['div_css'] = isset($input['div_css']) ? $input['div_css'] : '';
                 $input['vModel'] = isset($input['vModel']) ? $input['vModel'] : false;
                 $input['readOnly'] = isset($input['readOnly']) ? $input['readOnly'] : false;
+                $input['extraDisplayInfo'] = $input['extraDisplayInfo'] ?? '';
+                $input['extraDisplayField'] = $input['extraDisplayField'] ?? false;
+                $input['multiple'] = $input['multiple'] ?? null;
             @endphp
             @if($input['type'] == 'text')
                 @component('components.input-text', [
@@ -133,6 +136,9 @@
                     'inputSize' => $input['inputSize'],
                     'items' => $input['items'],
                     'displayField' => $input['displayField'],
+                    'extraDisplayField' => $input['extraDisplayField'],
+                    'extraDisplayInfo' => $input['extraDisplayInfo'],
+                    'multiple' => $input['multiple'],
                     'keyField' => $input['keyField'],
                     'disabled' => $input['disabled'],
                     'name' => $input['name'],
@@ -143,7 +149,7 @@
                     'liveSearch' => $input['liveSearch'],
                     'defaultNone' => $input['defaultNone'],
                     'div_css' => $input['div_css'],
-                    'vModel' => $input['vModel']
+                    'vModel' => $input['vModel'],
                 ])
                 @endcomponent
             @endif

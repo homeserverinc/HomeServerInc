@@ -14,7 +14,7 @@ class SyncNewPermissions extends Seeder
     public function run()
     {
         $this->command->info('Sincronysing new permissions...');
-        //$this->truncateLaratrustTables();
+        // $this->truncateLaratrustTables();
 
         $modules = config('laratrust_seeder.role_structure.superadministrator');
         //$userPermission = config('laratrust_seeder.permission_structure');

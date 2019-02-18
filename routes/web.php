@@ -116,7 +116,13 @@ Route::prefix('/admin')->middleware(['auth:web'])->group(function() {
     Route::get('/quiz/{quiz_uuid}/questions', 'QuestionsController@getQuestionsFromQuiz');
     Route::post('/update-worker-activity', 'TwilioWorkersController@updateTwilioActivity')->name('update-worker-activity');
     Route::post('/get-current-worker-activity', 'TwilioWorkersController@getCurrentTwilioActivity')->name('get-current-worker-activity');
+    
 
+    Route::post('/contractor/subscribe_plan', 'ContractorsController@subscribe_plan')->name('subscribe_plan');
+
+    Route::resource('/card', 'CardsController')->except('show');
+    Route::resource('/plan', 'PlansController')->except('show');
+    Route::resource('/charge', 'ChargesController');
     /* methods used by Vue */
     Route::post('/crud-questions/add_question', 'QuestionsController@vueAddQuestion');
     Route::post('/crud-questions/edit_question', 'QuestionsController@vueEditQuestion');

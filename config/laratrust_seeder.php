@@ -18,6 +18,10 @@ return [
             'phone' => 'r,u,d',
             'site-contact' => 'r,u',
             'contractor' => 'c,r,u,d',
+            'plan' => 'c,r,u,d',
+            'card' => 'c,r,u,d',
+            'charge' => 'c,r,u,d',
+            'subscription' => 'c,r,u,d',
             'twilio-configuration' => 'r,u',
             'sip-domain' => 'c,r,u,d',
             'sip-credential-list' => 'c,r,u,d',
@@ -38,6 +42,13 @@ return [
         ],
         'user' => [
             'role' => 'r,u'
+        ],
+        'contractor' => [
+            'lead' => 'r',
+            'plan' => 'r',
+            'card' => 'c,r,u,d',
+            'charge' => 'c,r,u,d',
+            'subscription' => 'c,r,u,d',
         ]
     ],
     'permission_structure' => [

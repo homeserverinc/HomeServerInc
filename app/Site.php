@@ -70,4 +70,8 @@ class Site extends Model
     public function phone() {
         return $this->belongsTo(Phone::class);
     }
+
+    public function contractor() {
+        return $this->hasOne(Contractor::class);
+    }
 }

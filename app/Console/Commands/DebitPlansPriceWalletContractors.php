@@ -13,7 +13,7 @@ class DebitPlansPriceWalletContractors extends Command
      *
      * @var string
      */
-    protected $signature = 'contractors:debitplan';
+    protected $signature = 'debitplan';
 
     /**
      * The console command description.

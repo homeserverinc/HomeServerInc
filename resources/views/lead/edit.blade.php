@@ -53,42 +53,22 @@
                                     [
                                         'type' => 'text',
                                         'field' => 'street',
-                                        'label' => 'Street',
+                                        'label' => 'Address',
                                         'required' => true,
+                                        'inputSize' => 9,
                                         'inputValue' => $lead->customer->street
-                                    ]
-                                ]
-                            ])
-                            @endcomponent
-                            @component('components.form-group', [
-                                'inputs' => [
-                                    [
+                                    ], [
                                         'type' => 'text',
-                                        'field' => 'city',
-                                        'label' => 'City',
-                                        'required' => true,
-                                        'inputSize' => 8,
-                                        'inputValue' => $lead->customer->city
-                                    ],
-                                    [
-                                        'type' => 'text',
-                                        'field' => 'state',
-                                        'label' => 'State',
-                                        'required' => true,
-                                        'inputSize' => 2,
-                                        'inputValue' => $lead->customer->state
-                                    ],
-                                    [
-                                        'type' => 'text',
-                                        'field' => 'zip',
+                                        'field' => 'zipcode',
                                         'label' => 'Zip',
                                         'required' => true,
-                                        'inputSize' => 2,
+                                        'inputSize' => 3,
                                         'inputValue' => $lead->customer->zip
                                     ]
-                                ]
+                            ]
                             ])
                             @endcomponent
+                            
                         </div>
                     </div>   
                     <div class=" card  ">

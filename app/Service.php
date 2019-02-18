@@ -54,9 +54,6 @@ class Service extends Model
     ];
 
     
-    public function leads() {
-        return $this->hasMany(Lead::class);
-    }
 
     public function category() {
         return $this->belongsTo(Category::class);

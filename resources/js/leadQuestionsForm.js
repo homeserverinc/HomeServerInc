@@ -8,7 +8,7 @@ const questionForm = new Vue({
     },
     data() {
         return {
-            serviceId: null
+            categoryUUID: null
         }
     }
 });

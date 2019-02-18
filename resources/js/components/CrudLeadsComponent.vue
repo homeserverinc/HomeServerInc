@@ -1,5 +1,5 @@
 <template>
-    <div v-if="this.serviceId > 0" class="panel panel-default">
+    <div v-if="this.categoryUUID > 0" class="panel panel-default">
                   
             <div class="form-group" v-for="(question, index) in questions" :key="index">          
                 <!-- question -->
@@ -44,7 +44,7 @@
 export default {
     name: 'crudleads',
     props: [
-        'serviceId'
+        'categoryUUID'
     ],
     data() {
         return {
@@ -55,7 +55,7 @@ export default {
         }
     },
     watch: { 
-        serviceId: function() {
+        categoryUUID: function() {
             this.getFirstQuestion();
         }
     },
@@ -63,7 +63,7 @@ export default {
         getFirstQuestion() {
             this.questions = [];
             var self = this;
-            axios.get('/admin/service-first-question/'+this.serviceId)
+            axios.get('/admin/service-first-question/'+this.categoryUUID)
                  .then(async function (response) {
                     self.setUnansweredQuestion(response.data);
                     self.questions.push(response.data)

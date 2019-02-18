@@ -47,7 +47,7 @@ class Lead extends Model
         return $this->belongsTo(Customer::class);
     }
 
-    public function service() {
-        return $this->belongsTo(Service::class);
+    public function category() {
+        return $this->belongsTo(Category::class);
     }
 }

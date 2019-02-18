@@ -15,7 +15,7 @@ class AlterTableContractorsAddNullableSiteUuid extends Migration
     {
 
         Schema::table('contractors', function (Blueprint $table) {
-            $table->uuid('site_uuid')->nullable()->change();
+            $table->string('site_uuid', 36)->nullable()->change();
         });
     }
 
@@ -27,7 +27,7 @@ class AlterTableContractorsAddNullableSiteUuid extends Migration
     public function down()
     {
         Schema::table('contractors', function (Blueprint $table) {
-            $table->uuid('site_uuid')->change();
+            $table->string('site_uuid', 36)->change();
         });
     }
 }

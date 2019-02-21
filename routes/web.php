@@ -117,10 +117,11 @@ Route::prefix('/admin')->middleware(['auth:web'])->group(function() {
     
 
     Route::post('/contractor/subscribe_plan', 'ContractorsController@subscribe_plan')->name('subscribe_plan');
-
+    Route::get('/contractor/edit_profile', 'ContractorsController@edit_profile')->name('contractor_edit_profile');
+    Route::match(['put', 'patch'], '/contractor/update_profile/{contractor}', 'ContractorsController@update_profile')->name('contractor_update_profile');
     Route::resource('/card', 'CardsController')->except('show');
     Route::resource('/plan', 'PlansController')->except('show');
-    Route::resource('/charge', 'ChargesController');
+    Route::resource('/charge', 'ChargesController')->except('show');
     Route::resource('/category', 'CategoriesController')->except('show');
     Route::resource('/city', 'CitiesController')->except('show');
     Route::resource('/site', 'SitesController')->except('show');

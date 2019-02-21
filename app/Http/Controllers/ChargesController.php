@@ -20,7 +20,6 @@ class ChargesController extends HomeServerController
     use ApiResponse;
 
      public $fields = [
-        'uuid' => 'UUID',
         'description' => 'Description',
         'amount' => 'Amount (USD)',
         'card.card_last_four' => 'Card last four',

@@ -2,7 +2,6 @@
 
 namespace App;
 
-use App\Service;
 use App\Category;
 use App\Question;
 use App\Traits\Uuidable;
@@ -46,10 +45,6 @@ class Quiz extends Model
 
     public function first_question() {
         return $this->hasOne(Question::class);
-    }
-
-    public function service() {
-        return $this->hasMany(Service::class);
     }
 
     public function questions() {

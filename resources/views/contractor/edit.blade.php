@@ -115,6 +115,7 @@
                     </div>
                 </div>
             </div>
+            @if(Auth::user()->hasRole('superadministrator'))
             <div class="mt-4 card card-primary{{ $errors->has('plan_uuid') || $errors->has('charge') ? ' border-danger mb-3' : '' }}">
                 <div class="card-header">
                     Plan
@@ -135,6 +136,16 @@
                                         'liveSearch' => true,
                                         'defaultNone' => true,
                                         'indexSelected' => $contractor->plan->uuid ?? null
+                                    ],[
+                                        'type' => 'text',
+                                        'field' => 'automatic_recharge_amount',
+                                        'label' => 'Automatic Charge amount',
+                                        'required' => false,
+                                    ],[
+                                        'type' => 'text',
+                                        'field' => 'automatic_recharge_trigger',
+                                        'label' => 'Automatic Charge trigger',
+                                        'required' => false,
                                     ]
                                 ]
                             ])
@@ -223,6 +234,7 @@
                     </div>
                 </div>
             </div>
+            @endif
             @endsection
         @endcomponent
     </div>

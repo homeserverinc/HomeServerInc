@@ -18,7 +18,6 @@ class PlansController extends HomeServerController
     use ApiResponse;
 
     public $fields = [
-        'uuid' => 'UUID',
         'name' => 'Name',
         'description' => 'Description',
         'price' => 'Price',

@@ -15,7 +15,6 @@ class CardsController extends HomeServerController
 {
 
     public $fields = [
-        'uuid' => 'UUID',
         'card_brand' => 'Brand',
         'card_last_four' => 'Last four',
         'exp_month' => 'Exp. Month',

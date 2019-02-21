@@ -41,7 +41,9 @@ class Contractor extends Model
         'ssn',
         'ein',
         'stripe_id',
-        'wallet'
+        'wallet',
+        'automatic_recharge_amount',
+        'automatic_recharge_trigger'
     ];
 
     public static function boot() {

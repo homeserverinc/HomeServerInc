@@ -131,6 +131,16 @@
                                         'field' => 'charge',
                                         'label' => 'Charge amount',
                                         'required' => false,
+                                    ],[
+                                        'type' => 'text',
+                                        'field' => 'automatic_recharge_amount',
+                                        'label' => 'Automatic Charge amount',
+                                        'required' => false,
+                                    ],[
+                                        'type' => 'text',
+                                        'field' => 'automatic_recharge_trigger',
+                                        'label' => 'Automatic Charge trigger',
+                                        'required' => false,
                                     ]
                                 ]
                             ])

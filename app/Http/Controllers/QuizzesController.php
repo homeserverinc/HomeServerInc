@@ -167,12 +167,15 @@ class QuizzesController extends HomeServerController
      * @return \Illuminate\Http\Response
      */
     public function getQuizzesJson(Request $request) {
-        return Quiz::where('category_uuid', $request->uuid)->get()->toJson();
+        return Quiz::where('category_uuid', $request->uuid)
+                ->with('questions.question_type')
+                ->with('questions.answers.answer_type')
+                ->get()->toJson();
     }
 
-    public function apiGetQuiz(Service $service) {
+    public function apiGetQuiz(Category $category) {
         try {
-            $quiz = Quiz::where('uuid', $service->quiz_uuid)
+            $quiz = Quiz::where('category_uuid', $category->uuid)
                 ->with('questions.question_type')
                 ->with('questions.answers.answer_type')
                 ->first();

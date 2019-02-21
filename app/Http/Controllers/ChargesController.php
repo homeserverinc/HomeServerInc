@@ -110,7 +110,7 @@ class ChargesController extends HomeServerController
                         ]);
 
                         $charge = new Charge([
-                            'amount' => (float) $request->input('charge'),
+                            'amount' => $amount,
                             'contractor_uuid' => $contractor->uuid,
                             'stripe_id' => $charge['id'],
                             'description' => 'Charge of '.($amount).' to '.$contractor->user->name.'.',

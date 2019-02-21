@@ -3,7 +3,7 @@
 @section('content')
     <div class=" card  ">
         @component('components.form', [
-            'title' => 'Change Contractor', 
+            'title' => 'My profile', 
             'routeUrl' => route('contractor_update_profile', $contractor->uuid), 
             'method' => 'PUT',
             'formButtons' => [

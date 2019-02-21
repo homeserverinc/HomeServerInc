@@ -99,10 +99,13 @@ class ChargesController extends HomeServerController
                     $contractor = Auth()->user()->contractor;
                     $card = Card::find($request->input('card'));
                     if($card->active){
+                        $amount = (float) $request->input('charge');
+                        if($amount >= 300)
+                            $amount += ceil($amount * 0.10);
                         $charge = Stripe::charges()->create([
                             'customer' => $contractor->stripe_id,
                             'currency' => 'USD',
-                            'amount'   => (float) $request->input('charge'),
+                            'amount'   => $amount,
                             'source' => $card->stripe_id
                         ]);
 
@@ -110,7 +113,7 @@ class ChargesController extends HomeServerController
                             'amount' => (float) $request->input('charge'),
                             'contractor_uuid' => $contractor->uuid,
                             'stripe_id' => $charge['id'],
-                            'description' => 'Charge of '.((float) $request->input('charge')).' to '.$contractor->user->name.'.',
+                            'description' => 'Charge of '.($amount).' to '.$contractor->user->name.'.',
                             'card_uuid' => $card->uuid
                         ]);
 

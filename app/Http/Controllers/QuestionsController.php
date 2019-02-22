@@ -281,4 +281,54 @@ class QuestionsController extends HomeServerController
     public function getQuestionsFromQuiz($quiz_uuid) {
         return response()->json(Question::with('answers')->where('quiz_uuid', $quiz_uuid)->get());
     }
+
+    public function vueAddQuestion(Request $request) {
+        $question = new Question($request->all());
+        $question->field_name = str_slug($question->question);
+        $question->save();
+
+        $quiz = Quiz::find($question->quiz_uuid);
+        if (!$quiz->first_question_uuid) {
+            $quiz->first_question_uuid = $question->uuid;
+        }
+
+        $quiz->save();
+
+        return response()->json($question->load('answers'));
+    }
+
+    public function vueEditQuestion(Request $request) {
+        $question = Question::find($request->uuid);
+        $question->fill($request->all());
+        $question->save();
+        
+        return response()->json($question->load('answers'));
+    }
+
+    public function vueDelQuestion(Request $request) {
+        $question = Question::find($request->uuid);
+        $question->delete();
+    }
+
+    public function vueAddAnswer(Request $request) {
+        $answer = new Answer($request->all());
+        $answer->answer_slug = str_slug($answer->answer);
+        $answer->save();
+
+        return response()->json($answer);
+    }
+
+    public function vueEditAnswer(Request $request) {
+        $answer = Answer::find($request->uuid);
+        $answer->fill($request->all());
+        $answer->save();
+        
+        return response()->json($answer);
+    }
+
+    public function vueLinkOnAnswer(Request $request) {
+        $answer = Answer::find($request->answer_uuid);
+        $answer->next_question_uuid = $request->next_question_uuid;
+        $answer->save();
+    }
 }

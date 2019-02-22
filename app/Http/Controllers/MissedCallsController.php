@@ -35,7 +35,7 @@ class MissedCallsController extends HomeServerController
             if ($request->searchField) {
                 $missedCalls = DB::table('missed_calls')
                                     ->select('missed_calls.*', 'sites.name as to', 'languages.language')
-                                    ->join('sites', 'sites.id', 'missed_calls.site_id')
+                                    ->join('sites', 'sites.uuid', 'missed_calls.site_uui')
                                     ->join('languages', 'languages.id', 'missed_calls.language_id')
                                     ->where(function($query) use ($agent) {
                                         $query->where('agent_id', $agent)
@@ -48,7 +48,7 @@ class MissedCallsController extends HomeServerController
             } else {
                 $missedCalls = DB::table('missed_calls')
                                     ->select('missed_calls.*', 'sites.name as to', 'languages.language')
-                                    ->join('sites', 'sites.id', 'missed_calls.site_id')
+                                    ->join('sites', 'sites.uuid', 'missed_calls.site_uuid')
                                     ->join('languages', 'languages.id', 'missed_calls.language_id')
                                     ->where(function($query) use ($agent) {
                                         $query->where('agent_id', $agent)

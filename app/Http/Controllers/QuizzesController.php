@@ -189,4 +189,16 @@ class QuizzesController extends HomeServerController
     public function getQuizzes() {
         return response()->json(Quiz::all());
     }
+
+    public function getQuiz($uuid) {        
+        return response()->json(Quiz::find($uuid));
+    }
+
+    public function questionsCrud() {
+        if (Auth::user()->canAccessQuizQuestionsCrud()) {
+            return View('quiz.questions_crud');
+        } else {
+            return $this->accessDenied();
+        }
+    }
 }

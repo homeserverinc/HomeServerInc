@@ -42,6 +42,7 @@ class Answer extends Model
             'next_question_uuid',
             'answer_type_uuid',
             'question_uuid',
+            'weight'
         ];
 
     protected $hidden = [

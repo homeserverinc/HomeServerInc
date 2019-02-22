@@ -105,9 +105,11 @@ class ContractorsController extends HomeServerController
                 'phone' => 'string|max:20',
                 'ein' => 'required_without_all:ssn|nullable|alpha_num|max:20|',
                 'ssn' => 'alpha_num|max:20|required_without_all:ein|nullable',
-                'site_uuid' => 'nullable|unique:sites',
+                'site_uuid' => 'nullable|unique:sites,uuid',
                 'plan_uuid' => 'nullable|exists:plans,uuid',
                 'charge' => 'nullable|numeric',
+                'automatic_recharge_amount' => 'nullable|numeric',
+                'automatic_recharge_trigger' => 'nullable|numeric',
                 'card_number' => 'nullable|string|required_with_all:exp_month,exp_year,cvc',
                 'exp_month' => 'nullable|integer|required_with_all:card_number,exp_year,cvc',
                 'exp_year' => 'nullable|integer|required_with_all:card_number,exp_month,cvc',
@@ -171,7 +173,7 @@ class ContractorsController extends HomeServerController
 
                 //charge amount wallet
                 if($request->filled('charge')){
-                   $charge = Stripe::charges()->create([
+                    $charge = Stripe::charges()->create([
                         'customer' => $contractor->stripe_id,
                         'currency' => 'USD',
                         'amount'   => (float) $request->input('charge'),
@@ -253,6 +255,72 @@ class ContractorsController extends HomeServerController
     }
 
     /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  \App\Contractor  $contractor
+     * @return \Illuminate\Http\Response
+     */
+    public function edit_profile(Request $request)
+    {
+        if (Auth::user()->canUpdateContractor()) {
+            $contractor = Auth::user()->contractor;
+            return View('contractor.edit_profile', ['contractor' => $contractor]);
+        } else {
+            return $this->accessDenied();
+        }
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Contractor  $contractor
+     * @return \Illuminate\Http\Response
+     */
+    public function update_profile(Request $request, Contractor $contractor)
+    {
+        if (Auth::user()->canUpdateContractor()) {
+            $this->validate($request, [
+                'users.name' => 'required|string|max:100',
+                'users.email' => 'required|email|max:100|unique:users,email,'.$contractor->user->id,
+                'users.password' => 'nullable|alpha_num|min:6,20|confirmed',
+                'address' => 'required|string|max:100',
+                'company' => 'required|string|max:100',
+                'phone' => 'string|max:20',
+                'automatic_recharge_amount' => 'nullable|numeric',
+                'automatic_recharge_trigger' => 'nullable|numeric',
+                'ssn' => 'string|max:20|required_without:ein|nullable',
+                'ein' => 'string|max:20|required_without:ssn|nullable',
+            ]);
+            try {
+                DB::beginTransaction();
+
+                $data = $request->all()['users'];
+                
+                $contractor->user->name = $data['name'];
+                $contractor->user->email = $data['email'];
+                $contractor->user->password = $data['password'] !== null ? bcrypt($data['password']) : $contractor->user->password;
+                $user = $this->updateRecord($contractor->user, false);
+
+                $contractor->fill($request->all());
+            
+                $contractor = $this->updateRecord($contractor);
+
+                DB::commit();
+
+                return $this->successMessage('Update successfuly!');
+
+            } catch (\Exception $e) {
+                DB::rollback();
+                return $this->doOnException($e);
+            }
+        } else {
+            return $this->accessDenied();
+        }
+    
+    }
+
+    /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -269,6 +337,8 @@ class ContractorsController extends HomeServerController
                 'address' => 'required|string|max:100',
                 'company' => 'required|string|max:100',
                 'phone' => 'string|max:20',
+                'automatic_recharge_amount' => 'nullable|numeric',
+                'automatic_recharge_trigger' => 'nullable|numeric',
                 'ssn' => 'string|max:20|required_without:ein|nullable',
                 'ein' => 'string|max:20|required_without:ssn|nullable',
                 'site_uuid' => 'nullable|unique:sites',
@@ -379,6 +449,27 @@ class ContractorsController extends HomeServerController
                     $charge = $this->createRecord($charge, false);
 
                     $contractor->decrement('wallet', $plan->price);
+
+                    if($contractor->wallet <= $contractor->automatic_recharge_trigger){
+                        $stripeCharge = Stripe::charges()->create([
+                            'customer' => $contractor->stripe_id,
+                            'currency' => 'USD',
+                            'amount'   => (float) $contractor->automatic_recharge_amount,
+                        ]);
+
+                        $charge = new Charge([
+                            'amount' => -(float) $contractor->automatic_recharge_amount,
+                            'contractor_uuid' => $contractor->uuid,
+                            'stripe_id' => $stripeCharge['id'],
+                            'description' => 'Automatic recharge trigger: $'.((float) $contractor->automatic_recharge_amount).' to '.$contractor->user->name.'.',
+                            'card_uuid' => $contractor->default_card()->first()->uuid
+                        ]);
+
+                        $charge = $this->createRecord($charge, false);
+
+                        $contractor->increment('wallet', $contractor->automatic_recharge_amount);
+
+                    }
                 
                     $this->updateRecord($contractor);
 

@@ -20,7 +20,6 @@ class ChargesController extends HomeServerController
     use ApiResponse;
 
      public $fields = [
-        'uuid' => 'UUID',
         'description' => 'Description',
         'amount' => 'Amount (USD)',
         'card.card_last_four' => 'Card last four',
@@ -100,18 +99,21 @@ class ChargesController extends HomeServerController
                     $contractor = Auth()->user()->contractor;
                     $card = Card::find($request->input('card'));
                     if($card->active){
+                        $amount = (float) $request->input('charge');
+                        if($amount >= 300)
+                            $amount += ceil($amount * 0.10);
                         $charge = Stripe::charges()->create([
                             'customer' => $contractor->stripe_id,
                             'currency' => 'USD',
-                            'amount'   => (float) $request->input('charge'),
+                            'amount'   => $amount,
                             'source' => $card->stripe_id
                         ]);
 
                         $charge = new Charge([
-                            'amount' => (float) $request->input('charge'),
+                            'amount' => $amount,
                             'contractor_uuid' => $contractor->uuid,
                             'stripe_id' => $charge['id'],
-                            'description' => 'Charge of '.((float) $request->input('charge')).' to '.$contractor->user->name.'.',
+                            'description' => 'Charge of '.($amount).' to '.$contractor->user->name.'.',
                             'card_uuid' => $card->uuid
                         ]);
 

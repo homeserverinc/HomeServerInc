@@ -10,7 +10,7 @@
         'model' => 'charge',
         'tableTitle' => 'Charges',
         'displayField' => 'description',
-        'actions' => ['show']
+        'actions' => null
         ]);
     @endcomponent
 </div>

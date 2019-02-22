@@ -184,7 +184,7 @@
                     <i class="fas fa-user-circle fa-lg"></i>  {{ Auth::user()->name }} 
                 </a>
                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarUser">
-                    <a class="dropdown-item" href="{{route('user.profile')}}"><i class="fas fa-user-cog"></i> Minha Conta</a>
+                    <a class="dropdown-item" href="{{ Auth::user()->hasRole('contractor') ? route('contractor_edit_profile') : route('user.profile')}}"><i class="fas fa-user-cog"></i> Minha Conta</a>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item" href="{{ route('logout') }}"
                         onclick="event.preventDefault();

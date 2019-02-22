@@ -120,6 +120,12 @@ class HomeServerController extends Controller
         return $this->goToIndex();
     }
 
+    protected function successMessage(String $message, bool $redirect = false) {
+        Session::flash('success', $message);
+
+        return $redirect ? $this->goToIndex() : redirect()->back();
+    }
+
     protected function goToIndex() {
         $currentClass = explode('\\', get_called_class());
         $indexRoute = $currentClass[sizeOf($currentClass)-1].'@'.$this->indexUrl;

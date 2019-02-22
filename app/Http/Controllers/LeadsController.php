@@ -24,7 +24,6 @@ class LeadsController extends HomeServerController
     use ApiResponse;
 
     public $fields = [
-        'uuid' => 'UUID',
         'category.category' => 'Category',
         'first_name' => 'Customer',
         'created_at' => 'Created',

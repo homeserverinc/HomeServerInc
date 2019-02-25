@@ -14,10 +14,10 @@ class AlterLeadsTableRemoveServiceAddCategory extends Migration
     public function up()
     {
         Schema::table('leads', function (Blueprint $table) {
-            $table->dropForeign('leads_service_uuid_foreign');
-            $table->dropColumn('service_uuid');
+            //$table->dropForeign('leads_service_uuid_foreign');
+            //$table->dropColumn('service_uuid');
 
-            $table->uuid('category_uuid');
+            $table->uuid('category_uuid')->nullable()->index()->after('customer_uuid');
             $table->foreign('category_uuid')->references('uuid')->on('categories');
         });
     } 

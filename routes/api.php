@@ -36,20 +36,23 @@ Route::middleware('auth:api')->group(function(){
     /* site */
     Route::get('/site/{uuid}', 'SitesController@apiGetSite');
 
-    /* service */
-    Route::get('/service/{service}', 'ServicesController@apiGetService');
+    /* category */
+    Route::get('/category/{category}', 'CategoriesController@apiGetCategory');
 
-    /* services by site uuid */
-    Route::get('/services/{site}', 'ServicesController@apiGetServicesBySite');
+    /* categories by site uuid */
+    Route::get('/categories/{site}', 'CategoriesController@apiGetCategoriesBySite');
 
     /* quiz */
-    Route::get('/quiz/{service}', 'QuizzesController@apiGetQuiz');
+    Route::get('/quiz/{category}', 'QuizzesController@apiGetQuiz');
     
     /* question */
     Route::get('/question/{question}', 'QuestionsController@apiGetQuestion');
 
     /* lead */
     Route::post('/lead', 'LeadsController@apiStore');
+
+    /* Pre lead */
+    Route::post('/pre_lead', 'LeadsController@apiPreLeadStore');
 
     /* Site contact */
     Route::post('/site_contact', 'SiteContactsController@store');

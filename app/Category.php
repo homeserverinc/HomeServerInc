@@ -47,7 +47,7 @@ class Category extends Model
     }
 
     public function sites() {
-        return $this->hasMany(Site::class);
+        return $this->belongsToMany(Site::class);
     }
 
     public function leads() {

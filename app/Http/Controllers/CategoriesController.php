@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Category;
+use App\CategoryLead;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Input;
@@ -52,7 +53,8 @@ class CategoriesController extends HomeServerController
     public function create()
     {
         if (Auth::user()->canCreateCategory()) {
-            return View('category.create');
+            $category_leads = CategoryLead::all();
+            return View('category.create', ['category_leads' => $category_leads]);
         } else {
             return $this->accessDenied();
         }
@@ -70,10 +72,19 @@ class CategoriesController extends HomeServerController
             $this->validate($request, [
                 'category' => 'string|unique:categories'
             ]);
-
             try {
                 $category = new Category($request->all());
-            
+                $category->save();
+                $collection = collect($request->input("weights"));
+                $collection = $collection->map(function($item, $key){
+                    return $item ?? 0;
+                })->toArray();
+                $names = array_keys($collection);
+                $category_leads = CategoryLead::whereIn('name', $names)->get();
+                $category_leads = $category_leads->mapWithKeys(function($item) use($collection){
+                    return [$item['uuid'] => ['weight' => $collection[$item->name]]];
+                });
+                $category->category_leads()->attach($category_leads->toArray());
                 return $this->createRecord($category);
             } catch (\Exception $e) {
                 return $this->doOnException($e);
@@ -92,8 +103,10 @@ class CategoriesController extends HomeServerController
     public function edit(Category $category)
     {
         if (Auth::user()->canUpdateCategory()) {
+            $category_leads = CategoryLead::all();
             return View('category.edit', [
-                'category' => $category
+                'category' => $category,
+                'category_leads' => $category_leads
             ]);
         } else {
             return $this->accessDenied();
@@ -112,7 +125,13 @@ class CategoriesController extends HomeServerController
         if (Auth::user()->canUpdateCategory()) {
             try {
                 $category->fill($request->all());
-
+                $names = array_keys($request->input("weights"));
+                $category_leads = CategoryLead::whereIn('name', $names)->get();
+                $category_leads = $category_leads->mapWithKeys(function($item) use($request){
+                    return [$item['uuid'] => ['weight' => $request->input('weights')[$item->name]]];
+                });
+                $category->category_leads()->detach();
+                $category->category_leads()->attach($category_leads->toArray());
                 return $this->updateRecord($category);
             } catch (\Exception $e) {
                 return $this->doOnException($e);
@@ -131,6 +150,7 @@ class CategoriesController extends HomeServerController
     public function destroy(Category $category)
     {
         if (Auth::user()->canDeleteCategory()) {
+            $category->category_leads()->detach();
             return $this->deleteRecord($category);
         } else {
             return $this->accessDenied();

@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateCategoryContractorTable extends Migration
+class CreateCategoryLeadCategoryTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +13,14 @@ class CreateCategoryContractorTable extends Migration
      */
     public function up()
     {
-        Schema::create('category_contractor', function (Blueprint $table) {
-            $table->uuid('uuid')->primary();
-            $table->uuid('contractor_uuid');
+        Schema::create('category_lead_category', function (Blueprint $table) {
             $table->uuid('category_uuid');
+            $table->uuid('category_lead_uuid');
+            $table->integer('weight')->default(0);
+            $table->timestamps();
 
-            $table->foreign('contractor_uuid')->references('uuid')->on('contractors');
             $table->foreign('category_uuid')->references('uuid')->on('categories');
+            $table->foreign('category_lead_uuid')->references('uuid')->on('category_leads');
         });
     }
 
@@ -30,6 +31,6 @@ class CreateCategoryContractorTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('category_contractor');
+        Schema::dropIfExists('category_lead_category');
     }
 }

@@ -2,18 +2,18 @@
 
 namespace App;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Traits\Uuidable;
-class Charge extends Model
+use Illuminate\Database\Eloquent\Model;
+
+class CategoryLead extends Model
 {
     use Uuidable;
 
-	/**
+    /**
      * The primary key for the model.
      *
      * @var string
      */
-
     protected $primaryKey = 'uuid';
 
     /**
@@ -21,30 +21,20 @@ class Charge extends Model
      *
      * @var string
      */
-
     protected $keyType = 'string';
-     /**
+
+    /**
      * Indicates if the IDs are auto-incrementing.
      *
      * @var bool
      */
-
     public $incrementing = false;
-
-	public $fillable = [
-        'description',
-        'amount',
-        'contractor_uuid',
-        'stripe_id',
-        'card_uuid'
+    
+    public $fillable = [
+        'name'
     ];
 
-
-    public function contractor(){
-        return $this->belongsTo(Contractor::class);
-    }
-    
-    public function card(){
-    	return $this->belongsTo(Card::class);
+    public function categories() {
+        return $this->belongsToMany(Category::class, 'category_lead_category')->withPivot('weight');
     }
 }

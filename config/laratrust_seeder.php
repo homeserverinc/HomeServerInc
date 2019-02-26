@@ -11,6 +11,7 @@ return [
             'city' => 'c,r,u,d',
             'service' => 'c,r,u,d',
             'category' => 'c,r,u,d',
+            'category-lead' => 'c,r,u,d',
             'question' => 'c,r,u,d',
             'lead' => 'c,r,u,d',
             'site' => 'c,r,u,d',
@@ -48,6 +49,7 @@ return [
             'card' => 'c,r,u,d',
             'charge' => 'c,r,u,d',
             'subscription' => 'c,r,u,d',
+            'contractor' => 'u',
         ]
     ],
     'permission_structure' => [

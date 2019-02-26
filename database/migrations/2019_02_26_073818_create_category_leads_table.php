@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AlterTableChargesAmountColumn extends Migration
+class CreateCategoryLeadsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,10 @@ class AlterTableChargesAmountColumn extends Migration
      */
     public function up()
     {
-        Schema::table('charges', function (Blueprint $table) {
-            $table->renameColumn('amout', 'amount');
-            
+        Schema::create('category_leads', function (Blueprint $table) {
+            $table->uuid('uuid')->primary();
+            $table->string('name', 100);
+            $table->timestamps();
         });
     }
 
@@ -26,8 +27,6 @@ class AlterTableChargesAmountColumn extends Migration
      */
     public function down()
     {
-        Schema::table('charges', function (Blueprint $table) {
-            $table->renameColumn('amount', 'amout');
-        });
+        Schema::dropIfExists('category_leads');
     }
 }

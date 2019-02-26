@@ -123,6 +123,7 @@ Route::prefix('/admin')->middleware(['auth:web'])->group(function() {
     Route::resource('/plan', 'PlansController')->except('show');
     Route::resource('/charge', 'ChargesController')->except('show');
     Route::resource('/category', 'CategoriesController')->except('show');
+    Route::resource('/category_lead', 'CategoryLeadsController')->except('show');
     Route::resource('/city', 'CitiesController')->except('show');
     Route::resource('/site', 'SitesController')->except('show');
     Route::resource('/user', 'UsersController')->except('show');    

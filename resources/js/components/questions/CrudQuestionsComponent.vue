@@ -18,8 +18,9 @@
                             >{{ quiz.quiz }}</option>
                         </select>
                     </div>
-                    <div class="col-2" v-if="questions.length == 0 && quiz_uuid !== ''">
-                        <button class="btn btn-secondary" @click="showNewQuestionModal">
+                    <div class="col-2">
+                        <button class="btn btn-secondary" @click="showNewQuestionModal"
+                        :disabled="addFirstQuestionDisabled">
                             <i class="fas fa-plus"></i> New question
                         </button>
                     </div>
@@ -54,6 +55,7 @@
                             name="question"
                             id="question"
                             class="form-control"
+                            autofocus
                             v-model="newQuestion.question"
                         >
                     </div>
@@ -91,7 +93,6 @@ import questionComponent from "./QuestionComponent.vue";
 import RegisterStoreModule from "../../mixins/RegisterStoreModule";
 import questionsModule from "../../store/modules/questions";
 import { mapFields } from "vuex-map-fields";
-import uuid from "uuid";
 
 function resetNewQuestion() {
     return {
@@ -100,7 +101,8 @@ function resetNewQuestion() {
         question: "",
         next_question_uuid: "",
         quiz_uuid: "",
-        answers: []
+        answers: [],
+        parent: {}
     };
 }
 
@@ -113,7 +115,8 @@ export default {
                 question: "",
                 next_question_uuid: "",
                 quiz_uuid: "",
-                answers: []
+                answers: [],
+                parent: {}
             }
         };
     },
@@ -128,9 +131,11 @@ export default {
     created() {
         this.registerStoreModule("questionsModule", questionsModule);
         this.$store.dispatch("questionsModule/getQuizzes");
-        console.log(this);
     },
     computed: {
+        addFirstQuestionDisabled() {
+            return ((this.quiz_uuid == '') || (this.questions.length > 0));
+        },
         questions() {
             return this.$store.getters["questionsModule/questions"];
         },
@@ -163,13 +168,15 @@ export default {
             this.newQuestion = resetNewQuestion;
         },
         doOnAddQuestion() {
-            this.newQuestion.uuid = uuid();
-            this.$store.commit(
-                "questionsModule/ADD_QUESTION",
+            this.newQuestion.quiz_uuid = this.$store.state.questionsModule.quiz_uuid;
+            this.$store.dispatch(
+                "questionsModule/addNewQuestion",
                 this.newQuestion
             );
             this.newQuestion = resetNewQuestion();
             this.closeModal();
+
+            this.$scrollTo("#scroll-end");            
         }
     }
 };

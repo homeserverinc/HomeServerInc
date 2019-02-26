@@ -81,46 +81,30 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 10);
+/******/ 	return __webpack_require__(__webpack_require__.s = 12);
 /******/ })
 /************************************************************************/
 /******/ ({
 
-/***/ "./resources/js/configs.js":
-/*!*********************************!*\
-  !*** ./resources/js/configs.js ***!
-  \*********************************/
-/*! exports provided: LOCAL_URLS */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ "./resources/js/test.js":
+/*!******************************!*\
+  !*** ./resources/js/test.js ***!
+  \******************************/
+/*! no exports provided */
+/***/ (function(module, exports) {
 
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "LOCAL_URLS", function() { return LOCAL_URLS; });
-var LOCAL_URLS = Object.freeze({
-  QUESTION: Object.freeze({
-    CREATE: '/admin/question',
-    RETRIEVE: '/admin/question/{uuid}',
-    UPDATE: '/admin/question',
-    DELETE: '/admin/question'
-  }),
-  ANSWER: Object.freeze({
-    CREATE: '/admin/answer',
-    RETRIEVE: '/admin/answer/{uuid}',
-    UPDATE: '/admin/answer',
-    DELETE: '/admin/answer'
-  })
-});
+throw new Error("Module build failed (from ./node_modules/babel-loader/lib/index.js):\nError: ENOENT: no such file or directory, open '/mnt/7EDAA7EFDAA7A1BF/Desenvolvimento/Web/homeserver/resources/js/test.js'");
 
 /***/ }),
 
-/***/ 10:
-/*!***************************************!*\
-  !*** multi ./resources/js/configs.js ***!
-  \***************************************/
+/***/ 12:
+/*!************************************!*\
+  !*** multi ./resources/js/test.js ***!
+  \************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(/*! /mnt/7EDAA7EFDAA7A1BF/Desenvolvimento/Web/homeserver/resources/js/configs.js */"./resources/js/configs.js");
+module.exports = __webpack_require__(/*! /mnt/7EDAA7EFDAA7A1BF/Desenvolvimento/Web/homeserver/resources/js/test.js */"./resources/js/test.js");
 
 
 /***/ })

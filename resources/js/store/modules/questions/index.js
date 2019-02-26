@@ -1,25 +1,27 @@
 import { QUESTION_TYPES, ANSWER_TYPES } from "../../../constants";
 import Axios from "axios";
+import qs from 'qs';
 
 const VALID_MUTATIONS = {
     ADD_QUIZZES: "ADD_QUIZZES",
     SELECT_QUIZ: "SELECT_QUIZ",
     SET_QUESTIONS: "SET_QUESTIONS",
     ADD_QUESTION: "ADD_QUESTION",
-    DEL_QUESTION: "DEL_QUESTION",
     ADD_ANSWER: "ADD_ANSWER",
     DEL_ANSWER: "DEL_ANSWER",
     UPDATE_ANSWER: "UPDATE_ANSWER",
     UPDATE_QUESTION: "UPDATE_QUESTION",
     REMOVE_QUESTION: "REMOVE_QUESTION",
     UNLINK_QUESTION: "UNLINK_QUESTION",
-    LINK_QUESTION: "LINK_QUESTION"
+    LINK_QUESTION: "LINK_QUESTION",
+    NEW_QUESTION_UUID: "NEW_QUESTION_UUID"
 };
 
 const state = {
     questions: [],
     quizzes: [],
-    quiz_uuid: ""
+    quiz_uuid: "",
+    lastNewQuestionUUID: ""
 };
 
 const getters = {
@@ -32,10 +34,8 @@ const getters = {
     question: state => uuid => {
         return state.questions.find(question => question.uuid === uuid);
     },
-    answer: getters => (question_uuid, answer_uuid) => {
-        return getters
-            .question(question_uuid)
-            .answers.find(a => a.uuid === answer_uuid);
+    answer: (state, getters) => (question_uuid, answer_uuid) => {
+        return getters.question(question_uuid).answers.find(a => a.uuid === answer_uuid);
     },
     isSingleChoiceQuestion: (state, getters) => question_uuid => {
         return (
@@ -87,10 +87,29 @@ const getters = {
         ];
     },
     firstQuizQuestion: (state) => {
-        return state.quizzes.find(q => q.uuid === state.quiz_uuid).first_question_uuid;
+        if (state.quiz_uuid !== '') { 
+            return state.quizzes.find(q => q.uuid === state.quiz_uuid).first_question_uuid;
+        }
     },
     getOtherQuestions: (state) => (uuid) => {
         return state.questions.filter(q => q.uuid !== uuid);
+    },
+    isTheLastQuestion: (state, getters) => uuid => {
+        if (getters.question(uuid).answers.length === 0) {
+            return true;
+        }
+        if (getters.isSingleChoiceQuestion(uuid)) {
+            var answers = getters.question(uuid).answers;
+            for (var i = 0; i < answers.length; i++) {
+                if ((answers[i].next_question_uuid === null) || (answers[i].next_question_uuid === '')) {
+                    return true;
+                }
+            }
+        } else {
+            let q = getters.question(uuid).next_question_uuid;
+            return ((q === null) || (q === ''))
+        }
+        return false;
     }
 };
 
@@ -121,6 +140,85 @@ const actions = {
         Axios.get("/admin/quiz/" + quiz_uuid + "/questions").then(async res => {
             commit(VALID_MUTATIONS.SET_QUESTIONS, res.data);
         });
+    },
+    addNewQuestion({commit, getters, dispatch}, question) {
+        console.log(question);
+        Axios.post('/admin/crud-questions/add_question', qs.stringify(question))
+            .then(async r => {
+                console.log(r);
+                switch (question.parent.type) {
+                    case 'answer':
+                        let a = getters.answer(question.parent.obj.question_uuid, question.parent.obj.uuid);
+                        a.next_question_uuid = r.data.uuid;
+                        dispatch('updateExistingAnswer', a);
+                        break;
+                
+                    case 'question':
+                        let q = getters.question(question.parent.obj.uuid);
+                        q.next_question_uuid = r.data.uuid;
+                        dispatch('updateExistingQuestion', q);
+                        break;
+                }
+                commit(VALID_MUTATIONS.ADD_QUESTION, r.data);
+                commit(VALID_MUTATIONS.NEW_QUESTION_UUID, r.data.uuid);
+            })
+            .catch(r => {
+                console.log(r);
+            });
+    },
+    addNewAnswer({commit}, answer) {
+        Axios.post('/admin/crud-questions/add_answer', qs.stringify(answer))
+            .then(async r => {
+                console.log(r.data);
+                commit(VALID_MUTATIONS.ADD_ANSWER, r.data);
+            })
+            .catch(r => {
+                console.log(r);
+        });
+    },
+    updateExistingQuestion({commit}, question) {
+        Axios.post('/admin/crud-questions/edit_question', qs.stringify(question))
+            .then(async r => {
+                console.log(r);
+                commit(VALID_MUTATIONS.UPDATE_QUESTION, r.data);
+            })
+            .catch(r => {
+                console.log(r);
+            });
+    },
+    updateExistingAnswer({commit}, answer) {
+        Axios.post('/admin/crud-questions/edit_answer', qs.stringify(answer))
+            .then(async r => {
+                console.log(r);
+                commit(VALID_MUTATIONS.UPDATE_ANSWER, r.data);
+            })
+            .catch(r => {
+                console.log(r);
+            });
+    },
+    deleteQuestion({commit, dispatch}, question) {
+        Axios.post('/admin/crud-questions/del_question', qs.stringify({uuid: question}))
+            .then(r => {
+                console.log(r);
+                commit(VALID_MUTATIONS.REMOVE_QUESTION, question);
+            })
+            .catch(r => {
+                console.log(r);
+            });
+    },
+    persistLinkOnAnswer({commit}, link) {
+        let post = {
+            answer_uuid: link.uuid,
+            next_question_uuid: link.link
+        };
+        Axios.post('/admin/crud-questions/link_answer_questinon', qs.stringify(post))
+            .then(r => {
+                console.log(r);
+                commit(VALID_MUTATIONS.LINK_QUESTION, link);
+            })
+            .catch(r => {
+                console.log(r);
+            });
     }
 };
 
@@ -130,9 +228,6 @@ const mutations = {
     },
     [VALID_MUTATIONS.ADD_QUESTION](state, question) {
         state.questions.push(question);
-    },
-    [VALID_MUTATIONS.DEL_QUESTION](state, question) {
-        state.questions = state.questions.filter(q => (q.uuid = question.uuid));
     },
     [VALID_MUTATIONS.ADD_ANSWER](state, answer) {
         state.questions
@@ -147,7 +242,10 @@ const mutations = {
         let x = state.questions
             .find(q => q.uuid === answer.question_uuid)
             .answers.find(a => a.uuid === answer.uuid);
-        x = answer;
+        x.answer = answer.answer;
+        x.answer_order = answer.answer_order;
+        x.weight = answer.weight;
+        x.next_question_uuid = answer.next_question_uuid;
     },
     [VALID_MUTATIONS.ADD_QUIZZES](state, quizzes) {
         state.quizzes = quizzes;
@@ -158,6 +256,7 @@ const mutations = {
     [VALID_MUTATIONS.UPDATE_QUESTION](state, value) {
         let x = state.questions.find(q => q.uuid === value.uuid);
         x.question = value.question;
+        x.next_question_uuid = value.next_question_uuid;
     },
     [VALID_MUTATIONS.REMOVE_QUESTION](state, uuid) {
         state.questions.forEach(q => {
@@ -195,6 +294,9 @@ const mutations = {
                 }
             });
         });
+    },
+    [VALID_MUTATIONS.NEW_QUESTION_UUID](state, payload) {
+        state.lastNewQuestionUUID = payload;
     }
 };
 

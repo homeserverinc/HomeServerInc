@@ -10,6 +10,7 @@ use App\MissedCall;
 use App\TwilioWorker;
 use App\UserActivity;
 use Illuminate\Http\Request;
+use App\Events\NewMissedCall;
 use Illuminate\Support\Facades\Log;
 use App\Events\WorkerActivityChanged;
 
@@ -75,17 +76,17 @@ class WebhooksController extends Controller
             $task = new \StdClass;
             $task = json_decode($request->TaskAttributes);
 
-            Log::debug($request->TaskAttributes);
+            //Log::debug($request->TaskAttributes);
 
             $site = Site::whereHas('phone', function($query) use ($task) {
                 $query->where('phone_number', $task->{'to'});
             })->first();
 
-            Log::debug($site);
+            //Log::debug($site);
 
             $language = Language::where('acronym', $task->{'selected_language'})->first();
 
-            Log::debug($language);
+            //Log::debug($language);
 
             $datetime_call = new \DateTime();
 
@@ -93,14 +94,17 @@ class WebhooksController extends Controller
 
             $missedCall = new MissedCall([
                 'datetime_call' => $datetime_call,
-                'site_id' => $site->id,
+                'site_uuid' => $site->uuid,
                 'language_id' => $language->id,
                 'from' => $task->{'from'}
             ]);
 
-            Log::debug($missedCall);
+            //Log::debug($missedCall);
 
             $missedCall->save();
+
+            /* send an SMS */
+            event(new NewMissedCall($missedCall, env('SMS_TO_NUMBER')));
         } catch (\Exception $e) {
             Log::error('taskCanceled@WebhooksController: '.$e->getMessage());
         }

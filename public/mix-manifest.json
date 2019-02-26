@@ -6,6 +6,5 @@
     "/js/crudQuestions.js": "/js/crudQuestions.js",
     "/js/leadQuestionsForm.js": "/js/leadQuestionsForm.js",
     "/js/multiQuestionsForm.js": "/js/multiQuestionsForm.js",
-    "/js/questions.js": "/js/questions.js",
-    "/js/quiz.js": "/js/quiz.js"
+    "/js/questions.js": "/js/questions.js"
 }

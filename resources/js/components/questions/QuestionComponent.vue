@@ -1,8 +1,8 @@
 <template>
     <div class="card" :id="'uuid-'+question.uuid">
         <div
-            class="card-header p-2"
-            :class="{'text-white': isFirstQuestionOnQuiz, 'bg-success': isFirstQuestionOnQuiz, 'bg-danger': (!isFirstQuestionOnQuiz && !isSingleChoiceQuestion && !hasNextQuestion)}"
+            class="card-header p-2 bg-secondary text-white"
+            :class="{'text-white': (isFirstQuestionOnQuiz || isTheLastQuestion), 'bg-success': isFirstQuestionOnQuiz, 'bg-danger': isTheLastQuestion}"
         >
             <h5 class="m-1 float-left">
                 <i
@@ -12,8 +12,16 @@
                     data-placement="top"
                     title="Single choice question"
                 ></i>
+                <i  
+                    v-if="isFirstQuestionOnQuiz"
+                    class="fas fa-flag-checkered"
+                    data-toggle="tooltip"
+                    data-placement="top"
+                    title="First question of the Quiz"
+                ></i>
                 {{ question.question }}
                 <a
+                    class="text-white"
                     href="#"
                     v-if="hasNextQuestion"
                     v-scroll-to="'#uuid-'+question.next_question_uuid"
@@ -25,7 +33,8 @@
             <div class="float-right mr-1">
                 <div class="dropdown">
                     <button
-                        class="btn btn-sm btn-secondary dropdown-toggle"
+                        class="btn btn-sm dropdown-toggle btn-secondary"
+                        :class="{'btn-success': isFirstQuestionOnQuiz, 'btn-danger': isTheLastQuestion}"
                         type="button"
                         id="dropdownMenuButton"
                         data-toggle="dropdown"
@@ -98,13 +107,24 @@
                             >{{answer_type.description}}</option>
                         </select>
                     </div>
-                    <div class="col-9">
+                    <div class="col-2">
+                        <label for="weight">Weight</label>
+                        <input
+                            type="text"
+                            name="weight"
+                            id="weight"
+                            class="form-control"
+                            v-model="newAnswer.weight"
+                        >
+                    </div>
+                    <div class="col-7">
                         <label for="answer">Answer</label>
                         <input
                             type="text"
                             name="answer"
                             id="answer"
                             class="form-control"
+                            autofocus
                             v-model="newAnswer.answer"
                         >
                     </div>
@@ -142,6 +162,7 @@
                             name="question"
                             id="question"
                             class="form-control"
+                            autofocus
                             v-model="currentQuestion.question"
                         >
                     </div>
@@ -180,6 +201,7 @@
                         name="next_question_uuid"
                         id="next_question_uuid"
                         class="form-control"
+                        autofocus
                         v-model="nextQuestionUuid"
                     >
                         <option
@@ -226,6 +248,7 @@
                             name="question"
                             id="question"
                             class="form-control"
+                            autofocus
                             v-model="newQuestion.question"
                         >
                     </div>
@@ -251,7 +274,6 @@ import bModalDirective from "bootstrap-vue/es/directives/modal/modal";
 import answerComponent from "./AnswerComponent.vue";
 import { QUESTION_TYPES, ANSWER_TYPES } from "../../constants";
 import VALID_MUTATIONS from "../../store/modules/questions";
-import uuid from "uuid";
 
 function resetNewAnswer() {
     return {
@@ -260,7 +282,8 @@ function resetNewAnswer() {
         answer_type_uuid: "a65f6762-924e-4025-bcc7-a188976dddf0",
         question_uuid: "",
         next_question_uuid: "",
-        answer: ""
+        answer: "",
+        weight: 1
     };
 }
 
@@ -292,7 +315,8 @@ export default {
                 answer_type_uuid: "a65f6762-924e-4025-bcc7-a188976dddf0",
                 question_uuid: "",
                 next_question_uuid: "",
-                answer: ""
+                answer: "",
+                weight: 1
             },
             currentQuestion: {
                 uuid: "",
@@ -338,10 +362,12 @@ export default {
             this.$refs.addNewAnswerRef.hide();
         },
         doOnAddNewAnswer() {
-            this.newAnswer.uuid = uuid();
             this.newAnswer.question_uuid = this.question.uuid;
             this.newAnswer.answer_order = this.nextAnswerOrder;
-            this.$store.commit("questionsModule/ADD_ANSWER", this.newAnswer);
+            this.$store.dispatch(
+                "questionsModule/addNewAnswer",
+                this.newAnswer
+            );
             this.newAnswer = this.closeAddNewAnswer();
             this.newAnswer = resetNewAnswer();
             this.$scrollTo("#uuid-" + this.question.uuid);
@@ -361,10 +387,11 @@ export default {
             this.$refs.editQuestionModal.hide();
         },
         doOnEditQuestion() {
-            this.$store.commit(
-                "questionsModule/UPDATE_QUESTION",
+            this.$store.dispatch(
+                "questionsModule/updateExistingQuestion",
                 this.currentQuestion
             );
+
             this.currentQuestion = resetQuestion();
             this.closeEditQuestionModal();
         },
@@ -372,8 +399,8 @@ export default {
             this.$refs.delQuestionRef.hide();
         },
         doOnDeleteQuestion() {
-            this.$store.commit(
-                "questionsModule/REMOVE_QUESTION",
+            this.$store.dispatch(
+                "questionsModule/deleteQuestion",
                 this.question.uuid
             );
             this.closeDeleteQuestionModal();
@@ -382,10 +409,14 @@ export default {
             this.$refs.delQuestionRef.show();
         },
         unlinkQuestion() {
-            this.$store.commit(
-                "questionsModule/UNLINK_QUESTION",
-                this.question.uuid
-            );
+            this.currentQuestion = {
+                uuid: this.question.uuid,
+                question: this.question.question,
+                next_question_uuid: ''
+            };
+            this.$store.dispatch("questionsModule/updateExistingQuestion",
+                this.currentQuestion);
+            this.currentQuestion = resetQuestion();
         },
         showLinkQuestionModal() {
             this.$refs.linkQuestionModalRef.show();
@@ -395,10 +426,15 @@ export default {
             this.nextQuestionUuid = "";
         },
         doOnLinkQuestion() {
-            this.$store.commit("questionsModule/LINK_QUESTION", {
+            this.currentQuestion = {
                 uuid: this.question.uuid,
-                link: this.nextQuestionUuid
-            });
+                question: this.question.question,
+                next_question_uuid: this.nextQuestionUuid
+            };
+            this.$store.dispatch("questionsModule/updateExistingQuestion",
+                this.currentQuestion);
+            this.currentQuestion = resetQuestion();
+            
             this.closeLinkQuestionModal();
         },
         showNewQuestionModal() {
@@ -409,15 +445,13 @@ export default {
             this.$refs.newQuestionModalRef.hide();
         },
         doOnAddNewQuestion() {
-            this.newQuestion.uuid = uuid();
-            this.$store.commit(
-                "questionsModule/ADD_QUESTION",
-                this.newQuestion
-            );
-            this.$store.commit("questionsModule/LINK_QUESTION", {
-                uuid: this.question.uuid,
-                link: this.newQuestion.uuid
-            });
+            this.newQuestion.quiz_uuid = this.$store.state.questionsModule.quiz_uuid;
+            this.newQuestion.parent = {
+                type: 'question',
+                obj: this.question
+            }
+            this.$store.dispatch('questionsModule/addNewQuestion', this.newQuestion);
+            
             this.closeNewQuestionModal();
             this.$scrollTo("#scroll-end");
         }
@@ -468,6 +502,11 @@ export default {
         question_types() {
             return this.$store.getters["questionsModule/questionTypes"];
         },
+        isTheLastQuestion() {
+            return this.$store.getters["questionsModule/isTheLastQuestion"](
+                this.question.uuid
+            );
+        }
     }
 };
 </script>

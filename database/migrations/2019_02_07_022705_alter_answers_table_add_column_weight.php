@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AlterTableContractorsAddNullableSiteUuid extends Migration
+class AlterAnswersTableAddColumnWeight extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,8 @@ class AlterTableContractorsAddNullableSiteUuid extends Migration
      */
     public function up()
     {
-
-        Schema::table('contractors', function (Blueprint $table) {
-            $table->string('site_uuid', 36)->nullable()->change();
+        Schema::table('answers', function (Blueprint $table) {
+            $table->double('weight', 10, 2)->default(1)->after('visible');
         });
     }
 
@@ -26,8 +25,8 @@ class AlterTableContractorsAddNullableSiteUuid extends Migration
      */
     public function down()
     {
-        Schema::table('contractors', function (Blueprint $table) {
-            $table->string('site_uuid', 36)->change();
+        Schema::table('answers', function (Blueprint $table) {
+            $table->dropColumn('weight');
         });
     }
 }

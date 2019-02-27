@@ -11,7 +11,8 @@ html,body{
 <div class="container-fluid bg-dark text-white h-100">
     <div class="row align-items-center h-100">
         <div class="col-md-4 mx-auto">
-            <h1 class="display-5 text-center">{{ config('app.name', 'Laravel') }}</h1>    
+            <span class="display-5"><img src="{{ asset('images/homeserverinc_logo.png') }}" width="400px" alt="{{ config('app.name', 'Laravel') }}"></span>
+            {{--  <h1 class="display-5 text-center">{{ config('app.name', 'Laravel') }}</h1>      --}}
             <form method="POST" action="{{ route('login') }}">
                 {{ csrf_field() }}
                 <div class="form-group">

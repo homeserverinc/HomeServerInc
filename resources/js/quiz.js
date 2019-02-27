@@ -1,11 +1,14 @@
 import Vue from 'vue';
-import hsQuiz from './components/quiz/QuizComponent.vue';
 import store from './store';
+import VeeValidate from 'vee-validate';
+import HsQuizForm from './components/leads/HsQuizForm';
+
+Vue.use(VeeValidate);
 
 new Vue({
-    el: '#quiz-component',
+    el: '#hs-quiz-placeholder',
     store,
     components: { 
-        'hs-quiz': hsQuiz
+        HsQuizForm
     }
 });

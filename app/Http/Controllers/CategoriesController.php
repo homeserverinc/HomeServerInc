@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Site;
 use App\Category;
 use App\CategoryLead;
+use App\traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Input;
@@ -12,6 +14,7 @@ use App\Http\Controllers\HomeServerController;
 
 class CategoriesController extends HomeServerController
 {
+    use ApiResponse;
 
     public $fields = [
         'uuid' => 'UUID',
@@ -154,6 +157,33 @@ class CategoriesController extends HomeServerController
             return $this->deleteRecord($category);
         } else {
             return $this->accessDenied();
+        }
+    }
+
+    /**
+     * Get all categories assigned to a site
+     */
+    public function apiGetCategoriesBySite($uuid) {
+        try {
+            return $this->getApiResponse(Category::whereHas('sites', function($query) use ($uuid) {
+                        $query->where('uuid', $uuid);
+                    })->get()
+            );
+        } catch (\Exception $e) {
+            return $this->getApiResponse($e, 'error');
+        }
+    }
+
+    /**
+     * Get all categories from vue
+     *
+     * @return Category[]
+     */
+    public function vueGetCategories() {
+        try {
+            return $this->getApiResponse(Category::orderBy('category', 'asc')->get());
+        } catch (\Exception $e) {
+            return $this->getApiResponse($e, 'error');
         }
     }
 }

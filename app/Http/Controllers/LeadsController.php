@@ -25,7 +25,7 @@ class LeadsController extends HomeServerController
 
     public $fields = [
         'category.category' => 'Category',
-        'first_name' => 'Customer',
+        'customer.first_name' => 'Customer',
         'created_at' => 'Created',
         'closed' => [
             'label' => 'Closed',
@@ -193,15 +193,22 @@ class LeadsController extends HomeServerController
 
     public function apiStore(Request $request) {
         $data = json_decode(json_encode($request->all()));
+
+        Log::debug(json_decode(json_encode($request->all()), true));
         
         try {
             DB::beginTransaction();
 
-            $customer = Customer::firstOrNew([
-                'first_name' => $data->customer->first_name,
-                'last_name' => $data->customer->last_name,
-                'email1' => $data->customer->email1
-            ]);            
+            if ($data->customer->uuid) {
+                $customer = Customer::find($data->customer->uuid);
+            } else {
+                $customer = Customer::firstOrNew([
+                    'first_name' => $data->customer->first_name,
+                    'email1' => $data->customer->email1
+                ]);            
+            }
+
+            //Log::debug(json_decode(json_encode($data->customer), true));
 
             $customer->fill(json_decode(json_encode($data->customer), true));
 
@@ -212,7 +219,7 @@ class LeadsController extends HomeServerController
             ]);
 
             $lead->deadline = $data->deadline;
-            $lead->project_details = $data->additionalInfo;
+            $lead->project_details = $data->project_details;
             $lead->category_uuid = $data->category_uuid;
             $lead->quiz_uuid = $data->quiz_uuid;
             $lead->customer_uuid = $customer->uuid;
@@ -230,5 +237,36 @@ class LeadsController extends HomeServerController
 
             return $this->getApiResponse($e, 'error');
         } 
+    }
+
+    public function apiPreLeadStore(Request $request) {
+        try {
+            $data = json_decode(json_encode($request->all()));
+            DB::beginTransaction();
+
+            $customer = Customer::firstOrNew([
+                'first_name' => $data->customer->first_name,
+                'email1' => $data->customer->email1
+            ]);            
+
+            $customer->fill(json_decode(json_encode($data->customer), true));
+
+            $customer = $this->createRecord($customer, false);
+
+            $lead = new Lead([
+                'customer_uuid' => $customer->uuid
+            ]);
+
+            $newLead = $this->createRecord($lead, false);
+
+            DB::commit();
+
+            return $this->getApiResponse($newLead);
+
+        } catch (\Exception $e) {
+            DB::rollback();
+            
+            return $this->getApiResponse($e, 'error');
+        }
     }
 }

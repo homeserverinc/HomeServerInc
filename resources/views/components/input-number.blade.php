@@ -8,6 +8,8 @@
     $numMin = isset($numMin) ? $numMin : '0,00';
     $numMax = isset($numMax) ? $numMax : '999999999,99';
     $numStep = isset($numStep) ? $numStep : 'any';
+    $name = isset($name) ? $name : $field;
+    $id = isset($id) ? $id : $field;
 @endphp
 
 {{--  {{dd($inputValue)}}  --}}

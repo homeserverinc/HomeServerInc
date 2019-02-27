@@ -69,7 +69,7 @@
             @endability
 
             {{--  services  --}}
-            @ability(Auth::user()->roles->first()->name, 'read-category|read-quiz|read-question|read-service', ['validate_all' => true])
+            @ability(Auth::user()->roles->first()->name, 'read-category|read-quiz|read-question', ['validate_all' => true])
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownServices" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Services
@@ -78,17 +78,15 @@
                     @permission('read-category')
                     <a class="dropdown-item" href="{{ route('category.index') }}">Categories</a>
                     @endpermission
-                    @permission('read-category-lead')
-                    <a class="dropdown-item" href="{{ route('category_lead.index') }}">Category Leads</a>
-                    @endpermission
                     @permission('read-quiz')
                     <a class="dropdown-item" href="{{ route('quiz.index') }}">Quizzes</a>
                     @endpermission
                     @permission('read-question')
                     <a class="dropdown-item" href="{{ route('question.index') }}">Questions</a>
                     @endpermission
-                    @permission('read-service')
-                    <a class="dropdown-item" href="{{ route('service.index') }}">Services</a>
+                    <div class="dropdown-divider"></div>
+                    @permission('read-category-lead')
+                    <a class="dropdown-item" href="{{ route('category_lead.index') }}">Category Leads</a>
                     @endpermission
                 </div>
             </li>

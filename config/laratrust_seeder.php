@@ -9,7 +9,6 @@ return [
             'permission' => 'r,u',
             'agent' => 'c,r,u,d',
             'city' => 'c,r,u,d',
-            'service' => 'c,r,u,d',
             'category' => 'c,r,u,d',
             'category-lead' => 'c,r,u,d',
             'question' => 'c,r,u,d',

@@ -116,6 +116,11 @@ return [
     |
     */
 
-    'attributes' => [],
+    'attributes' => [
+        /* Category views */
+        'quiz_uuid' => 'Quiz',
+        'category' => 'Category'
+        /* Other views below here ... */
+    ],
 
 ];

@@ -19,19 +19,6 @@
                             'field' => 'quiz',
                             'label' => 'Quiz',
                             'required' => true,
-                            'inputSize' => 8
-                        ],
-                        [
-                            'type' => 'select',
-                            'field' => 'category_uuid',
-                            'label' => 'Category',
-                            'required' => true,
-                            'items' => $categories,
-                            'inputSize' => 4,
-                            'displayField' => 'category',
-                            'keyField' => 'uuid',
-                            'liveSearch' => true,
-                            'defaultNone' => true
                         ]
                     ]
                 ])

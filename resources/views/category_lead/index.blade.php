@@ -3,10 +3,10 @@
 @section('content')
     @component('components.table', [
         'captions' => $fields, 
-        'rows' => $cards, 
-        'model' => 'card',
-        'tableTitle' => 'Card',
-        'displayField' => 'card_brand',
+        'rows' => $category_leads, 
+        'model' => 'category_lead',
+        'tableTitle' => 'Category Leads',
+        'displayField' => 'name',
         'keyField' => 'uuid',
         'actions' => ['edit', 'destroy']
     ]);

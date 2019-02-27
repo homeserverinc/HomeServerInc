@@ -78,6 +78,9 @@
                     @permission('read-category')
                     <a class="dropdown-item" href="{{ route('category.index') }}">Categories</a>
                     @endpermission
+                    @permission('read-category-lead')
+                    <a class="dropdown-item" href="{{ route('category_lead.index') }}">Category Leads</a>
+                    @endpermission
                     @permission('read-quiz')
                     <a class="dropdown-item" href="{{ route('quiz.index') }}">Quizzes</a>
                     @endpermission

@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
             TwilioConfigurationsTableSeeder::class,
             QuestionTypeTableSeeder::class,
             AnswerTypeTableSeeder::class,
+            CategoryLeadSeeder::class,
         ]);
         //$this->call(LaratrustSeeder::class);
         //$this->call(LaratrustSeeder::class);

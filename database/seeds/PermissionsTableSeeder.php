@@ -435,6 +435,27 @@ class PermissionsTableSeeder extends Seeder
                 'display_name'  => 'Delete subscriptions',
                 'description'   => 'Allow a User to Delete subscriptions',
             ],
+            //CategoryLeads
+            [
+                'name'          => 'list-category-leads',
+                'display_name'  => 'List category-leads',
+                'description'   => 'Allow a User to List category-leads',
+            ],
+            [
+                'name'          => 'create-category-leads',
+                'display_name'  => 'Create category-leads',
+                'description'   => 'Allow a User to Create category-leads',
+            ],
+            [
+                'name'          => 'update-category-leads',
+                'display_name'  => 'Update category-leads',
+                'description'   => 'Allow a User to Update category-leads',
+            ],
+            [
+                'name'          => 'delete-category-leads',
+                'display_name'  => 'Delete category-leads',
+                'description'   => 'Allow a User to Delete category-leads',
+            ],
         ]);
 
         /* define super administratir permissions */

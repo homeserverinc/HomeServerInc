@@ -112,7 +112,7 @@ Route::prefix('/admin')->middleware(['auth:web'])->group(function() {
     Route::get('/import-twilio-activities', 'TwilioActivitiesController@importActivitiesFromTwilio')->name('import-twilio-activities');
     Route::get('/quiz-questions-crud', 'QuizzesController@questionsCrud')->name('quiz-questions-crud');
     Route::get('/quizzes/json', 'QuizzesController@getQuizzes');
-    Route::get('/quiz/{quiz_uuid}', 'QuizzesController@getQuiz');
+    //Route::get('/quiz/{quiz_uuid}', 'QuizzesController@getQuiz');
     Route::get('/quiz/{quiz_uuid}/questions', 'QuestionsController@getQuestionsFromQuiz');
     Route::post('/update-worker-activity', 'TwilioWorkersController@updateTwilioActivity')->name('update-worker-activity');
     Route::post('/get-current-worker-activity', 'TwilioWorkersController@getCurrentTwilioActivity')->name('get-current-worker-activity');
@@ -133,6 +133,8 @@ Route::prefix('/admin')->middleware(['auth:web'])->group(function() {
     Route::post('/crud-questions/add_answer', 'QuestionsController@vueAddAnswer');
     Route::post('/crud-questions/link_answer_questinon', 'QuestionsController@vueLinkOnAnswer');
     Route::post('/crud-questions/edit_answer', 'QuestionsController@vueEditAnswer');
+    Route::get('/quiz-get-categories', 'CategoriesController@vueGetCategories');
+    Route::get('/quiz-get-quiz/{category}', 'QuizzesController@vueGetQuiz');
 
     Route::resource('/category', 'CategoriesController')->except('show');
     Route::resource('/city', 'CitiesController')->except('show');

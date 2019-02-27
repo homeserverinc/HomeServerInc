@@ -153,4 +153,17 @@ class CategoriesController extends HomeServerController
             return $this->getApiResponse($e, 'error');
         }
     }
+
+    /**
+     * Get all categories from vue
+     *
+     * @return Category[]
+     */
+    public function vueGetCategories() {
+        try {
+            return $this->getApiResponse(Category::orderBy('category', 'asc')->get());
+        } catch (\Exception $e) {
+            return $this->getApiResponse($e, 'error');
+        }
+    }
 }

@@ -34,6 +34,7 @@
     "pusher-js": "^4.4.0",
     "qs": "^6.6.0",
     "toaster": "^0.1.2",
+    "vee-validate": "^2.1.7",
     "velocity-animate": "^1.5.2",
     "vue-scrollto": "^2.13.0",
     "vuex": "^3.1.0",

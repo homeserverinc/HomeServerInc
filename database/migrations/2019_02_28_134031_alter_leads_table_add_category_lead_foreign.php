@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AlterLeadsTableSetColumnsNullable extends Migration
+class AlterLeadsTableAddCategoryLeadForeign extends Migration
 {
     /**
      * Run the migrations.
@@ -14,10 +14,9 @@ class AlterLeadsTableSetColumnsNullable extends Migration
     public function up()
     {
         Schema::table('leads', function (Blueprint $table) {
-            Schema::disableForeignKeyConstraints();
-            DB::statement('ALTER TABLE leads MODIFY category_uuid char(36) null');
-            DB::statement('ALTER TABLE leads MODIFY questions text null');
-            Schema::enableForeignKeyConstraints();
+            $table->uuid('category_lead_uuid')->index()->after('uuid');
+            
+            $table->foreign('category_lead_uuid')->references('uuid')->on('category_leads');
         });
     }
 
@@ -29,7 +28,8 @@ class AlterLeadsTableSetColumnsNullable extends Migration
     public function down()
     {
         Schema::table('leads', function (Blueprint $table) {
-            //
+            $table->dropForeign('plans_category_lead_uuid_foreign');
+            $table->dropColumn('category_lead_uuid');
         });
     }
 }

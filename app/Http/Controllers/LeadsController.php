@@ -7,7 +7,9 @@ use App\Lead;
 use App\Site;
 use App\State;
 use App\Contact;
+use App\Answer;
 use App\Category;
+use App\CategoryLead;
 use App\Customer;
 use App\traits\ApiResponse;
 use Illuminate\Http\Request;
@@ -17,6 +19,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Session;
 use App\Http\Controllers\HomeServerController;
+use App\Events\AssociateLeads;
 
 class LeadsController extends HomeServerController
 {
@@ -75,9 +78,9 @@ class LeadsController extends HomeServerController
             
             $customers = Customer::all();
             $categories = Category::all();
+            $category_leads = CategoryLead::all();
 
-            return View('lead.create')
-                
+            return View('lead.create', ['category_leads' => $category_leads])
                     ->withCustomers($customers)
                     ->withCategories($categories);
         } else {
@@ -107,12 +110,12 @@ class LeadsController extends HomeServerController
                 $customer = $this->createRecord($customer, false);
                 $lead = new Lead($request->all());
                 $lead->customer_uuid = $customer->uuid;
+                $lead = $this->createRecord($lead, false);
+                event(new AssociateLeads($lead));
 
-                $this->createRecord($lead);
-                dd($lead);
                 DB::commit();
 
-                //return $this->createSuccess($lead);
+                return $this->createSuccess($lead);
         
             } catch (\Exception $e) {
                 DB::rollback();
@@ -144,9 +147,10 @@ class LeadsController extends HomeServerController
     public function edit(Lead $lead)
     {
         $categories = Category::all();
-
+        $category_leads = CategoryLead::all();
         return View('lead.edit')->withLead($lead)
-                                ->withCategories($categories);
+                                ->withCategories($categories)
+                                ->withCategoryLeads($category_leads);
     }
 
     /**
@@ -225,9 +229,9 @@ class LeadsController extends HomeServerController
             $lead->customer_uuid = $customer->uuid;
             $lead->verified_data = ($data->verified_data == 'true');
             $lead->questions = json_encode($data->questions);
-
+            $lead->category_lead_uuid = $this->categorize_lead($lead)->uuid;
             $newLead = $this->createRecord($lead, false);
-            
+            event(new AssociateLeads($newLead));
             DB::commit();
 
             return $this->getApiResponse($newLead);
@@ -268,5 +272,41 @@ class LeadsController extends HomeServerController
             
             return $this->getApiResponse($e, 'error');
         }
+    }
+
+    public function categorize_lead(Lead $lead){
+        $weight = 0;
+        $json_array = json_decode(json_decode($lead->questions), true);
+        foreach ($json_array as $question) {
+            foreach ($question['selected_answers'] as $answer) {
+                if(Answer::find($answer) !== null && Answer::find($answer)->count() > 0){
+                    $weight += Answer::find($answer)->weight;
+                }
+            }
+        }
+        $category = Category::find($lead->category_uuid);
+        $selected = null;
+        if($category !== null){
+            $category_leads = $category->category_leads->sortBy('pivot.weight');
+            $min = 0;
+            $max = $category_leads->shift();
+            foreach($category_leads as $category_lead){
+                if($weight >= $min && $weight <= $max->pivot->weight){
+                    $selected = $max;
+                    break;
+                }else{
+                    $min = $max->pivot->weight;
+                    $max = $category_lead;
+                    if($max == $category_leads->last()){
+                        $selected = $max;
+                        break;
+                    }
+                }
+            }
+        }
+        
+
+        return $selected;
+    
     }
 }

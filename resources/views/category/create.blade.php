@@ -32,8 +32,11 @@
                                         <th class="col-md-2" >
                                             Category Lead
                                         </th>
-                                        <th class="col">
+                                        <th class="col-md-5">
                                             Weight
+                                        </th>
+                                        <th class="col-md-5">
+                                            Price
                                         </th>
                                     </tr>
                                 </thead>
@@ -49,6 +52,21 @@
                                                             'field' => 'weights['.$clead->name.']',
                                                             'label' => null,
                                                             'required' => true,
+                                                        
+                                                        ]
+                                                    ]
+                                                ])
+                                                @endcomponent
+                                            </td> 
+                                            <td>
+                                                @component('components.form-group', [
+                                                    'inputs' => [
+                                                       [
+                                                            'type' => 'text',
+                                                            'field' => 'prices['.$clead->name.']',
+                                                            'label' => null,
+                                                            'required' => true,
+                                                            
                                                         ]
                                                     ]
                                                 ])

@@ -123,6 +123,16 @@
                                 'inputs' => [
                                     [
                                         'type' => 'select',
+                                        'field' => 'category_lead_uuid',
+                                        'label' => 'Category Lead',
+                                        'required' => true,
+                                        'items' => $category_leads,
+                                        'displayField' => 'name',
+                                        'keyField' => 'uuid',
+                                        'liveSearch' => true,   
+                                        'defaultNone' => true,               
+                                    ],[
+                                        'type' => 'select',
                                         'field' => 'category_uuid',
                                         'label' => 'Category',
                                         'required' => true,
@@ -172,7 +182,6 @@
 @endpush
 @push('document-ready')
     $("#category_uuid").change(function(){
-        console.log('change')
         $.ajax({
             url: "{{route('quizzes.json')}}",
             method: 'POST',

@@ -33,8 +33,11 @@
                                         <th class="col-md-2" >
                                             Category Lead
                                         </th>
-                                        <th class="col">
+                                        <th class="col-md-5">
                                             Weight
+                                        </th>
+                                        <th class="col-md-5">
+                                            Price
                                         </th>
                                     </tr>
                                 </thead>
@@ -52,6 +55,20 @@
                                                             'label' => null,
                                                             'required' => true,
                                                             'inputValue' => $category->category_leads->firstWhere('uuid', '=', $clead->uuid)->pivot->weight ?? 0
+                                                        ]
+                                                    ]
+                                                ])
+                                                @endcomponent
+                                            </td>
+                                            <td>
+                                                @component('components.form-group', [
+                                                    'inputs' => [
+                                                       [
+                                                            'type' => 'text',
+                                                            'field' => 'prices['.$clead->name.']',
+                                                            'label' => null,
+                                                            'required' => true,
+                                                            'inputValue' => $category->category_leads->firstWhere('uuid', '=', $clead->uuid)->pivot->price ?? 0
                                                         ]
                                                     ]
                                                 ])

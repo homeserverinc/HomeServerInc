@@ -96,4 +96,8 @@ class Contractor extends Model
         return $this->belongsToMany(Category::class);
     }
 
+    public function leads() {
+        return $this->belongsToMany(Lead::class)->withTimestamps();
+    }
+
 }

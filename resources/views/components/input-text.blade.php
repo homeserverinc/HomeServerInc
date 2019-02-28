@@ -5,6 +5,8 @@
     $autofocus = isset($autofocus) ? $autofocus : false;
     $required = isset($required) ? $required : false;
     $css = isset($css) ? $css : '';
+    $id = isset($id) ? $id : $name;
+    $idDiv = isset($idDiv) ? $idDiv : '';
     $div_css = isset($div_css) ? $div_css : '';
     $vModel = isset($vModel) ? $vModel : false;
     $readOnly = isset($readOnly) ? $readOnly : false;
@@ -14,7 +16,7 @@
 @endphp
 
 {{--  {{dd($inputValue)}}  --}}
-<div class="col col-sm col-md{{$inputSize}} col-lg{{$inputSize}} {{$div_css}}">
+<div class="col col-sm col-md{{$inputSize}} col-lg{{$inputSize}} {{$div_css}}" id="{{$idDiv}}">
     @if(isset($label))
         @component('components.label', ['label' => $label, 'field' => $field, 'required' => $required])
         @endcomponent

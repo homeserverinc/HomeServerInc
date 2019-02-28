@@ -28,20 +28,49 @@
                         'required' => true,
                         'inputSize' => 4,
                         'inputValue' => $plan->qnt_leads
+                    ],[
+                        'type' => 'select',
+                        'field' => 'category_lead_uuid',
+                        'label' => 'Category Lead',
+                        'required' => true,
+                        'items' => $category_leads,
+                        'displayField' => 'name',
+                        'keyField' => 'uuid',
+                        'liveSearch' => true,
+                        'defaultNone' => true,
+                        'inputSize' => 4,
+                        'indexSelected' => $plan->category_lead_uuid,
                     ]
                 ]
             ])
             @endcomponent
 
-            @component('components.input-checkbox', [
-                'field' => 'unique_leads',
-                'label' => 'Unique leads?',
-                'required' => true,
-                'inputSize' => 4,
-                'value' => 1,
-                'inputValue' => $plan->unique_leads ? true : false
-            ])
-            @endcomponent
+            <div class="col-md-8">
+                <div class="row">
+                    <div class="col-md-3 float-left">
+                        @component('components.input-checkbox', [
+                            'field' => 'unique_leads',
+                            'id' => 'unique_leads',
+                            'label' => 'Unique leads?',
+                            'required' => true,
+                            'inputSize' => 4,
+                            'inputValue' => $plan->unique_leads ? true : false,
+                            'value' => 1,
+                        ])
+                        @endcomponent
+                    </div>
+                    @component('components.input-text', [
+                        'name' => 'share_count',
+                        'field' => 'share_count',
+                        'idDiv' => 'share_count_div',
+                        'label' => 'Share count',
+                        'inputSize' => 6,
+                        'inputValue' => $plan->share_count,
+                        'div_css' => 'float-right '.(!$plan->unique_leads ? '' : 'invisible')
+                    ])
+                    @endcomponent
+                </div>
+            </div>
             @component('components.form-group', [
                 'inputs' => [
                     [
@@ -67,7 +96,7 @@
                         'keyField' => 'id',
                         'liveSearch' => true,
                         'defaultNone' => true,
-                        'indexSelected' => 'week',
+                        'indexSelected' => $plan->interval,
                         'inputSize' => 4
                     ],[
                         'type' => 'text',
@@ -83,3 +112,13 @@
         @endsection
     @endcomponent
 @endsection
+
+@push('document-ready')
+    $("#unique_leads").change(function(){
+        if(!$(this).prop('checked')){
+            $("#share_count_div").removeClass('invisible')
+        }else{
+            $("#share_count_div").addClass('invisible')
+        }
+    })
+@endpush

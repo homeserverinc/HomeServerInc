@@ -40,6 +40,8 @@ class Plan extends Model
         'stripe_id',
         'qnt_leads',
         'unique_leads',
+        'share_count',
+        'category_lead_uuid'
     ];
 
     public function contractors() {
@@ -48,6 +50,10 @@ class Plan extends Model
 
     public function subscriptions() {
         return $this->hasMany(Subscription::class);
+    }
+
+    public function category_lead(){
+        return $this->hasOne(CategoryLead::class);
     }
 
   

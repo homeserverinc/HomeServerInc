@@ -19,6 +19,7 @@
 
 <input type="checkbox" 
     name="{{$name}}"
+    id="{{$id}}"
     value="{{$value}}"
     {{ $checked ? 'checked' : '' }} 
     data-toggle="toggle" 

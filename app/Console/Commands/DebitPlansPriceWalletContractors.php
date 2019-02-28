@@ -52,7 +52,21 @@ class DebitPlansPriceWalletContractors extends Command
                     'card_uuid' => $sub->contractor->default_card()->first()->uuid
                 ]);
                 $charge->save();
-                $sub->update(['ends_at' => \Carbon\Carbon::today()->addWeeks(1)]);
+                switch ($sub->plan->interval) {
+                    case 'day':
+                        $ends_at = \Carbon\Carbon::today()->addDays($sub->plan->interval_count);
+                        break;
+                    case 'week':
+                        $ends_at = \Carbon\Carbon::today()->addWeeks($sub->plan->interval_count);
+                        break;
+                    case 'year':
+                        $ends_at = \Carbon\Carbon::today()->addYears($sub->plan->interval_count);
+                        break;
+                    default:
+                        $ends_at = \Carbon\Carbon::today()->addWeeks(1);
+                        break;
+                }
+                $sub->update(['ends_at' => $ends_at]);
 
             }
         }

@@ -53,7 +53,7 @@ class Plan extends Model
     }
 
     public function category_lead(){
-        return $this->hasOne(CategoryLead::class);
+        return $this->belongsTo(CategoryLead::class);
     }
 
   

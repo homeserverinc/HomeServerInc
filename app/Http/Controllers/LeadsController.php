@@ -47,16 +47,36 @@ class LeadsController extends HomeServerController
     public function index(Request $request)
     {
         if (Auth::user()->canReadLead()) {
-            if ($request->searchField) {
-                $leads = Lead::whereHas('customers', function($query) use($request) {
-                    $query->where('customers.first_name', 'like', '%'.$request->searchField.'%');
-                })->orWhereHas('categories', function($query) use($request){
-                    $query->where('categories.name', 'like', '%'.$request->searchField.'%');
-                })->orderBy('leads.created_at', 'desc')->paginate();
-            } else {
-                $leads = Lead::orderBy('leads.created_at', 'desc')
-                            ->paginate();
+            
+            if(Auth::user()->hasRole('superadministrator')){
+                if ($request->searchField) {
+                    $leads = Lead::whereHas('customers', function($query) use($request) {
+                        $query->where('customers.first_name', 'like', '%'.$request->searchField.'%');
+                    })->orWhereHas('categories', function($query) use($request){
+                        $query->where('categories.name', 'like', '%'.$request->searchField.'%');
+                    })->orderBy('leads.created_at', 'desc')->paginate();
+                } else {
+                    $leads = Lead::orderBy('leads.created_at', 'desc')
+                                ->paginate();
+                }
+                
+            }else{
+                if ($request->searchField) {
+                    $leads = Lead::whereHas('contractors', function($query){
+                        $query->where('contractors.uuid', '=', Auth::user()->contractor->uuid);
+                    })->whereHas('customers', function($query) use($request) {
+                        $query->where('customers.first_name', 'like', '%'.$request->searchField.'%');
+                    })->orWhereHas('categories', function($query) use($request){
+                        $query->where('categories.name', 'like', '%'.$request->searchField.'%');
+                    })->orderBy('leads.created_at', 'desc')->paginate();
+                } else {
+                    $leads = Lead::whereHas('contractors', function($query){
+                        $query->where('contractors.uuid', '=', Auth::user()->contractor->uuid);
+                    })->orderBy('leads.created_at', 'desc')
+                                ->paginate();
+                }
             }
+            
 
             return View('lead.index', [
                 'leads' => $leads,

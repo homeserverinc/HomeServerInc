@@ -6,16 +6,18 @@
     "type": "project",
     "require": {
         "php": "^7.1.3",
+        "arietimmerman/laravel-url-shortener": "dev-master",
+        "cartalyst/stripe-laravel": "9.0.*",
         "doctrine/dbal": "^2.9",
         "fideloper/proxy": "^4.0",
+        "guzzlehttp/guzzle": "^6.3",
         "kalnoy/nestedset": "^4.3.3",
         "laravel/framework": "5.7.*",
         "laravel/tinker": "^1.0",
         "pusher/pusher-php-server": "~3.0",
         "santigarcor/laratrust": "5.0.*",
         "twilio/sdk": "^5.24",
-        "tymon/jwt-auth": "1.0.0-rc.3",
-        "cartalyst/stripe-laravel": "9.0.*"
+        "tymon/jwt-auth": "1.0.0-rc.3"
     },
     "require-dev": {
         "beyondcode/laravel-dump-server": "^1.0",

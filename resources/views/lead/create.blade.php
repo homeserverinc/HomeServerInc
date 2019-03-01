@@ -150,7 +150,7 @@
                                 'inputs' => [
                                     [
                                         'type' => 'textarea',
-                                        'field' => 'description',
+                                        'field' => 'project_details',
                                         'label' => 'Description',
                                         'required' => true,
                                     ]

@@ -1,8 +1,22 @@
 <template>
-	<transition name="fade" mode="in-out" appear>
+	<transition name="fade" mode="in-out" appear v-cloak>
 		<div class="card" v-if="finishedQuiz">
 			<div class="card-header">Project Details</div>
-			<div class="card-body hs-questions-review pb-0">
+			<div class="card-body hs-questions-review pb-0"
+				style="max-height: 560px !important; overflow-y: scroll; overflow-x: hidden;">
+				<div class="hs-question hs-title-overflow">
+					<strong>Service Category</strong>
+					<div :class="['hs-questions-review-item-'+suffixTheme, {'shadow': enableShadow}]">
+						<div class="hs-answer">
+							<div>
+								<i class="fas fa-check text-success"></i>
+								{{categoryName}}
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="m-2 border border-top-1 border-secondary">
+				</div>
 				<div class="hs-question hs-title-overflow" v-for="q in questions" :key="q.uuid">
 					<strong>{{ q.question }}</strong>
 					<div :class="['hs-questions-review-item-'+suffixTheme, {'shadow': enableShadow}]">
@@ -20,8 +34,8 @@
 				</div>
 			</div>
 		</div>
-		<div class="jumbotron" v-else>
-			<div class="display-4">No data</div>
+		<div class="jumbotron" v-else v-cloak>
+			<div class="display-4" v-if="!isLoading">No data</div>
 		</div>
 	</transition>
 </template>
@@ -32,7 +46,7 @@ import { PROJECT_DEADLINE } from "../../../constants";
 export default {
 	computed: {
 		questions() {
-			return this.$store.state.HsQuiz.answeredQuestions;
+			return this.$store.state.HsQuiz.answeredQuestionsPreview;
 		},
 		questionTypes() {
 			return this.$store.state.HsQuiz.questionTypes;
@@ -62,13 +76,21 @@ export default {
 			return this.$store.state.HsAddress.address;
 		},
 		suffixTheme() {
-			return this.$store.state.suffixTheme;
+			return this.$store.state.HsQuizTheme.suffixTheme;
 		},
 		enableShadow() {
-			return this.$store.state.enableShadow;
+			return this.$store.state.HsQuizTheme.enableShadow;
 		},
 		finishedQuiz() {
-			return this.$store.state.finishedQuiz;
+			return this.$store.state.HsQuiz.finishedQuiz;
+		},
+		categoryName() {
+			if (this.$store.state.HsCategories.category !== undefined) {
+				return this.$store.state.HsCategories.category.category;
+			}
+		},
+		isLoading() {
+			return this.$store.state.HsQuiz.isLoading;
 		}
 	},
 	methods: {

@@ -2,7 +2,7 @@ import { QUESTION_TYPES, ANSWER_TYPES } from "../../../constants";
 import Axios from "axios";
 import qs from 'qs';
 
-const VALID_MUTATIONS = {
+const VALID_MUTATIONS = { 
     ADD_QUIZZES: "ADD_QUIZZES",
     SELECT_QUIZ: "SELECT_QUIZ",
     SET_QUESTIONS: "SET_QUESTIONS",

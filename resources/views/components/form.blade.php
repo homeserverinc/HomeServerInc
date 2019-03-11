@@ -25,7 +25,7 @@
         {{--  <hr>  --}}
 
         <div class="form-group">
-            <div class="{{ ($btnAlign == 'Right') ? 'float-right' : '' }} padding-bottom-15">
+            <div class="{{ ($btnAlign == 'Right') ? 'float-right' : '' }} padding-bottom-15 mb-3">
                 @if(is_array($formButtons))
                     @foreach($formButtons as $formButton)
                         @if(($formButton['type'] == 'submit') || ($formButton['type'] == 'reset'))

@@ -20,9 +20,7 @@ use App\Http\Controllers\CallsController;
 |
 */
 
-Route::get('/', function() {
-    return redirect()->route('admin.dashboard');
-});
+Route::get('/', 'AppController@home');
 
 /* Route::get('/sms', function() {
     $teste = new CallsController;
@@ -47,15 +45,9 @@ Route::prefix('/user')->group(function() {
     Route::get('/', 'HomeController@index')->name('user.dashboard');
 });
 
-Route::get('listen', function() {
-    return View('receiving_call');
-});
+Route::get('listen', 'AppController@callListen');
 
-Route::get('/hangup', function() {
-    event(new CallEndedEvent(
-        1
-    ));
-});
+Route::get('/hangup', 'AppController@callHangup');
 
 Route::get('/call-center', 'CallsController@callCenter');
 Route::get('/token', 'CallsController@getToken');
@@ -68,7 +60,7 @@ Route::get('/routes/{phoneNumber}', 'CallRoutesController@getRoutesToPhone');
 Route::post('/serviceProperties', 'PropertyServiceController@getServicePropertyJson');
 
 Auth::routes();
-//middleware(['auth:web'])->
+
 Route::prefix('/admin')->middleware(['auth:web'])->group(function() {
     Route::get('/', 'AdminController@index')->name('admin.dashboard');    
 
@@ -135,7 +127,8 @@ Route::prefix('/admin')->middleware(['auth:web'])->group(function() {
     Route::post('/crud-questions/link_answer_questinon', 'QuestionsController@vueLinkOnAnswer');
     Route::post('/crud-questions/edit_answer', 'QuestionsController@vueEditAnswer');
     Route::get('/quiz-get-categories', 'CategoriesController@vueGetCategories');
-    Route::get('/quiz-get-quiz/{category}', 'QuizzesController@vueGetQuiz');
+    Route::get('/quiz-get-quiz/{category}', 'QuizzesController@apiGetQuiz');
+    Route::get('/quiz-get-lead/{lead}', 'LeadsController@apiGetLead');
 
     Route::resource('/category', 'CategoriesController')->except('show');
     Route::resource('/category_lead', 'CategoryLeadsController')->except('show');
@@ -169,7 +162,7 @@ Route::prefix('/admin')->middleware(['auth:web'])->group(function() {
     Route::resource('/twilio_configuration', 'TwilioConfigurationsController')->except(['show', 'create', 'store', 'destroy']);
 
 
-    Route::get('/teste', function() {
+    /* Route::get('/teste', function() {
         return View('teste');
-    });
+    }); */
 });

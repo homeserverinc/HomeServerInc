@@ -33,7 +33,7 @@
                 
                 <div class="col-auto">
                     @permission('create-'.str_replace('_', '-', $model))
-                    @if(route::has($model.'.create'))
+                    @if(Route::has($model.'.create'))
                     <a href="{{ route($model.'.create') }}" class="btn   btn-success" data-toggle="tooltip" data-placement="top" title="{{__('strings.New')}}" data-original-title="{{__('New')}}">
                         <i class="fas fa-plus"></i>
                     </a>

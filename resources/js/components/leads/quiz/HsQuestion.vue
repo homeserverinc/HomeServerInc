@@ -8,7 +8,7 @@
                 <span class="text-danger">You must answer this question.</span>
             </transition>
         </div>
-        <div class="list-group hs-answers" :class="{'checkbox-list-group': !question.question_type.single_choice, 'radio-list-group': question.question_type.single_choice}">
+        <div class="list-group hs-answers" :class="{'checkbox-list-group': !isSingleChoice, 'radio-list-group': isSingleChoice}">
             <div v-for="(answer, index) in orderedAnswers" :key="answer.uuid" class="hs-answer">
                 <hs-form-input :uuid="answer.uuid" :animation-delay="index * 80">
                 </hs-form-input>
@@ -47,6 +47,9 @@ export default {
     computed: {
         question() {
             return this.$store.state.HsQuiz.currentQuestion;
+        },
+        isSingleChoice() {
+            return this.$store.getters['HsQuiz/singleChoiceQuestion'];
         },
         orderedAnswers() {
             return this.$store.getters['HsQuiz/orderedAnswers'];

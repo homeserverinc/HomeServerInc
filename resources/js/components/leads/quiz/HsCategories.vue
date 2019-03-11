@@ -51,6 +51,7 @@ export default {
         },
         category: {
             get() {
+//                $(this.$refs.selectCategory).selectpicker('refresh');
                 if (this.$store.state.HsCategories.category === undefined) {
                     return null
                 } else {
@@ -63,11 +64,13 @@ export default {
         },
         category_validate() {
             return this.category;
+        },
+        hiddenComponent() {
+            return this.$store.state.HsCategories.hiddenComponent;
         }
     },
     updated() {
         $(this.$refs.selectCategory).selectpicker('refresh');
-        $(this.$refs.selectCategory).selectpicker('render');
-	}
+    }
 };
 </script>

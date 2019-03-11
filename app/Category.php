@@ -2,8 +2,9 @@
 
 namespace App;
 
+use App\Quiz;
 use App\Site;
-use App\Service;
+use App\Category;
 use App\Traits\Uuidable;
 use Illuminate\Database\Eloquent\Model;
 
@@ -33,7 +34,8 @@ class Category extends Model
     public $incrementing = false;
 
     protected $fillable = [
-        'category'
+        'category',
+        'quiz_uuid'
     ];
 
     protected $hidden = [
@@ -41,9 +43,13 @@ class Category extends Model
         'updated_at',
     ];
 
-    public function services() {
-        return $this->hasMany(Service::class);
+    public function quiz() {
+        return $this->belongsTo(Quiz::class);
     }
+
+    /* public function services() {
+        return $this->hasMany(Service::class);
+    } */
 
     public function sites() {
         return $this->belongsToMany(Site::class);

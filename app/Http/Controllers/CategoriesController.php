@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Quiz;
 use App\Site;
 use App\Category;
 use App\CategoryLead;
 use App\traits\ApiResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Session;
@@ -19,6 +21,7 @@ class CategoriesController extends HomeServerController
     public $fields = [
         'uuid' => 'UUID',
         'category' => 'Category',
+        'quiz.quiz' => 'Quiz'
     ];
 
     protected $modelName = 'category';
@@ -33,11 +36,12 @@ class CategoriesController extends HomeServerController
     {
         if (Auth::user()->canReadCategory()) {
             if ($request->searchField) {
-                $categories = Category::where('category', 'like', '%'.$request->searchField.'%')
+                $categories = Category::with('quiz')->where('category', 'like', '%'.$request->searchField.'%')
                                 ->paginate();
             } else {
-                $categories = Category::paginate();
+                $categories = Category::with('quiz')->paginate();
             }
+            //dd($categories);
 
             return View('category.index', [
                 'categories' => $categories,
@@ -57,7 +61,11 @@ class CategoriesController extends HomeServerController
     {
         if (Auth::user()->canCreateCategory()) {
             $category_leads = CategoryLead::all();
-            return View('category.create', ['category_leads' => $category_leads]);
+            $quizzes = Quiz::orderBy('quiz', 'asc')->get();
+            return View('category.create', [
+                'category_leads' => $category_leads,
+                'quizzes' => $quizzes 
+            ]);
         } else {
             return $this->accessDenied();
         }
@@ -73,11 +81,16 @@ class CategoriesController extends HomeServerController
     {
         if (Auth::user()->canCreateCategory()) {
             $this->validate($request, [
-                'category' => 'string|unique:categories'
+                'category' => 'string|unique:categories',
+                'quiz_uuid' => 'required'
             ]);
             try {
+                
+                DB::beginTransaction();
+                
                 $category = new Category($request->all());
                 $category->save();
+
                 $collectionW = collect($request->input("weights"));
                 $collectionP = collect($request->input("prices"));
                 $collectionW = $collectionW->map(function($item, $key){
@@ -92,8 +105,13 @@ class CategoriesController extends HomeServerController
                     return [$item['uuid'] => ['weight' => $collectionW[$item->name], 'price' => $collectionP[$item->name]]];
                 });
                 $category->category_leads()->attach($category_leads->toArray());
-                return $this->createRecord($category);
-            } catch (\Exception $e) {
+
+                $this->createRecord($category);
+
+                DB::commit();
+                return $this->createSuccess($category);
+            } catch (\Exception $e) {                
+                DB::rollback();
                 return $this->doOnException($e);
             }
         } else {
@@ -111,9 +129,11 @@ class CategoriesController extends HomeServerController
     {
         if (Auth::user()->canUpdateCategory()) {
             $category_leads = CategoryLead::all();
+            $quizzes = Quiz::orderBy('quiz', 'asc')->get();
             return View('category.edit', [
                 'category' => $category,
-                'category_leads' => $category_leads
+                'category_leads' => $category_leads,
+                'quizzes' => $quizzes
             ]);
         } else {
             return $this->accessDenied();
@@ -130,17 +150,27 @@ class CategoriesController extends HomeServerController
     public function update(Request $request, Category $category)
     {
         if (Auth::user()->canUpdateCategory()) {
+            $this->validate($request, [
+                'category' => 'string|unique:categories,category,'.$category->uuid.',uuid',
+                'quiz_uuid' => 'required'
+            ]);
             try {
+                DB::beginTransaction();
+
                 $category->fill($request->all());
-                $names = array_keys($request->input("weights"));
-                $category_leads = CategoryLead::whereIn('name', $names)->get();
+                $uuids = array_keys($request->input("weights"));
+                $category_leads = CategoryLead::whereIn('uuid', $uuids)->get();
                 $category_leads = $category_leads->mapWithKeys(function($item) use($request){
                     return [$item['uuid'] => ['weight' => $request->input('weights')[$item->name], 'price' => $request->input('prices')[$item->name]]];
                 });
                 $category->category_leads()->detach();
                 $category->category_leads()->attach($category_leads->toArray());
-                return $this->updateRecord($category);
+                $this->updateRecord($category);
+
+                DB::commit();
+                return $this->updateSuccess($category);
             } catch (\Exception $e) {
+                DB::rollback();
                 return $this->doOnException($e);
             }
         } else {

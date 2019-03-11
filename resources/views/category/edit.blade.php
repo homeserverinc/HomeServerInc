@@ -18,71 +18,50 @@
                         'field' => 'category',
                         'label' => 'Category',
                         'required' => true,
-                        'inputValue' => $category->category
+                        'inputValue' => $category->category,
+                        'inputSize' => 6
+                    ],
+                    [
+                        'type' => 'select',
+                        'field' => 'quiz_uuid',
+                        'label' => 'Quiz',
+                        'required' => true,
+                        'inputSize' => 6,
+                        'keyField' => 'uuid',
+                        'displayField' => 'quiz',
+                        'items' => $quizzes,
+                        'defaultNone' => true,
+                        'liveSearch' => true,
+                        'indexSelected' => $category->quiz_uuid
                     ]
                 ]
             ])
             @endcomponent
-            <div class="container">
-                <div class="row">
-                    <div class="col-xs-12 col-md-12 col-lg-12">
-                        <div class="table-responsive">
-                            <table class="table table-dark">
-                                <thead>
-                                    <tr>
-                                        <th class="col-md-2" >
-                                            Category Lead
-                                        </th>
-                                        <th class="col-md-5">
-                                            Weight
-                                        </th>
-                                        <th class="col-md-5">
-                                            Price
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    
-                                    @foreach($category_leads as $clead)
-                                        <tr>
-                                            <th scope="row">{{$clead->name}}</th>
-                                            <td>
-                                                @component('components.form-group', [
-                                                    'inputs' => [
-                                                        [
-                                                            'type' => 'text',
-                                                            'field' => 'weights['.$clead->name.']',
-                                                            'label' => null,
-                                                            'required' => true,
-                                                            'inputValue' => $category->category_leads->firstWhere('uuid', '=', $clead->uuid)->pivot->weight ?? 0
-                                                        ]
-                                                    ]
-                                                ])
-                                                @endcomponent
-                                            </td>
-                                            <td>
-                                                @component('components.form-group', [
-                                                    'inputs' => [
-                                                       [
-                                                            'type' => 'text',
-                                                            'field' => 'prices['.$clead->name.']',
-                                                            'label' => null,
-                                                            'required' => true,
-                                                            'inputValue' => $category->category_leads->firstWhere('uuid', '=', $clead->uuid)->pivot->price ?? 0
-                                                        ]
-                                                    ]
-                                                ])
-                                                @endcomponent
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-
-
-                            </table>
-
-                        </div>
-                    </div>
+            <div class="row">
+                <div class="col">
+                    <table class="table table-sm table-dark">
+                        <thead>
+                            <tr>
+                                <th style="width: 80%">
+                                    Category Lead
+                                </th>
+                                <th style="width: 20%">
+                                    Weight
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            
+                            @foreach($category_leads as $clead)
+                                <tr>
+                                    <th scope="row">{{$clead->name}}</th>
+                                    <td>
+                                        <input type="number" class="form-control" name="weights[{{$clead->uuid}}]" id="weights[{{$clead->uuid}}]" required value="{{$category->category_leads->firstWhere('uuid', '=', $clead->uuid)->pivot->weight ?? 0}}">
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
                 </div>
             </div>
         @endsection

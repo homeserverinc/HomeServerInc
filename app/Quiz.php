@@ -2,7 +2,6 @@
 
 namespace App;
 
-use App\Category;
 use App\Question;
 use App\Traits\Uuidable;
 use Illuminate\Database\Eloquent\Model;
@@ -34,8 +33,7 @@ class Quiz extends Model
 
     protected $fillable = [
         'quiz',
-        'first_question_uuid',
-        'category_uuid',
+        'first_question_uuid'
     ];
 
     protected $hidden = [
@@ -49,9 +47,5 @@ class Quiz extends Model
 
     public function questions() {
         return $this->hasMany(Question::class);
-    }
-
-    public function category() {
-        return $this->belongsTo(Category::class);
     }
 }

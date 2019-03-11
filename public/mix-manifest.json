@@ -1,6 +1,7 @@
 {
     "/js/app.js": "/js/app.js",
     "/css/app.css": "/css/app.css",
+    "/css/hs_leads_form.css": "/css/hs_leads_form.css",
     "/js/bs4navbar.js": "/js/bs4navbar.js",
     "/js/configs.js": "/js/configs.js",
     "/js/crudQuestions.js": "/js/crudQuestions.js",

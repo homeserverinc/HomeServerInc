@@ -118,29 +118,43 @@ class LeadsController extends HomeServerController
     {
         
         if (Auth::user()->canCreateLead()) {
+            $this->validate($request, [
+
+            ]);
             try {
                 DB::beginTransaction();
-
+                //dd($request->all());
+    
                 $customer = Customer::firstOrNew([
-                    'first_name' => $request->customer,
+                    'first_name' => $request->first_name,
                     'email1' => $request->email1
                 ]);            
-
+    
                 $customer->fill($request->all());
+    
                 $customer = $this->createRecord($customer, false);
+    
                 $lead = new Lead($request->all());
+    
                 $lead->customer_uuid = $customer->uuid;
                 $lead = $this->createRecord($lead, false);
                 event(new AssociateLeads($lead));
 
+                $lead->questions = $request->questions;
+                $lead->category_uuid = $request->category_uuid;
+    
+                $lead = $this->createRecord($lead, false);
+    
+                //dd($lead);
+                
                 DB::commit();
-
-                return $this->createSuccess($lead);
+    
+                return $this->updateSuccess($lead);
         
             } catch (\Exception $e) {
                 DB::rollback();
-
-                return $this->doOnException($e);
+    
+                return $this->getApiResponse($e, 'error');
             } 
         } else {
             return $this->accessDenied();
@@ -182,7 +196,40 @@ class LeadsController extends HomeServerController
      */
     public function update(Request $request, Lead $lead)
     {
-        //
+        $this->validate($request, [
+
+        ]);
+        try {
+            DB::beginTransaction();
+
+            $customer = Customer::firstOrNew([
+                'first_name' => $request->first_name,
+                'email1' => $request->email1
+            ]);            
+
+            $customer->fill($request->all());
+
+            $customer = $this->createRecord($customer, false);
+
+            $lead->fill($request->all());
+
+            $lead->customer_uuid = $customer->uuid;
+            $lead->questions = $request->questions;
+            $lead->category_uuid = $request->category_uuid;
+
+            $lead = $this->createRecord($lead, false);
+
+            //dd($lead);
+            
+            DB::commit();
+
+            return $this->updateSuccess($lead);
+    
+        } catch (\Exception $e) {
+            DB::rollback();
+
+            return $this->getApiResponse($e, 'error');
+        } 
     }
 
     /**
@@ -277,8 +324,10 @@ class LeadsController extends HomeServerController
 
             $customer = $this->createRecord($customer, false);
 
-            $lead = new Lead([
-                'customer_uuid' => $customer->uuid
+            $lead = Lead::firstOrNew([
+                'customer_uuid' => $customer->uuid,
+                'closed' => false,
+                'category_uuid' => null
             ]);
 
             $newLead = $this->createRecord($lead, false);
@@ -327,6 +376,16 @@ class LeadsController extends HomeServerController
         
 
         return $selected;
-    
+    }
+
+    public function apiGetLead(Lead $lead) {
+        try {
+            return $this->getApiResponse(
+                        Lead::with('customer')
+                            ->with('category')
+                            ->find($lead->uuid));
+        } catch (\Exception $e) {
+            return $this->getApiResponse($e, 'error');
+        }
     }
 }

@@ -20,8 +20,7 @@ class QuizzesController extends HomeServerController
 
     public $fields = [
         'uuid' => 'UUID',
-        'quiz' => 'Quiz',
-        'category' => 'Category'
+        'quiz' => 'Quiz'
     ];
 
     public $modelName = 'quiz';
@@ -37,15 +36,11 @@ class QuizzesController extends HomeServerController
         if (Auth::user()->canReadQuiz()) {
             if ($request->searchField) {
                 $quizzes = DB::table('quizzes')
-                                ->select('quizzes.*', 'categories.category')
-                                ->join('categories', 'categories.uuid', 'quizzes.category_uuid')
                                 ->where('quiz', 'like', '%'.$request->searchField.'%')
                                 ->orderBy('created_at', 'desc')
                                 ->paginate();
             } else {
                 $quizzes = DB::table('quizzes')
-                                ->select('quizzes.*', 'categories.category')
-                                ->join('categories', 'categories.uuid', 'quizzes.category_uuid')
                                 ->orderBy('created_at', 'desc')
                                 ->paginate();
             }
@@ -67,10 +62,7 @@ class QuizzesController extends HomeServerController
     public function create()
     {
         if (Auth::user()->canCreateQuiz()) {
-            $categories = Category::all();
-            return View('quiz.create', [
-                'categories' => $categories
-            ]);
+            return View('quiz.create');
         } else {
             return $this->accessDenied();
         }
@@ -86,8 +78,7 @@ class QuizzesController extends HomeServerController
     {
         if (Auth::user()->canCreateQuiz()) {
             $this->validate($request, [
-                'quiz' => 'string|unique:quizzes',
-                'category_uuid' => 'required'
+                'quiz' => 'string|unique:quizzes'
             ]);
 
             try {
@@ -111,10 +102,8 @@ class QuizzesController extends HomeServerController
     public function edit(Quiz $quiz)
     {
         if (Auth::user()->canUpdateQuiz()) {
-            $categories = Category::all();
             $questions = Question::where('quiz_uuid', $quiz->uuid)->get();
             return View('quiz.edit', [
-                'categories' => $categories,
                 'questions' => $questions,
                 'quiz' => $quiz
             ]);
@@ -175,10 +164,9 @@ class QuizzesController extends HomeServerController
 
     public function apiGetQuiz(Category $category) {
         try {
-            $quiz = Quiz::where('category_uuid', $category->uuid)
-                ->with('questions.question_type')
-                ->with('questions.answers.answer_type')
-                ->first();
+            $quiz = Quiz::with('questions.question_type')
+                        ->with('questions.answers.answer_type')
+                        ->find($category->quiz_uuid);
 
             return $this->getApiResponse($quiz);
         } catch (\Exception $e) {
@@ -199,14 +187,6 @@ class QuizzesController extends HomeServerController
             return View('quiz.questions_crud');
         } else {
             return $this->accessDenied();
-        }
-    }
-
-    public function vueGetQuiz($uuid) {        
-        try {
-            return $this->getApiResponse(Quiz::find($uuid));
-        } catch (\Exception $e) {
-            return $this->getApiResponse($e, 'error');
         }
     }
 }

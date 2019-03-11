@@ -229,11 +229,7 @@ class SitesController extends HomeServerController
 
     public function apiGetSite($uuid) {
         try {
-            $site = Site::with(['city.state', 'phone'])
-                        ->with(['categories' => function($query) {
-                            $query->with('services')
-                                ->whereHas('services');
-                        }])
+            $site = Site::with(['city.state', 'phone', 'categories'])
                         ->where('uuid', $uuid)->first();
             return $this->getApiResponse($site);
         } catch (\Exception $e) {

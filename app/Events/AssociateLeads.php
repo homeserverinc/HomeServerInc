@@ -2,7 +2,7 @@
 
 namespace App\Events;
 
-use App\MissedCall;
+use App\Lead;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Broadcasting\PrivateChannel;
@@ -11,22 +11,20 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
-class NewMissedCall
+class AssociateLeads
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $missedCall;
-    public $to;
+    public $lead;
 
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct(MissedCall $missedCall, String $to)
+    public function __construct(Lead $lead)
     {
-        $this->missedCall = $missedCall;
-        $this->to = $to;
+        $this->lead = $lead;
     }
 
     /**
@@ -36,6 +34,6 @@ class NewMissedCall
      */
     public function broadcastOn()
     {
-        //
+        return new PrivateChannel('LeadAssign');
     }
 }

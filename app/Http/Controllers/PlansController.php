@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Plan;
 use Stripe;
 use App\Contractor;
+use App\CategoryLead;
 use App\traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -66,7 +67,8 @@ class PlansController extends HomeServerController
     {
         if (Auth::user()->canCreatePlan()) {
             $intervals = ['day'=>'day', 'week'=>'week', 'year'=>'year'];
-            return View('plan.create', ['intervals' => $intervals]);
+            $category_leads = CategoryLead::all();
+            return View('plan.create', ['intervals' => $intervals, 'category_leads' => $category_leads]);
         } else {
             return $this->accessDenied();
         }
@@ -89,6 +91,8 @@ class PlansController extends HomeServerController
                 'interval' => 'required|string',
                 'qnt_leads' => 'required|numeric|min:0',
                 'unique_leads' => 'nullable|boolean',
+                'share_count' => 'nullable|numeric',
+                'category_lead_uuid' => 'required|string|exists:category_leads,uuid',
             ]);
             $request['unique_leads'] = $request['unique_leads'] ?? false;
             
@@ -102,7 +106,7 @@ class PlansController extends HomeServerController
                     'name'                 => $plan->name,
                     'amount'               => (float) $plan->price,
                     'currency'             => 'USD',
-                    'interval'             => $plan->interval ?? 'day',
+                    'interval'             => $plan->interval ?? 'week',
                     'interval_count'       => $plan->interval_count ?? null,
                     'metadata'             => ['description' => $plan->description],
                 ]);
@@ -134,7 +138,8 @@ class PlansController extends HomeServerController
     {
         if (Auth::user()->canUpdatePlan()) {
             $intervals = ['day'=>'day', 'week'=>'week', 'year'=>'year'];
-            return View('plan.edit', ['plan' => $plan, 'intervals' => $intervals]);
+            $category_leads = CategoryLead::all();
+            return View('plan.edit', ['plan' => $plan, 'intervals' => $intervals, 'category_leads' => $category_leads]);
         } else {
             return $this->accessDenied();
         }
@@ -158,6 +163,8 @@ class PlansController extends HomeServerController
                 'interval' => 'required|string',
                 'qnt_leads' => 'required|numeric|min:0',
                 'unique_leads' => 'nullable|boolean',
+                'share_count' => 'nullable|numeric',
+                'category_lead_uuid' => 'required|string|exists:category_leads,uuid',
             ]);
             $request['unique_leads'] = $request['unique_leads'] ?? false;
             try {

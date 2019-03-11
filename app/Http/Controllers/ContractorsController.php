@@ -199,6 +199,20 @@ class ContractorsController extends HomeServerController
                     //     'plan' => $contractor->plan->uuid,
                     // ]);
                     //record subs to db
+                    switch ($plan->interval) {
+                        case 'day':
+                            $ends_at = \Carbon\Carbon::today()->addDays($plan->interval_count);
+                            break;
+                        case 'week':
+                            $ends_at = \Carbon\Carbon::today()->addWeeks($plan->interval_count);
+                            break;
+                        case 'year':
+                            $ends_at = \Carbon\Carbon::today()->addYears($plan->interval_count);
+                            break;
+                        default:
+                            $ends_at = \Carbon\Carbon::today()->addWeeks(1);
+                            break;
+                    }
                     $subs = new Subscription([
                         'contractor_uuid' => $contractor->uuid,
                         'plan_uuid' => $contractor->plan->uuid,
@@ -206,7 +220,7 @@ class ContractorsController extends HomeServerController
                         'stripe_id' => null,
                         'closed' => 0,
                         'trial_ends_at' => null,
-                        'ends_at' => \Carbon\Carbon::now()->addWeeks(1),
+                        'ends_at' => $ends_at
                     ]);
 
                     $contractor->decrement('wallet', $contractor->plan->price);
@@ -423,6 +437,20 @@ class ContractorsController extends HomeServerController
                         $subs->update();
 
                     }
+                    switch ($plan->interval) {
+                        case 'day':
+                            $ends_at = \Carbon\Carbon::today()->addDays($plan->interval_count);
+                            break;
+                        case 'week':
+                            $ends_at = \Carbon\Carbon::today()->addWeeks($plan->interval_count);
+                            break;
+                        case 'year':
+                            $ends_at = \Carbon\Carbon::today()->addYears($plan->interval_count);
+                            break;
+                        default:
+                            $ends_at = \Carbon\Carbon::today()->addWeeks(1);
+                            break;
+                    }
                     $subs = new Subscription([
                         'contractor_uuid' => $contractor->uuid,
                         'plan_uuid' => $plan->uuid,
@@ -430,7 +458,7 @@ class ContractorsController extends HomeServerController
                         'stripe_id' => null,
                         'closed' => 0,
                         'trial_ends_at' => null,
-                        'ends_at' => \Carbon\Carbon::now()->addWeeks(1),
+                        'ends_at' => $ends_at,
                     ]);
 
                     $subs = $this->createRecord($subs);

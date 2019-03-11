@@ -91,14 +91,18 @@ class CategoriesController extends HomeServerController
                 $category = new Category($request->all());
                 $category->save();
 
-                $collection = collect($request->input("weights"));
-                $collection = $collection->map(function($item, $key){
+                $collectionW = collect($request->input("weights"));
+                $collectionP = collect($request->input("prices"));
+                $collectionW = $collectionW->map(function($item, $key){
                     return $item ?? 0;
                 })->toArray();
-                $uuids = array_keys($collection);
-                $category_leads = CategoryLead::whereIn('uuid', $uuids)->get();
-                $category_leads = $category_leads->mapWithKeys(function($item) use($collection){
-                    return [$item['uuid'] => ['weight' => $collection[$item->uuid]]];
+                $collectionP = $collectionP->map(function($item, $key){
+                    return $item ?? 0;
+                })->toArray();
+                $names = array_keys($collectionW);
+                $category_leads = CategoryLead::whereIn('name', $names)->get();
+                $category_leads = $category_leads->mapWithKeys(function($item) use($collectionW, $collectionP){
+                    return [$item['uuid'] => ['weight' => $collectionW[$item->name], 'price' => $collectionP[$item->name]]];
                 });
                 $category->category_leads()->attach($category_leads->toArray());
 
@@ -157,7 +161,7 @@ class CategoriesController extends HomeServerController
                 $uuids = array_keys($request->input("weights"));
                 $category_leads = CategoryLead::whereIn('uuid', $uuids)->get();
                 $category_leads = $category_leads->mapWithKeys(function($item) use($request){
-                    return [$item['uuid'] => ['weight' => $request->input('weights')[$item->uuid]]];
+                    return [$item['uuid'] => ['weight' => $request->input('weights')[$item->name], 'price' => $request->input('prices')[$item->name]]];
                 });
                 $category->category_leads()->detach();
                 $category->category_leads()->attach($category_leads->toArray());

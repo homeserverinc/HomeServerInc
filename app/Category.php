@@ -64,6 +64,6 @@ class Category extends Model
     }
 
     public function category_leads() {
-        return $this->belongsToMany(CategoryLead::class, 'category_lead_category')->withPivot('weight');
+        return $this->belongsToMany(CategoryLead::class, 'category_lead_category')->withPivot('weight', 'price');
     }
 }

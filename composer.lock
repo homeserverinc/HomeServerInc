@@ -1,11 +1,62 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
     "content-hash": "77337849f6b24feca879f3cacc89568c",
     "packages": [
+        {
+            "name": "arietimmerman/laravel-url-shortener",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/arietimmerman/laravel-url-shortener.git",
+                "reference": "baedaafc0f987c5b039224c30b620bdd7afd3eef"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/arietimmerman/laravel-url-shortener/zipball/baedaafc0f987c5b039224c30b620bdd7afd3eef",
+                "reference": "baedaafc0f987c5b039224c30b620bdd7afd3eef",
+                "shasum": ""
+            },
+            "require": {
+                "laravel/framework": "^5.5",
+                "php": "^7.0",
+                "webpatser/laravel-uuid": "^3.0"
+            },
+            "require-dev": {
+                "orchestra/testbench": "~3.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "ArieTimmerman\\Laravel\\URLShortener\\ServiceProvider"
+                    ],
+                    "aliases": {
+                        "URLShortener": "ArieTimmerman\\Laravel\\URLShortener\\URLShortener"
+                    }
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "ArieTimmerman\\Laravel\\URLShortener\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Arie Timmerman",
+                    "email": "arietimmerman@gmail.com"
+                }
+            ],
+            "description": "Laravel Package for shortening urls",
+            "time": "2017-12-07T20:07:59+00:00"
+        },
         {
             "name": "cartalyst/collections",
             "version": "v1.1.0",
@@ -4123,6 +4174,60 @@
             "time": "2019-01-29T11:11:52+00:00"
         },
         {
+            "name": "webpatser/laravel-uuid",
+            "version": "3.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/webpatser/laravel-uuid.git",
+                "reference": "a7ce65cdabbc9970fc2a87fdf67b48e0b1641d23"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/webpatser/laravel-uuid/zipball/a7ce65cdabbc9970fc2a87fdf67b48e0b1641d23",
+                "reference": "a7ce65cdabbc9970fc2a87fdf67b48e0b1641d23",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.0"
+            },
+            "require-dev": {
+                "fzaninotto/faker": "~1.4",
+                "phpunit/phpunit": "~6.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Webpatser\\Uuid\\UuidServiceProvider"
+                    ],
+                    "aliases": {
+                        "Uuid": "Webpatser\\Uuid\\Uuid"
+                    }
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "Webpatser\\Uuid": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Christoph Kempen",
+                    "email": "christoph@downsized.nl"
+                }
+            ],
+            "description": "Laravel package to generate and to validate a universally unique identifier (UUID) according to the RFC 4122 standard. Support for version 1, 3, 4 and 5 UUIDs are built-in.",
+            "homepage": "https://github.com/webpatser/uuid",
+            "keywords": [
+                "UUID RFC4122"
+            ],
+            "time": "2017-10-04T07:47:40+00:00"
+        },
+        {
             "name": "zendframework/zend-diactoros",
             "version": "1.8.6",
             "source": {
@@ -6002,7 +6107,9 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": [],
+    "stability-flags": {
+        "arietimmerman/laravel-url-shortener": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {

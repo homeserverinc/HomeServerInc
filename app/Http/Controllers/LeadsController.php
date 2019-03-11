@@ -7,7 +7,9 @@ use App\Lead;
 use App\Site;
 use App\State;
 use App\Contact;
+use App\Answer;
 use App\Category;
+use App\CategoryLead;
 use App\Customer;
 use App\traits\ApiResponse;
 use Illuminate\Http\Request;
@@ -17,6 +19,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Session;
 use App\Http\Controllers\HomeServerController;
+use App\Events\AssociateLeads;
 
 class LeadsController extends HomeServerController
 {
@@ -44,16 +47,36 @@ class LeadsController extends HomeServerController
     public function index(Request $request)
     {
         if (Auth::user()->canReadLead()) {
-            if ($request->searchField) {
-                $leads = Lead::whereHas('customers', function($query) use($request) {
-                    $query->where('customers.first_name', 'like', '%'.$request->searchField.'%');
-                })->orWhereHas('categories', function($query) use($request){
-                    $query->where('categories.name', 'like', '%'.$request->searchField.'%');
-                })->orderBy('leads.created_at', 'desc')->paginate();
-            } else {
-                $leads = Lead::orderBy('leads.created_at', 'desc')
-                            ->paginate();
+            
+            if(Auth::user()->hasRole('superadministrator')){
+                if ($request->searchField) {
+                    $leads = Lead::whereHas('customers', function($query) use($request) {
+                        $query->where('customers.first_name', 'like', '%'.$request->searchField.'%');
+                    })->orWhereHas('categories', function($query) use($request){
+                        $query->where('categories.name', 'like', '%'.$request->searchField.'%');
+                    })->orderBy('leads.created_at', 'desc')->paginate();
+                } else {
+                    $leads = Lead::orderBy('leads.created_at', 'desc')
+                                ->paginate();
+                }
+                
+            }else{
+                if ($request->searchField) {
+                    $leads = Lead::whereHas('contractors', function($query){
+                        $query->where('contractors.uuid', '=', Auth::user()->contractor->uuid);
+                    })->whereHas('customers', function($query) use($request) {
+                        $query->where('customers.first_name', 'like', '%'.$request->searchField.'%');
+                    })->orWhereHas('categories', function($query) use($request){
+                        $query->where('categories.name', 'like', '%'.$request->searchField.'%');
+                    })->orderBy('leads.created_at', 'desc')->paginate();
+                } else {
+                    $leads = Lead::whereHas('contractors', function($query){
+                        $query->where('contractors.uuid', '=', Auth::user()->contractor->uuid);
+                    })->orderBy('leads.created_at', 'desc')
+                                ->paginate();
+                }
             }
+            
 
             return View('lead.index', [
                 'leads' => $leads,
@@ -75,9 +98,9 @@ class LeadsController extends HomeServerController
             
             $customers = Customer::all();
             $categories = Category::all();
+            $category_leads = CategoryLead::all();
 
-            return View('lead.create')
-                
+            return View('lead.create', ['category_leads' => $category_leads])
                     ->withCustomers($customers)
                     ->withCategories($categories);
         } else {
@@ -114,6 +137,8 @@ class LeadsController extends HomeServerController
                 $lead = new Lead($request->all());
     
                 $lead->customer_uuid = $customer->uuid;
+                $lead = $this->createRecord($lead, false);
+                event(new AssociateLeads($lead));
 
                 $lead->questions = $request->questions;
                 $lead->category_uuid = $request->category_uuid;
@@ -156,9 +181,10 @@ class LeadsController extends HomeServerController
     public function edit(Lead $lead)
     {
         $categories = Category::all();
-
+        $category_leads = CategoryLead::all();
         return View('lead.edit')->withLead($lead)
-                                ->withCategories($categories);
+                                ->withCategories($categories)
+                                ->withCategoryLeads($category_leads);
     }
 
     /**
@@ -270,9 +296,9 @@ class LeadsController extends HomeServerController
             $lead->customer_uuid = $customer->uuid;
             $lead->verified_data = ($data->verified_data == 'true');
             $lead->questions = json_encode($data->questions);
-
+            $lead->category_lead_uuid = $this->categorize_lead($lead)->uuid;
             $newLead = $this->createRecord($lead, false);
-            
+            event(new AssociateLeads($newLead));
             DB::commit();
 
             return $this->getApiResponse($newLead);
@@ -315,6 +341,41 @@ class LeadsController extends HomeServerController
             
             return $this->getApiResponse($e, 'error');
         }
+    }
+
+    public function categorize_lead(Lead $lead){
+        $weight = 0;
+        $json_array = json_decode(json_decode($lead->questions), true);
+        foreach ($json_array as $question) {
+            foreach ($question['selected_answers'] as $answer) {
+                if(Answer::find($answer) !== null && Answer::find($answer)->count() > 0){
+                    $weight += Answer::find($answer)->weight;
+                }
+            }
+        }
+        $category = Category::find($lead->category_uuid);
+        $selected = null;
+        if($category !== null){
+            $category_leads = $category->category_leads->sortBy('pivot.weight');
+            $min = 0;
+            $max = $category_leads->shift();
+            foreach($category_leads as $category_lead){
+                if($weight >= $min && $weight <= $max->pivot->weight){
+                    $selected = $max;
+                    break;
+                }else{
+                    $min = $max->pivot->weight;
+                    $max = $category_lead;
+                    if($max == $category_leads->last()){
+                        $selected = $max;
+                        break;
+                    }
+                }
+            }
+        }
+        
+
+        return $selected;
     }
 
     public function apiGetLead(Lead $lead) {

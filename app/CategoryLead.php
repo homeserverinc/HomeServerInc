@@ -31,10 +31,19 @@ class CategoryLead extends Model
     public $incrementing = false;
     
     public $fillable = [
-        'name'
+        'name',
+        'price'
     ];
 
     public function categories() {
-        return $this->belongsToMany(Category::class, 'category_lead_category')->withPivot('weight');
+        return $this->belongsToMany(Category::class, 'category_lead_category')->withPivot('weight', 'price');
+    }
+
+    public function plans(){
+        return $this->hasMany(Plan::class);
+    }
+
+    public function leads(){
+        return $this->hasMany(Lead::class);
     }
 }

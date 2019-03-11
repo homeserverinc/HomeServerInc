@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AlterQuestionsTableSetFieldsToNullable extends Migration
+class CreateLeadContractorTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,11 @@ class AlterQuestionsTableSetFieldsToNullable extends Migration
      */
     public function up()
     {
-        Schema::table('questions', function (Blueprint $table) {
-            $table->text('selected_answers')->nullable()->change();
-            $table->text('custom_answer')->nullable()->change();            
+        Schema::create('contractor_lead', function (Blueprint $table) {
+            $table->uuid('contractor_uuid');
+            $table->uuid('lead_uuid');
+            $table->primary(['contractor_uuid', 'lead_uuid']);
+            $table->timestamps();
         });
     }
 
@@ -26,8 +28,6 @@ class AlterQuestionsTableSetFieldsToNullable extends Migration
      */
     public function down()
     {
-        Schema::table('questions', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('contractor_lead');
     }
 }

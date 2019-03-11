@@ -3,7 +3,7 @@
 namespace App;
 
 use App\Site;
-use App\Service;
+use App\Category;
 use App\Customer;
 use App\Traits\Uuidable;
 use Illuminate\Database\Eloquent\Model;
@@ -40,7 +40,8 @@ class Lead extends Model
         'project_details',
         'questions',
         'verified_data',
-        'closed'
+        'closed',
+        'category_lead_uuid'
     ];
 
     public function customer() {
@@ -49,5 +50,13 @@ class Lead extends Model
 
     public function category() {
         return $this->belongsTo(Category::class);
+    }
+
+    public function category_lead() {
+        return $this->belongsTo(CategoryLead::class);
+    }
+
+    public function contractors() {
+        return $this->belongsToMany(Contractor::class)->withTimestamps();
     }
 }

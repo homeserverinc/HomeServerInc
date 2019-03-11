@@ -4,6 +4,8 @@ import { QUESTION_TYPES, ANSWER_TYPES } from "../../../constants";
 const state = {
 	quiz: {},
 	answeredQuestions: [],
+	history: [],
+	answeredQuestionsPreview: [],
 	answerTypes: ANSWER_TYPES,
 	questionTypes: QUESTION_TYPES,
 	currentQuestion: {
@@ -12,12 +14,15 @@ const state = {
 	showQuestionTitle: true,
 	currentQuestionAnswered: null,
 	isLoading: false,
-	finishedQuiz: false,
+	showingModal: false,
+	finishedQuiz: true,
 	components: [
 		"HsCategories",
 		"HsQuiz"		
 	],
 	currentComponentIndex: 0,
+	modalRef: null,
+	_questions: 'leadQuestions'
 };
 
 const getters = {
@@ -144,22 +149,39 @@ const getters = {
 		}
 	},
 	prevQuestion: state => {
-		return state.answeredQuestions.slice(-1)[0];
+		if (state.answeredQuestions.length > 0) { 
+			return state.answeredQuestions.slice(-1)[0];
+		}
 	}
 };
 
 const actions = {
+	loadExistingLead({state, commit, dispatch, getters}, uuid) {
+		Axios.get("/admin/quiz-get-lead/" + uuid)
+			.then(async r => {
+				let data = JSON.parse(r.data.data.questions);
+				commit('setQuiz', data.quiz);
+				commit('setAnsweredQuestionsPreview', data.answeredQuestions);
+				commit("setCurrentQuestion", getters.question(state.quiz.first_question_uuid));
+				commit('setFinishedQuiz', true);
+				if (r.data.data.category) {
+					
+					dispatch('HsCategories/apiGetCategories', data.quiz.uuid, {root: true});
+					dispatch('HsCategories/setCategory', r.data.data.category, {root: true});
+				} else {
+					dispatch('HsCategories/apiGetCategories', data.quiz.uuid, {root: true});
+				}
+				commit('setLoading', false);
+			})
+	},
 	apiGetQuiz({ state, commit, getters }, categoryUuid) {
 		if (!state.isLoading) {
 			commit("setLoading", true);
 		}
 		Axios.get("/admin/quiz-get-quiz/" + categoryUuid)
-			.then(r => {
+			.then(async r => {
 				commit("setQuiz", r.data.data);
-				commit(
-					"setCurrentQuestion",
-					getters.question(state.quiz.first_question_uuid)
-				);
+				commit("setCurrentQuestion", getters.question(state.quiz.first_question_uuid));
 				commit("setLoading", false);
 			})
 			.catch(e => {
@@ -211,14 +233,10 @@ const actions = {
 	},
 	next({state, commit, getters, dispatch}, component) {
 		if (component.$options._componentTag === "HsQuiz") {
-			if (
-				getters.questionAnswered (
-					state.HsQuiz.currentQuestion.uuid
-				)
-			) {
+			if (getters.questionAnswered (state.currentQuestion.uuid)) {
 				if (getters.nextQuestion === null) {
 					dispatch("setAnsweredQuestion");
-					dispatch("getNext", component);
+					dispatch("finishQuiz");
 				} else {
 					dispatch("goToNextQuestion");
 				}
@@ -234,34 +252,62 @@ const actions = {
 		}
 	},
 	prev({state, commit, dispatch}, component) {
-		let compName = component.$options[0].__componentTag;
-		if (state.currentComponent == 'HsCategory') {
-			commit('nextComponent');
-		} else {
-			dispatch('goToNextQuestion');
-		}
+		let compName = component.$options._componentTag;
+		if (compName == 'HsQuiz') {
+			if (state.answeredQuestions.length == 0 || state.currentQuestion.uuid == state.quiz.first_question_uuid) {
+				commit('prevComponent');
+			} else {
+				dispatch('goToPrevQuestion');
+			}
+		} 
 	},
 	getNext({ state, commit, dispatch }, component) {
 		let compName = component.$options._componentTag;
 		switch (compName) {
 			case "HsCategories":
-				commit(
-					"currentComponentIndex",
-					state.components.indexOf("HsQuiz")
-				);
-				break;
-
-			case "HsQuiz":
-				/* commit(
-					"currentComponentIndex",
-					state.components.indexOf("HsAddress")
-				); */
+				commit("currentComponentIndex", state.components.indexOf("HsQuiz"));
 				break;
 		}
 	},
+	closeModalWindow({state, commit}) {
+		if (state.modalRef !== null) {
+			if (state._questions !== null) {
+				 state._questions.value = JSON.stringify(
+					{	
+						quiz: state.quiz,
+						answeredQuestions: state.answeredQuestions
+					}
+				);
+			}
+			state.modalRef.hide();
+			commit('setShowingModal', false);
+		}
+	},
+	finishQuiz({state, commit, dispatch}) {
+		commit("setFinishedQuiz", true);
+		commit("setAnsweredQuestionsPreview", state.answeredQuestions);
+		dispatch("closeModalWindow");
+	},
+	showingModal({state, getters, commit}, showing) {
+		commit('setShowingModal', showing);
+		if (state.answeredQuestionsPreview.length > 0) {
+			//commit('setAnsweredQuestions', []);
+			commit("setCurrentQuestion", getters.question(state.quiz.first_question_uuid));
+			commit("setAnswerVisible", true);
+			commit("setShowQuestionTitle", true);
+			//commit('setCurrentQuestion', state.answeredQuestionsPreview[0]);
+		}
+	}
 };
 
 const mutations = {
+	loadAnswerToQuestion(state, {payload, getters}) {
+		let q = getters.question(payload.uuid);
+		console.log(q);
+		q.selected_answers = payload.selected_answers;
+		q.custom_answer = payload.custom_answer;
+		console.log(q);
+	},
 	setQuiz(state, payload) {
 		state.quiz = payload;
 	},
@@ -310,6 +356,9 @@ const mutations = {
 			state.answeredQuestions.push(state.currentQuestion);
 		}
 	},
+	setAnsweredQuestions(state, payload) {
+		state.answeredQuestions = JSON.parse(JSON.stringify(payload));
+	},
 	popAnsweredQuesiton(state) {
 		state.answeredQuestions.pop();
 	},
@@ -323,13 +372,31 @@ const mutations = {
 		state.finishedQuiz = payload;
 	},
 	nextComponent(state) {
-		state.currentComponent++;
+		state.currentComponentIndex++;
 	},
 	prevComponent(state) {
-		state.currentComponent--;
+		state.currentComponentIndex--;
 	},
 	currentComponentIndex(state, payload) {
 		state.currentComponentIndex = payload;
+	},
+	setShowingModal(state, payload) {
+		state.showingModal = payload;
+	}, 
+	setModalRef(state, payload) { 
+		state.modalRef = payload;
+	},
+	setAnsweredQuestionsPreview(state, payload) {
+		state.answeredQuestionsPreview = JSON.parse(JSON.stringify(payload));
+	},
+	_questions(state, payload) {
+		state._questions = payload;
+	},
+	setHiddenComponent(state, payload) {
+		state._questions = payload;
+	},
+	setHiddenCategoryComponent(state, payload) {
+		state.hiddenConponent = payload;
 	}
 };
 

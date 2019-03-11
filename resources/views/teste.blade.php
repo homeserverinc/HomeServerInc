@@ -1,8 +1,16 @@
 @extends('layouts.app')
 
+
+@push('assets-css')
+    <link href="{{ asset('css/hs_leads_form.css') }}" rel="stylesheet" media="all">
+@endpush
+ 
 @section('content-no-app')  
     <div id="hs-quiz-placeholder">
-        <hs-quiz-form></hs-quiz-form>
+        <hs-quiz-form
+        suffix-theme="light">
+        </hs-quiz-form>
+        <input type="hidden" ref="leadQuestions" value="">
     </div>
 @endsection
 

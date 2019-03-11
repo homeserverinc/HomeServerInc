@@ -42,7 +42,7 @@ export default {
             return this.$store.getters["HsQuiz/answer"](this.uuid).visible;
         },
         suffixTheme() {
-            return this.$store.state.suffixTheme;
+            return this.$store.state.HsQuizTheme.suffixTheme;
         },
         theme() {
             switch (this.themeName) {
@@ -111,7 +111,7 @@ export default {
             }
         },
         enableShadow() {
-            return this.$store.state.enableShadow;
+            return this.$store.state.HsQuizTheme.enableShadow;
         }
     },
     components: {

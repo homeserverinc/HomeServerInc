@@ -189,12 +189,4 @@ class QuizzesController extends HomeServerController
             return $this->accessDenied();
         }
     }
-
-    public function vueGetQuiz($uuid) {        
-        try {
-            return $this->getApiResponse(Quiz::find($uuid));
-        } catch (\Exception $e) {
-            return $this->getApiResponse($e, 'error');
-        }
-    }
 }

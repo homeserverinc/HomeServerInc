@@ -1,0 +1,229 @@
+@import "node_modules/bootstrap/scss/functions";
+@import "node_modules/bootstrap/scss/variables";
+
+$input-types: ("checkbox", "radio");
+
+/* Begin themes */
+@each $theme, $color in $theme-colors {
+  /* Begin theme-#{$theme} */
+  .textarea-list-group-#{$theme} {
+    @if $theme == 'dark' {
+      background-color: darken($color, $amount: 8) !important;
+    } @else {
+      background-color: darken($color, $amount: 8) !important;
+    }
+    margin-top: -1px;
+    padding-bottom: 1rem !important;
+  }
+  .hs-card {
+    &-header-#{$theme} {
+      padding: 0 !important;
+      background-color: $color;
+    }
+    &-title-#{$theme} {
+      margin: 0 1.25rem !important;
+      position: absolute;
+      font-size: 1.75rem;
+      @if $theme == 'dark' {
+        color: $white;
+      }
+    }
+    &-title-phone-#{$theme} {
+      margin-bottom: 0 !important;
+      border-radius: 0 !important;
+      @if $theme == "light" {
+        background-color: darken($color, $amount: 5);
+      } @else {
+        background-color: lighten($color, $amount: 10);
+      }
+      @if $theme == 'dark' {
+        color: $white;
+      }
+    }
+    &-body-#{$theme} {
+      @if $theme == "dark" {
+        background-color: lighten($color, $amount: 70);
+      }
+    }
+    &-footer-#{$theme} {
+      @if $theme == 'dark' {
+        color: $white;
+        background-color: lighten($color, $amount: 10);
+      }
+    }
+  }
+  .list-group-item {
+    &-#{$theme} {
+      @if $theme == "light" {
+        border-color: $gray-300 !important;
+      }
+      input:checked + span {
+        @if $theme == "light" {
+          color: $dark !important;
+        } @else {
+          color: $white !important;
+        }
+        background-color: darken($color, $amount: 8) !important;
+      }
+    }
+    &-#{$theme}:hover input + span {
+      @if $theme == "light" {
+        background-color: darken($color, $amount: 5);
+      } @else {
+        background-color: lighten($color, $amount: 20);
+      }
+    }
+  }
+  .hs-questions-review {
+    &-item-#{$theme} {
+      position: relative;
+      padding: 0.5rem 1.25rem;
+      margin-bottom: 1rem;
+      border: 1px solid transparent;
+      border-radius: 0.25rem;
+      @if $theme == 'light' {
+        background-color: rgba(darken($color, $amount: 20), $alpha: .3);
+      } @else {
+        background-color: rgba(lighten($color, $amount: 20), $alpha: .3);
+      }
+    }
+    &-item-other-#{$theme} {
+      position: relative;
+      padding: 0.5rem 1.25rem;
+      margin-bottom: 1rem;
+      border: 1px solid transparent;
+      border-radius: 0.25rem;
+      @if $theme == 'light' {
+        background-color: rgba(darken($color, $amount: 20), $alpha: .2);
+      } @else {
+        background-color: rgba(lighten($color, $amount: 20), $alpha: .2);
+      }
+    }
+  }
+  /* End theme-#{$theme} */
+}
+/* End themes */
+
+/* Begin components */
+@each $input-type in $input-types {
+  .#{$input-type}-list-group {
+    input[type="#{$input-type}"] {
+      display: none;
+    }
+    .list-group-item {
+      position: relative;
+      overflow: hidden;
+      border-style: hidden;
+      padding-bottom: 1.75rem;
+      margin-bottom: 1px;
+      label {
+        display: block;
+        width: 100%;
+        font-weight: normal;
+      }
+      input + span {
+        position: absolute;
+        top: 0;
+        right: 0;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        height: 100%;
+        padding: 0.75rem;
+        margin-bottom: -1px;
+        z-index: 1;
+      }
+      @if $input-type == "radio" {
+        input + span i.far::before {
+          content: "\f111";
+          font-size: 1em;
+        }
+        input:checked + span i.far::before {
+          content: "\f192";
+          font-size: 1em;
+        }
+      }
+      @if $input-type == "checkbox" {
+        input + span i.far::before {
+          content: "\f0c8";
+          font-size: 1em;
+        }
+        input:checked + span i.far::before {
+          content: "\f14a";
+          font-size: 1em;
+        }
+      }
+      i.far::before {
+        margin-right: 0.75rem;
+        margin-left: 0.5rem;
+      }
+    }
+  }
+}
+/* End components */
+
+/* Begin transactions */
+.expand {
+  &-enter-active,
+  &-leave-active {
+    transition: all 0.8s;
+    max-height: 200px;
+  }
+  &-enter,
+  &-leave-to {
+    opacity: 0;
+    max-height: 0px;
+  }
+}
+
+.fade {
+  &-leave-active,
+  &-enter-active {
+    transition: 0.4s ease;
+    opacity: 1;
+  }
+  &-enter,
+  &-leave-to {
+    opacity: 0;
+  }
+}
+
+.load-transition {
+  &-leave-active,
+  &-enter-active {
+    transition: 0.8s ease;
+    opacity: 1;
+  }
+  &-enter {
+    transform: translateY(-60px);
+    opacity: 0;
+  }
+  &-leave {
+    position: absolute;
+  }
+  &-leave-to {
+    transition: 0.5s ease;
+    transform: translateY(-60px);
+    opacity: 0;
+  }
+}
+/* End transactions */
+
+/* Beign other elements */
+
+.hs-terms-conditions {
+  font-size: 0.75rem;
+}
+
+.hs-invalid-feedback {
+  width: 100%;
+  margin-top: 0.25rem;
+  font-size: 80%;
+  color: $danger;
+  margin: 0.75rem;
+}
+
+.hs-p {
+  text-indent: 2rem;
+}
+/* End other elements */

@@ -35,7 +35,7 @@ class Lead extends Model
     
     public $fillable = [
         'customer_uuid',
-        'service_uuid',
+        'category_uuid',
         'deadline',
         'project_details',
         'questions',

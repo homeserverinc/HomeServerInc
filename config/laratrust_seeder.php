@@ -15,7 +15,7 @@ return [
             'lead' => 'c,r,u,d',
             'site' => 'c,r,u,d',
             'quiz' => 'c,r,u,d',
-            'phone' => 'r,u,d',
+            'phone' => 'c,r,u,d',
             'site-contact' => 'r,u',
             'contractor' => 'c,r,u,d',
             'plan' => 'c,r,u,d',

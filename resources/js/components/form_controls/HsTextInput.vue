@@ -58,10 +58,10 @@ export default {
             }
         },
         suffixTheme() {
-            return this.$store.state.suffixTheme;
+            return this.$store.state.HsQuizTheme.suffixTheme;
         },
         enableShadow() {
-            return this.$store.state.enableShadow;
+            return this.$store.state.HsQuizTheme.enableShadow;
         }
     }
 };

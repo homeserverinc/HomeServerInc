@@ -160,16 +160,22 @@ const actions = {
 		Axios.get("/admin/quiz-get-lead/" + uuid)
 			.then(async r => {
 				let data = JSON.parse(r.data.data.questions);
-				commit('setQuiz', data.quiz);
-				commit('setAnsweredQuestionsPreview', data.answeredQuestions);
-				commit("setCurrentQuestion", getters.question(state.quiz.first_question_uuid));
-				commit('setFinishedQuiz', true);
-				if (r.data.data.category) {
-					
-					dispatch('HsCategories/apiGetCategories', data.quiz.uuid, {root: true});
-					dispatch('HsCategories/setCategory', r.data.data.category, {root: true});
+				if (data != null && r.data.data.category != null) {
+					commit('setQuiz', data.quiz);
+					commit('setAnsweredQuestionsPreview', data.answeredQuestions);
+					commit("setCurrentQuestion", getters.question(state.quiz.first_question_uuid));
+					commit('setFinishedQuiz', true);
+					console.log(r.data.data.category);
+					if (r.data.data.category) {
+						
+						dispatch('HsCategories/apiGetCategories', data.quiz.uuid, {root: true});
+						dispatch('HsCategories/setCategory', r.data.data.category, {root: true});
+					} else {
+						dispatch('HsCategories/apiGetCategories', data.quiz.uuid, {root: true});
+					}
 				} else {
-					dispatch('HsCategories/apiGetCategories', data.quiz.uuid, {root: true});
+					dispatch('HsCategories/apiGetCategories', null, {root: true});
+					commit("HsQuiz/setFinishedQuiz", false, {root: true});
 				}
 				commit('setLoading', false);
 			})
@@ -233,8 +239,8 @@ const actions = {
 	},
 	next({state, commit, getters, dispatch}, component) {
 		if (component.$options._componentTag === "HsQuiz") {
-			if (getters.questionAnswered (state.currentQuestion.uuid)) {
-				if (getters.nextQuestion === null) {
+			if (getters.questionAnswered(state.currentQuestion.uuid)) {
+				if (getters.nextQuestion == null) {
 					dispatch("setAnsweredQuestion");
 					dispatch("finishQuiz");
 				} else {
@@ -341,11 +347,7 @@ const mutations = {
 		});
 	},
 	addAnswerdQuestion(state) {
-		if (
-			state.answeredQuestions.some(
-				q => q.uuid === state.currentQuestion.uuid
-			)
-		) {
+		if (state.answeredQuestions.some(q => q.uuid === state.currentQuestion.uuid)) {
 			state.answeredQuestions = state.answeredQuestions.map(item => {
 				if (item.uuid === state.currentQuestion.uuid) {
 					item = state.currentQuestion;

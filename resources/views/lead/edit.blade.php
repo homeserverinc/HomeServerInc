@@ -145,7 +145,7 @@
                     lead-uuid="{{$lead->uuid}}">
                     </hs-quiz-form>
                     <input type="hidden" name="questions" ref="leadQuestions" id="leadQuestions" value="{{$lead->questions}}">
-                    <input type="hidden" name="cagetory_uuid" ref="categoryUuid" id="categoryUuid" value="{{$lead->category_uuid}}">
+                    <input type="hidden" name="category_uuid" ref="categoryUuid" id="categoryUuid" value="{{$lead->category_uuid}}">
                 </div>
             </div>
         </div>

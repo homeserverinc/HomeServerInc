@@ -120,12 +120,11 @@ class LeadsController extends HomeServerController
         
         if (Auth::user()->canCreateLead()) {
             $this->validate($request, [
-
+            
             ]);
             try {
                 DB::beginTransaction();
-                //dd($request->all());
-    
+
                 $customer = Customer::firstOrNew([
                     'first_name' => $request->first_name,
                     'email1' => $request->email1
@@ -136,17 +135,16 @@ class LeadsController extends HomeServerController
                 $customer = $this->createRecord($customer, false);
     
                 $lead = new Lead($request->all());
+
+                //dd($request->category_uuid);
     
                 $lead->customer_uuid = $customer->uuid;
-                $lead = $this->createRecord($lead, false);
-                event(new AssociateLeads($lead));
-
                 $lead->questions = $request->questions;
                 $lead->category_uuid = $request->category_uuid;
     
                 $lead = $this->createRecord($lead, false);
-    
-                //dd($lead);
+
+                event(new AssociateLeads($lead));
                 
                 DB::commit();
     
@@ -210,7 +208,8 @@ class LeadsController extends HomeServerController
 
             $customer->fill($request->all());
 
-            $customer = $this->createRecord($customer, false);
+            $customer = $this->updateRecord($customer, false);
+
 
             $lead->fill($request->all());
 
@@ -218,9 +217,8 @@ class LeadsController extends HomeServerController
             $lead->questions = $request->questions;
             $lead->category_uuid = $request->category_uuid;
 
-            $lead = $this->createRecord($lead, false);
+            $lead = $this->updateRecord($lead, false);
 
-            //dd($lead);
             
             DB::commit();
 

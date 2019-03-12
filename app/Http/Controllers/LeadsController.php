@@ -27,6 +27,7 @@ class LeadsController extends HomeServerController
     use ApiResponse;
 
     public $fields = [
+        'uuid' => 'UUID',
         'category.category' => 'Category',
         'customer.first_name' => 'Customer',
         'created_at' => 'Created',
@@ -50,10 +51,10 @@ class LeadsController extends HomeServerController
             
             if(Auth::user()->hasRole('superadministrator')){
                 if ($request->searchField) {
-                    $leads = Lead::whereHas('customers', function($query) use($request) {
+                    $leads = Lead::whereHas('customer', function($query) use($request) {
                         $query->where('customers.first_name', 'like', '%'.$request->searchField.'%');
-                    })->orWhereHas('categories', function($query) use($request){
-                        $query->where('categories.name', 'like', '%'.$request->searchField.'%');
+                    })->orWhereHas('category', function($query) use($request){
+                        $query->where('categories.category', 'like', '%'.$request->searchField.'%');
                     })->orderBy('leads.created_at', 'desc')->paginate();
                 } else {
                     $leads = Lead::orderBy('leads.created_at', 'desc')
@@ -64,10 +65,10 @@ class LeadsController extends HomeServerController
                 if ($request->searchField) {
                     $leads = Lead::whereHas('contractors', function($query){
                         $query->where('contractors.uuid', '=', Auth::user()->contractor->uuid);
-                    })->whereHas('customers', function($query) use($request) {
+                    })->whereHas('customer', function($query) use($request) {
                         $query->where('customers.first_name', 'like', '%'.$request->searchField.'%');
-                    })->orWhereHas('categories', function($query) use($request){
-                        $query->where('categories.name', 'like', '%'.$request->searchField.'%');
+                    })->orWhereHas('category', function($query) use($request){
+                        $query->where('categories.category', 'like', '%'.$request->searchField.'%');
                     })->orderBy('leads.created_at', 'desc')->paginate();
                 } else {
                     $leads = Lead::whereHas('contractors', function($query){
@@ -265,7 +266,7 @@ class LeadsController extends HomeServerController
     public function apiStore(Request $request) {
         $data = json_decode(json_encode($request->all()));
 
-        Log::debug(json_decode(json_encode($request->all()), true));
+        //Log::debug(json_decode(json_encode($request->all()), true));
         
         try {
             DB::beginTransaction();
@@ -345,11 +346,17 @@ class LeadsController extends HomeServerController
 
     public function categorize_lead(Lead $lead){
         $weight = 0;
-        $json_array = json_decode(json_decode($lead->questions), true);
-        foreach ($json_array as $question) {
+        $json_array = json_decode($lead->questions, true);
+        foreach ($json_array['answeredQuestions'] as $question) {
             foreach ($question['selected_answers'] as $answer) {
-                if(Answer::find($answer) !== null && Answer::find($answer)->count() > 0){
-                    $weight += Answer::find($answer)->weight;
+                if (is_array($answer)) {
+                    /* Multi options question */
+                    foreach($answer as $checkedAnswer) {
+                        $weight += Answer::find($checkedAnswer)->weight ?? 0;
+                    }
+                } else {
+                    /* Single choice question */
+                    $weight += Answer::find($answer)->weight ?? 0;
                 }
             }
         }

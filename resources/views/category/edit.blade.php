@@ -42,11 +42,14 @@
                     <table class="table table-sm table-dark">
                         <thead>
                             <tr>
-                                <th style="width: 80%">
+                                <th style="width: 60%">
                                     Category Lead
                                 </th>
                                 <th style="width: 20%">
                                     Weight
+                                </th>
+                                <th style="width: 20%">
+                                    Price
                                 </th>
                             </tr>
                         </thead>
@@ -57,6 +60,9 @@
                                     <th scope="row">{{$clead->name}}</th>
                                     <td>
                                         <input type="number" class="form-control" name="weights[{{$clead->uuid}}]" id="weights[{{$clead->uuid}}]" required value="{{$category->category_leads->firstWhere('uuid', '=', $clead->uuid)->pivot->weight ?? 0}}">
+                                    </td>
+                                    <td>
+                                        <input type="number" class="form-control" name="prices[{{$clead->uuid}}]" id="prices[{{$clead->uuid}}]" required value="{{$category->category_leads->firstWhere('uuid', '=', $clead->uuid)->pivot->price ?? 0}}">
                                     </td>
                                 </tr>
                             @endforeach

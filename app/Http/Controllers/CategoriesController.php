@@ -99,10 +99,10 @@ class CategoriesController extends HomeServerController
                 $collectionP = $collectionP->map(function($item, $key){
                     return $item ?? 0;
                 })->toArray();
-                $names = array_keys($collectionW);
-                $category_leads = CategoryLead::whereIn('name', $names)->get();
+                $uuids = array_keys($collectionW);
+                $category_leads = CategoryLead::whereIn('uuid', $uuids)->get();
                 $category_leads = $category_leads->mapWithKeys(function($item) use($collectionW, $collectionP){
-                    return [$item['uuid'] => ['weight' => $collectionW[$item->name], 'price' => $collectionP[$item->name]]];
+                    return [$item['uuid'] => ['weight' => $collectionW[$item->uuid], 'price' => $collectionP[$item->uuid]]];
                 });
                 $category->category_leads()->attach($category_leads->toArray());
 
@@ -149,6 +149,7 @@ class CategoriesController extends HomeServerController
      */
     public function update(Request $request, Category $category)
     {
+        //dd($request->all());
         if (Auth::user()->canUpdateCategory()) {
             $this->validate($request, [
                 'category' => 'string|unique:categories,category,'.$category->uuid.',uuid',
@@ -161,7 +162,7 @@ class CategoriesController extends HomeServerController
                 $uuids = array_keys($request->input("weights"));
                 $category_leads = CategoryLead::whereIn('uuid', $uuids)->get();
                 $category_leads = $category_leads->mapWithKeys(function($item) use($request){
-                    return [$item['uuid'] => ['weight' => $request->input('weights')[$item->name], 'price' => $request->input('prices')[$item->name]]];
+                    return [$item['uuid'] => ['weight' => $request->input('weights')[$item->uuid], 'price' => $request->input('prices')[$item->uuid]]];
                 });
                 $category->category_leads()->detach();
                 $category->category_leads()->attach($category_leads->toArray());

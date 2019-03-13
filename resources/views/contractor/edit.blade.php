@@ -97,16 +97,12 @@
                                         'inputSize' => 6,
                                         'inputValue' => $contractor->ein
                                     ],[
-                                        'type' => 'select',
-                                        'field' => 'site_uuid',
+                                        'type' => 'text',
+                                        'field' => 'site',
                                         'label' => 'Site',
                                         'required' => false,
-                                        'items' => $sites,
-                                        'displayField' => 'name',
-                                        'keyField' => 'uuid',
-                                        'liveSearch' => true,
-                                        'defaultNone' => true,
-                                        'indexSelected' => $contractor->site_uuid ?? null
+                                        'inputSize' => 6,
+                                        'inputValue' => $contractor->site
                                     ]
                                 ]
                             ])
@@ -137,15 +133,23 @@
                                         'defaultNone' => true,
                                         'indexSelected' => $contractor->plan->uuid ?? null
                                     ],[
-                                        'type' => 'text',
+                                        'type' => 'select',
                                         'field' => 'automatic_recharge_amount',
                                         'label' => 'Automatic Charge amount',
                                         'required' => false,
+                                        'items' => $recharge_values,
+                                        'liveSearch' => true,
+                                        'defaultNone' => true,
+                                        'indexSelected' => $contractor->automatic_recharge_amount
                                     ],[
-                                        'type' => 'text',
                                         'field' => 'automatic_recharge_trigger',
                                         'label' => 'Automatic Charge trigger',
+                                        'type' => 'select',
                                         'required' => false,
+                                        'items' => $recharge_triggers,
+                                        'liveSearch' => true,
+                                        'defaultNone' => true,
+                                        'indexSelected' => $contractor->automatic_recharge_trigger
                                     ]
                                 ]
                             ])

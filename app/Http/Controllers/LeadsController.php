@@ -137,15 +137,15 @@ class LeadsController extends HomeServerController
                 $lead = new Lead($request->all());
     
                 $lead->customer_uuid = $customer->uuid;
-                $lead = $this->createRecord($lead, false);
-                event(new AssociateLeads($lead));
+                $lead->category_lead_uuid = $this->categorize_lead($lead)->uuid;
+                
 
                 $lead->questions = $request->questions;
                 $lead->category_uuid = $request->category_uuid;
     
                 $lead = $this->createRecord($lead, false);
-    
-                //dd($lead);
+                event(new AssociateLeads($lead));
+                dd($lead);
                 
                 DB::commit();
     

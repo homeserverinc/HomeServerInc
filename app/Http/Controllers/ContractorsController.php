@@ -12,6 +12,7 @@ use App\Subscription;
 use App\Charge;
 use App\Card;
 use Stripe;
+use Config;
 use App\traits\ApiResponse;
 use Illuminate\Http\Request;
 use App\Events\NewContractor;
@@ -75,13 +76,12 @@ class ContractorsController extends HomeServerController
             $sites = Site::all();
             $plans = Plan::all();
             $categories = Category::all();
+            $recharge_values = Config::get('constants.recharge_values');
+            $recharge_triggers = Config::get('constants.recharge_triggers');
+            $months = Config::get('constants.months');
+            $years = Config::get('constants.years');
 
-            $months = [];
-            for($i=1; $i < 13; $i++) $months[$i] = $i;
-            $years = [];
-            for($i=date('Y'); $i < date('Y')+20; $i++) $years[$i] = $i;
-
-            return View('contractor.create', ['sites' => $sites, 'plans' => $plans, 'months' => $months, 'years' => $years, 'categories' => $categories]);
+            return View('contractor.create', ['sites' => $sites, 'plans' => $plans, 'months' => $months, 'years' => $years, 'categories' => $categories, 'recharge_values' => $recharge_values, 'recharge_triggers' => $recharge_triggers]);
         } else {
             return $this->accessDenied();
         }
@@ -105,8 +105,8 @@ class ContractorsController extends HomeServerController
                 'phone' => 'string|max:20',
                 'ein' => 'required_without_all:ssn|nullable|alpha_num|max:20|',
                 'ssn' => 'alpha_num|max:20|required_without_all:ein|nullable',
-                'site_uuid' => 'nullable|unique:sites,uuid',
-                'plan_uuid' => 'nullable|exists:plans,uuid',
+                'site' => 'nullable|string|max:150',
+                'plan_uuid' => 'required|exists:plans,uuid',
                 'charge' => 'nullable|numeric',
                 'automatic_recharge_amount' => 'nullable|numeric',
                 'automatic_recharge_trigger' => 'nullable|numeric',
@@ -210,7 +210,7 @@ class ContractorsController extends HomeServerController
                             $ends_at = \Carbon\Carbon::today()->addYears($plan->interval_count);
                             break;
                         default:
-                            $ends_at = \Carbon\Carbon::today()->addWeeks(1);
+                            $ends_at = null;
                             break;
                     }
                     $subs = new Subscription([
@@ -233,6 +233,14 @@ class ContractorsController extends HomeServerController
                 DB::commit();
 
                 return $this->createSuccess($contractor);
+
+            } catch(\Stripe\Error\Card $e) {
+                Stripe::customers()->delete($contractor->stripe_id);
+                DB::rollback();
+                $body = $e->getJsonBody();
+                $err  = $body['error'];
+
+                return $this->warningMessage($err['message']);
 
             } catch (\Exception $e) {
                 Stripe::customers()->delete($contractor->stripe_id);
@@ -258,11 +266,12 @@ class ContractorsController extends HomeServerController
             $sites = Site::all();
             $plans = Plan::all();
             $categories = Category::all();
-            $months = [];
-            for($i=1; $i < 13; $i++) $months[$i] = $i;
-            $years = [];
-            for($i=date('Y'); $i < date('Y')+20; $i++) $years[$i] = $i;
-            return View('contractor.edit', ['contractor' => $contractor, 'sites' => $sites, 'plans' => $plans, 'years' => $years, 'months' => $months, 'categories' => $categories]);
+            $recharge_values = Config::get('constants.recharge_values');
+            $recharge_triggers = Config::get('constants.recharge_triggers');
+            $months = Config::get('constants.months');
+            $years = Config::get('constants.years');
+
+            return View('contractor.edit', ['contractor' => $contractor, 'sites' => $sites, 'plans' => $plans, 'years' => $years, 'months' => $months, 'categories' => $categories, 'recharge_values' => $recharge_values, 'recharge_triggers' => $recharge_triggers]);
         } else {
             return $this->accessDenied();
         }
@@ -351,11 +360,12 @@ class ContractorsController extends HomeServerController
                 'address' => 'required|string|max:100',
                 'company' => 'required|string|max:100',
                 'phone' => 'string|max:20',
+                'plan_uuid' => 'required|exists:plans,uuid',
                 'automatic_recharge_amount' => 'nullable|numeric',
                 'automatic_recharge_trigger' => 'nullable|numeric',
                 'ssn' => 'string|max:20|required_without:ein|nullable',
                 'ein' => 'string|max:20|required_without:ssn|nullable',
-                'site_uuid' => 'nullable|unique:sites',
+                'site' => 'nullable|string|max:150',
                 'card_number' => 'nullable|string|required_with_all:exp_month,exp_year',
                 'exp_month' => 'nullable|integer|required_with_all:card_number,exp_year',
                 'exp_year' => 'nullable|integer|required_with_all:card_number,exp_month',

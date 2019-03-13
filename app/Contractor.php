@@ -35,7 +35,7 @@ class Contractor extends Model
         'company', 
         'address', 
         'phone', 
-        'site_uuid',
+        'site',
         'user_id',
         'plan_uuid',
         'ssn',
@@ -43,7 +43,8 @@ class Contractor extends Model
         'stripe_id',
         'wallet',
         'automatic_recharge_amount',
-        'automatic_recharge_trigger'
+        'automatic_recharge_trigger',
+        'active'
     ];
 
     public static function boot() {

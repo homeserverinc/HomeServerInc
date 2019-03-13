@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AlterLeadsTableAddCategoryLeadForeign extends Migration
+class CreatePlanCategoryLeadTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,14 @@ class AlterLeadsTableAddCategoryLeadForeign extends Migration
      */
     public function up()
     {
-        Schema::table('leads', function (Blueprint $table) {
-            $table->uuid('category_lead_uuid')->index()->after('uuid');
-            
+        Schema::create('plan_category_lead', function (Blueprint $table) {
+            $table->uuid('plan_uuid');
+            $table->uuid('category_lead_uuid');
+            $table->primary(['plan_uuid', 'category_lead_uuid']);
+
+            $table->foreign('plan_uuid')->references('uuid')->on('plans');
             $table->foreign('category_lead_uuid')->references('uuid')->on('category_leads');
+            $table->timestamps();
         });
     }
 
@@ -27,9 +31,6 @@ class AlterLeadsTableAddCategoryLeadForeign extends Migration
      */
     public function down()
     {
-        Schema::table('leads', function (Blueprint $table) {
-            $table->dropForeign('plans_category_lead_uuid_foreign');
-            $table->dropColumn('category_lead_uuid');
-        });
+        Schema::dropIfExists('plan_category_lead');
     }
 }

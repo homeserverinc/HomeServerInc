@@ -149,6 +149,7 @@ class CategoriesController extends HomeServerController
      */
     public function update(Request $request, Category $category)
     {
+        //dd($request->all());
         if (Auth::user()->canUpdateCategory()) {
             $this->validate($request, [
                 'category' => 'string|unique:categories,category,'.$category->uuid.',uuid',

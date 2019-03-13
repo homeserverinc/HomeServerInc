@@ -62,7 +62,7 @@
                                         <input type="number" class="form-control" name="weights[{{$clead->uuid}}]" id="weights[{{$clead->uuid}}]" required value="{{$category->category_leads->firstWhere('uuid', '=', $clead->uuid)->pivot->weight ?? 0}}">
                                     </td>
                                     <td>
-                                        <input type="number" class="form-control" name="prices[{{$clead->uuid}}]" id="prices[{{$clead->uuid}}]" required value="{{ $category->category_leads->firstWhere('uuid', '=', $clead->uuid)->pivot->price ?? 0}}">
+                                        <input type="number" class="form-control" name="prices[{{$clead->uuid}}]" id="prices[{{$clead->uuid}}]" required value="{{$category->category_leads->firstWhere('uuid', '=', $clead->uuid)->pivot->price ?? 0}}">
                                     </td>
                                 </tr>
                             @endforeach

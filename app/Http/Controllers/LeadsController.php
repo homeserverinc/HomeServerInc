@@ -304,7 +304,7 @@ class LeadsController extends HomeServerController
             event(new AssociateLeads($newLead));
             DB::commit();
 
-            return $this->getApiResponse($newLead);
+            //return $this->getApiResponse($newLead);
     
         } catch (\Exception $e) {
             DB::rollback();

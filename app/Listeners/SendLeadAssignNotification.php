@@ -31,14 +31,13 @@ class SendLeadAssignNotification
      */
     public function handle(AssociateLeads $event)
     {   
-
         $count = 0;
         //sorted by last assigned lead to contractor
         foreach($event->lead->category->contractors->sortBy('leads.created_at') as $contractor){
             //if contractor has plan and is activated
             if($contractor->plan && $contractor->active){
                 //if category lead is in plan category leads
-                if($contractor->plan->category_leads->contain($event->lead->category_lead_uuid)){
+                if($contractor->plan->category_leads->contains($event->lead->category_lead_uuid)){
                     $plan_end = $contractor->subscriptions->where('closed','=',0)->first()->ends_at;
                     //plan end must be null if interval is by lead
                     if($plan_end !== null && $contractor->plan->interval !== 'lead'){

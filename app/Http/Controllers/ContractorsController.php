@@ -194,6 +194,7 @@ class ContractorsController extends HomeServerController
                 }
 
                  //subscribe contractor to plan
+                $plan = Plan::find($request->input('plan_uuid'));
                 if($request->filled('plan_uuid') && $contractor->wallet >= $contractor->plan->price){
                     // $subscription = Stripe::subscriptions()->create($contractor->stripe_id, [
                     //     'plan' => $contractor->plan->uuid,
@@ -215,15 +216,16 @@ class ContractorsController extends HomeServerController
                     }
                     $subs = new Subscription([
                         'contractor_uuid' => $contractor->uuid,
-                        'plan_uuid' => $contractor->plan->uuid,
-                        'name' => $contractor->plan->name,
+                        'plan_uuid' => $plan->uuid,
+                        'name' => $plan->name,
                         'stripe_id' => null,
                         'closed' => 0,
                         'trial_ends_at' => null,
                         'ends_at' => $ends_at
                     ]);
-
-                    $contractor->decrement('wallet', $contractor->plan->price);
+                    
+                    if($plan->interval !== 'lead')
+                        $contractor->decrement('wallet', $plan->price);
 
                     $subs = $this->createRecord($subs);
                 }
@@ -380,8 +382,7 @@ class ContractorsController extends HomeServerController
                 $contractor->user->email = $data['email'];
                 $contractor->user->password = $data['password'] !== null ? bcrypt($data['password']) : $contractor->user->password;
                 $user = $this->updateRecord($contractor->user, false);
-                $contractor->categories()->detach();
-                $contractor->categories()->attach($request->input("categories"));
+                $contractor->categories()->sync($request->input("categories"));
                 $contractor->fill($request->all());
 
                 if($request->exists('card_number')){
@@ -391,6 +392,42 @@ class ContractorsController extends HomeServerController
                         'exp_month' => (int) $request->input('exp_month'),
                         'exp_year' => (int) $request->input('exp_year'),
                     ]);
+                }
+                $plan = Plan::find($request->input('plan_uuid'));
+                //subscribe contractor to plan
+                if($request->filled('plan_uuid') && $contractor->wallet >= $contractor->plan->price){
+                    // $subscription = Stripe::subscriptions()->create($contractor->stripe_id, [
+                    //     'plan' => $contractor->plan->uuid,
+                    // ]);
+                    //record subs to db
+                    switch ($plan->interval) {
+                        case 'day':
+                            $ends_at = \Carbon\Carbon::today()->addDays($plan->interval_count);
+                            break;
+                        case 'week':
+                            $ends_at = \Carbon\Carbon::today()->addWeeks($plan->interval_count);
+                            break;
+                        case 'year':
+                            $ends_at = \Carbon\Carbon::today()->addYears($plan->interval_count);
+                            break;
+                        default:
+                            $ends_at = null;
+                            break;
+                    }
+                    $subs = new Subscription([
+                        'contractor_uuid' => $contractor->uuid,
+                        'plan_uuid' => $plan->uuid,
+                        'name' => $plan->name,
+                        'stripe_id' => null,
+                        'closed' => 0,
+                        'trial_ends_at' => null,
+                        'ends_at' => $ends_at
+                    ]);
+
+                    if($plan->interval !== 'lead')
+                        $contractor->decrement('wallet', $plan->price);
+
+                    $subs = $this->createRecord($subs);
                 }
 
                 $contractor = $this->updateRecord($contractor);

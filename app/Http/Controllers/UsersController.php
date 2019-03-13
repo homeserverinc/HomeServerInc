@@ -7,10 +7,12 @@ use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Rules\ValidCurrentPassword;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Session;
+use App\Http\Controllers\TwilioApiController;
 use App\Http\Controllers\HomeServerController;
 
 class UsersController extends HomeServerController
@@ -182,7 +184,28 @@ class UsersController extends HomeServerController
     public function destroy(User $user)
     {
         if (Auth::user()->canDeleteUser()) {
-            return $this->deleteRecord($user);
+            if ($user->agent) {
+                /* user has one agent */
+                try {
+                    $worker = (new TwilioApiController)->deleteTaskRouterWorker(
+                        $user->agent->twilio_workspace()->first(), 
+                        $user->agent->twilio_worker()->first()
+                    );
+
+                    if ($worker) {
+                        return $this->deleteRecord($user);
+                    } 
+                } catch (\Exception $e) {
+                    if ($e->getCode() == 20404) {
+                        return $this->deleteRecord($user);
+                    } else {
+                        return $this->doOnException($e);
+                    }
+                }
+            } else {
+                /* user does not have one agent */
+                return $this->deleteRecord($user);
+            }
         } else {
             return $this->accessDenied();
         }

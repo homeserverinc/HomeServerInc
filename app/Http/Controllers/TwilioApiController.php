@@ -140,7 +140,7 @@ class TwilioApiController extends Controller
                                 ->v1
                                 ->workspaces($twilioWorkspace->sid)
                                 ->workers
-                                ->create($user->name,
+                                ->create($user->id.'-'.$user->name,
                                     array(
                                         'attributes' => json_encode($attributes)
                                     )

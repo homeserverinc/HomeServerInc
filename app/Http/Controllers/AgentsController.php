@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Role;
 use App\User;
 use App\Agent;
 use App\Language;
@@ -70,18 +71,18 @@ class AgentsController extends HomeServerController
     public function create()
     {
         if (Auth::user()->canCreateAgent()) {    
-            $users = User::doesnthave('agent')->get();
             $sipCredentials = SipCredential::doesntHave('agent')->get();
             $agent_statuses = AgentStatus::all();
             $languages = Language::all();
             $twilioWorkspaces = TwilioWorkspace::all();
+            $roles = Role::orderBy('display_name', 'asc')->get();
 
             return View('agent.create', [
-                'users' => $users,
                 'agent_statuses' => $agent_statuses,
                 'sipCredentials' => $sipCredentials,
                 'languages' => $languages,
-                'twilioWorkspaces' => $twilioWorkspaces
+                'twilioWorkspaces' => $twilioWorkspaces,
+                'roles' => $roles
             ]);
         } else {
             return $this->accessDenied();
@@ -99,23 +100,30 @@ class AgentsController extends HomeServerController
         if (Auth::user()->canCreateAgent()) {
             $this->validate($request, [
                 'languages' => 'required',
-                'user_id' => 'required',
                 'sip_credential_id' => 'required',
                 'twilio_workspace_id' => 'required',
+                'name' => 'required|string|max:100',
+                'email' => 'required|email|max:100|unique:users',
+                'password' => 'required|min:6|confirmed',
+                'role_id' => 'required' 
             ]);
 
             try {
 
                 DB::beginTransaction();
 
+                /* get the user */
+                $userData = new User($request->all());
+                $userData->password = bcrypt($userData->password);
+                $user = $this->createRecord($userData, false);
+                $user->attachRole($request->role_id);
+
                 /* get all agent data */
                 $agent = new Agent($request->all());
+                $agent->user_id = $user->id;
 
                 /* get the workspace */
                 $workspace = TwilioWorkspace::find($request->twilio_workspace_id);
-
-                /* get the user */
-                $user = User::find($request->user_id);
 
                 /* get all selected languages */
                 $selected_languages = ($request->languages) ? $request->languages : array();
@@ -158,7 +166,7 @@ class AgentsController extends HomeServerController
 
                 $agent->twilio_worker_id = $twilioWorker->id;
 
-                $agent = $this->createRecord($agent, false);
+                $agent = $this->updateRecord($agent, false);
 
                 $agent->languages()->sync($languages);
 
@@ -186,9 +194,6 @@ class AgentsController extends HomeServerController
     public function edit(Agent $agent)
     {
         if (Auth::user()->canUpdateAgent()) {
-            $users = User::whereDoesnthave('agent', function ($query) use ($agent) {
-                $query->where('id', '!=', $agent->id);
-            })->get();
             $sipCredentials = SipCredential::whereDoesntHave('agent', function ($query) use ($agent) {
                 $query->where('id', '!=', $agent->id);
             })->get();
@@ -201,9 +206,11 @@ class AgentsController extends HomeServerController
                 $assigned_languages[] = $language->id;
             }
 
+            $roles = Role::orderBy('display_name', 'asc')->get();
+
             return View('agent.edit', [
                 'agent' => $agent,
-                'users' => $users,
+                'roles' => $roles,
                 'agent_statuses' => $agent_statuses,
                 'sipCredentials' => $sipCredentials,
                 'languages' => $languages,
@@ -227,9 +234,12 @@ class AgentsController extends HomeServerController
         if (Auth::user()->canUpdateAgent()) {
             $this->validate($request, [
                 'languages' => 'required',
-                'user_id' => 'required',
                 'sip_credential_id' => 'required',
                 'twilio_workspace_id' => 'required',
+                'name' => 'required|string|max:100',
+                'email' => 'required|email|max:100|unique:users,id,'.$agent->user_id,
+                'password' => 'nullable|min:6|confirmed',
+                'role_id' => 'required' 
             ]);
 
             try {
@@ -239,9 +249,6 @@ class AgentsController extends HomeServerController
 
                 /* get the workspace */
                 $workspace = TwilioWorkspace::find($request->twilio_workspace_id);
-
-                /* get the user */
-                $user = User::find($request->user_id);
 
                 /* get all selected languages */
                 $selected_languages = ($request->languages) ? $request->languages : array();
@@ -274,7 +281,7 @@ class AgentsController extends HomeServerController
 
                 $twilioWorker = $agent->twilio_worker;
                 
-                $twilioWorker->friendly_name = $user->name;
+                $twilioWorker->friendly_name = $agent->user_id.'-'.$agent->user->name;
                 
                 /* update the worker */
                 $tw = (new TwilioApiController)->updateTaskRouterWorker($workspace, $twilioWorker, $attributes);
@@ -283,6 +290,12 @@ class AgentsController extends HomeServerController
 
                 $agent = $this->updateRecord($agent, false);
 
+                $user = $agent->user;
+                if ($request->password) {
+                    $user->password = bcrypt($request->password);
+                }
+
+                $user = $this->updateRecord($user, false);
                 
                 $agent->languages()->sync($languages);
 

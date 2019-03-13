@@ -33,6 +33,7 @@ class ContractorsController extends HomeServerController
         'phone' => 'Phone',
         'address' => 'Address',
         'plan.name' => 'Plan',
+        'wallet' => 'Wallet',
         'created_at' => 'Created',
     ];
 
@@ -223,7 +224,7 @@ class ContractorsController extends HomeServerController
                         'trial_ends_at' => null,
                         'ends_at' => $ends_at
                     ]);
-                    
+
                     if($plan->interval !== 'lead')
                         $contractor->decrement('wallet', $plan->price);
 
@@ -309,13 +310,6 @@ class ContractorsController extends HomeServerController
                 'users.name' => 'required|string|max:100',
                 'users.email' => 'required|email|max:100|unique:users,email,'.$contractor->user->id,
                 'users.password' => 'nullable|alpha_num|min:6,20|confirmed',
-                'address' => 'required|string|max:100',
-                'company' => 'required|string|max:100',
-                'phone' => 'string|max:20',
-                'automatic_recharge_amount' => 'nullable|numeric',
-                'automatic_recharge_trigger' => 'nullable|numeric',
-                'ssn' => 'string|max:20|required_without:ein|nullable',
-                'ein' => 'string|max:20|required_without:ssn|nullable',
             ]);
             try {
                 DB::beginTransaction();
@@ -326,10 +320,6 @@ class ContractorsController extends HomeServerController
                 $contractor->user->email = $data['email'];
                 $contractor->user->password = $data['password'] !== null ? bcrypt($data['password']) : $contractor->user->password;
                 $user = $this->updateRecord($contractor->user, false);
-
-                $contractor->fill($request->all());
-            
-                $contractor = $this->updateRecord($contractor);
 
                 DB::commit();
 
@@ -533,7 +523,7 @@ class ContractorsController extends HomeServerController
                         ]);
 
                         $charge = new Charge([
-                            'amount' => -(float) $contractor->automatic_recharge_amount,
+                            'amount' => (float) $contractor->automatic_recharge_amount,
                             'contractor_uuid' => $contractor->uuid,
                             'stripe_id' => $stripeCharge['id'],
                             'description' => 'Automatic recharge trigger: $'.((float) $contractor->automatic_recharge_amount).' to '.$contractor->user->name.'.',
@@ -552,6 +542,78 @@ class ContractorsController extends HomeServerController
                     DB::commit();
                     return response()->json(['success' => true, 'message' => 'Plan acquired with success!']);
                 }else{
+                    if($contractor->wallet <= $contractor->automatic_recharge_trigger){
+                        return response()->json(['success' => true, 'message' => 'Plan acquired with success!']);
+                        $stripeCharge = Stripe::charges()->create([
+                            'customer' => $contractor->stripe_id,
+                            'currency' => 'USD',
+                            'amount'   => (float) $contractor->automatic_recharge_amount,
+                        ]);
+
+                        $charge = new Charge([
+                            'amount' => (float) $contractor->automatic_recharge_amount,
+                            'contractor_uuid' => $contractor->uuid,
+                            'stripe_id' => $stripeCharge['id'],
+                            'description' => 'Automatic recharge trigger: $'.((float) $contractor->automatic_recharge_amount).' to '.$contractor->user->name.'.',
+                            'card_uuid' => $contractor->default_card()->first()->uuid
+                        ]);
+
+                        $charge = $this->createRecord($charge, false);
+
+                        $contractor->increment('wallet', $contractor->automatic_recharge_amount);
+
+                        if($contractor->wallet >= $plan->price){
+                            $subs = Subscription::where('contractor_uuid' , '=', $contractor->uuid)->latest()->first();
+                            if($subs){
+                                $subs->closed = 1;
+                                $subs->update();
+
+                            }
+                            switch ($plan->interval) {
+                                case 'day':
+                                    $ends_at = \Carbon\Carbon::today()->addDays($plan->interval_count);
+                                    break;
+                                case 'week':
+                                    $ends_at = \Carbon\Carbon::today()->addWeeks($plan->interval_count);
+                                    break;
+                                case 'year':
+                                    $ends_at = \Carbon\Carbon::today()->addYears($plan->interval_count);
+                                    break;
+                                default:
+                                    $ends_at = \Carbon\Carbon::today()->addWeeks(1);
+                                    break;
+                            }
+                            $subs = new Subscription([
+                                'contractor_uuid' => $contractor->uuid,
+                                'plan_uuid' => $plan->uuid,
+                                'name' => $plan->name,
+                                'stripe_id' => null,
+                                'closed' => 0,
+                                'trial_ends_at' => null,
+                                'ends_at' => $ends_at,
+                            ]);
+
+                            $subs = $this->createRecord($subs);
+
+                            $contractor->plan_uuid = $plan->uuid;
+
+
+                            $charge = new Charge([
+                                'amount' => -(float) $plan->price,
+                                'contractor_uuid' => $contractor->uuid,
+                                'stripe_id' => null,
+                                'description' => 'Plan '.$plan->name.' activation: -$'.((float) $plan->price).' to '.$contractor->user->name.'.',
+                                'card_uuid' => $contractor->default_card()->first()->uuid
+                            ]);
+
+                            $charge = $this->createRecord($charge, false);
+
+                            $contractor->decrement('wallet', $plan->price);
+                            return response()->json(['success' => true, 'message' => 'Plan acquired with success!']);
+                        }else{
+                            return response()->json(['success' => false, 'message' => 'Insuficient founds!']);
+                        }
+                    }
                     return response()->json(['success' => false, 'message' => 'Insuficient founds!']);
                 }
                 

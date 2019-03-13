@@ -87,25 +87,35 @@ class SendLeadAssignNotification
                             if($contractor->plan->unique_leads){
                                 $contractor->leads()->syncWithoutDetaching($event->lead);
                                 Mail::to($contractor->user->email)->send(new LeadAssigned($event->lead));
+                                $contractor->decrement('wallet', (float) $price);
+                                $count++;
+                                $charge = new Charge([
+                                    'amount' => -(float) $price,
+                                    'contractor_uuid' => $contractor->uuid,
+                                    'stripe_id' => null,
+                                    'description' => 'New Lead '.$event->lead->category_lead->name.' assigned : -$'.((float) $price).' to '.$contractor->user->name.'.',
+                                    'card_uuid' => $contractor->default_card()->first()->uuid
+                                ]);
+                                $charge->save();
                                 break;
                             }else{
                                 //if the leads assignment is less then the share count and the qnt leads 
                                 if($count < $contractor->plan->share_count && $count < $contractor->plan->qnt_leads){
                                     $contractor->leads()->syncWithoutDetaching($event->lead);
                                     Mail::to($contractor->user->email)->send(new LeadAssigned($event->lead));
+                                    $contractor->decrement('wallet', (float) $price);
+                                    $count++;
+                                    $charge = new Charge([
+                                        'amount' => -(float) $price,
+                                        'contractor_uuid' => $contractor->uuid,
+                                        'stripe_id' => null,
+                                        'description' => 'New Lead '.$event->lead->category_lead->name.' assigned : -$'.((float) $price).' to '.$contractor->user->name.'.',
+                                        'card_uuid' => $contractor->default_card()->first()->uuid
+                                    ]);
+                                    $charge->save();
                                 }
                             }
-                            $contractor->decrement('wallet', (float) $price);
-                            Mail::to($contractor->user->email)->send(new LeadAssigned($event->lead));
-                            $count++;
-                            $charge = new Charge([
-                                'amount' => -(float) $price,
-                                'contractor_uuid' => $contractor->uuid,
-                                'stripe_id' => null,
-                                'description' => 'New Lead '.$event->lead->category_lead->name.' assigned : -$'.((float) $price).' to '.$contractor->user->name.'.',
-                                'card_uuid' => $contractor->default_card()->first()->uuid
-                            ]);
-                            $charge->save();
+                            
                         }else{
                             //if dont have enough to lead, check to do the automatic recharge and reedo
                             if($contractor->wallet <= $contractor->automatic_recharge_trigger){
@@ -129,25 +139,35 @@ class SendLeadAssignNotification
                                     if($contractor->plan->unique_leads){
                                         $contractor->leads()->syncWithoutDetaching($event->lead);
                                         Mail::to($contractor->user->email)->send(new LeadAssigned($event->lead));
+                                        $contractor->decrement('wallet', (float) $price);
+                                        $count++;
+                                        $charge = new Charge([
+                                            'amount' => -(float) $price,
+                                            'contractor_uuid' => $contractor->uuid,
+                                            'stripe_id' => null,
+                                            'description' => 'New Lead '.$event->lead->category_lead->name.' assigned : -$'.((float) $price).' to '.$contractor->user->name.'.',
+                                            'card_uuid' => $contractor->default_card()->first()->uuid
+                                        ]);
+                                        $charge->save();
                                         break;
                                     }else{
                                         //if the leads assignment is less then the share count and the qnt leads 
                                         if($count < $contractor->plan->share_count && $count < $contractor->plan->qnt_leads){
                                             $contractor->leads()->syncWithoutDetaching($event->lead);
                                             Mail::to($contractor->user->email)->send(new LeadAssigned($event->lead));
+                                            $contractor->decrement('wallet', (float) $price);
+                                            $count++;
+                                            $charge = new Charge([
+                                                'amount' => -(float) $price,
+                                                'contractor_uuid' => $contractor->uuid,
+                                                'stripe_id' => null,
+                                                'description' => 'New Lead '.$event->lead->category_lead->name.' assigned : -$'.((float) $price).' to '.$contractor->user->name.'.',
+                                                'card_uuid' => $contractor->default_card()->first()->uuid
+                                            ]);
+                                            $charge->save();
                                         }
                                     }
-                                    $contractor->decrement('wallet', (float) $price);
-                                    Mail::to($contractor->user->email)->send(new LeadAssigned($event->lead));
-                                    $count++;
-                                    $charge = new Charge([
-                                        'amount' => -(float) $price,
-                                        'contractor_uuid' => $contractor->uuid,
-                                        'stripe_id' => null,
-                                        'description' => 'New Lead '.$event->lead->category_lead->name.' assigned : -$'.((float) $price).' to '.$contractor->user->name.'.',
-                                        'card_uuid' => $contractor->default_card()->first()->uuid
-                                    ]);
-                                    $charge->save();
+                                    
                                 }
                             }
                         }   

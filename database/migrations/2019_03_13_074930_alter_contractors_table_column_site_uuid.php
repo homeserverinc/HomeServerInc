@@ -14,7 +14,7 @@ class AlterContractorsTableColumnSiteUuid extends Migration
     public function up()
     {
         Schema::table('contractors', function (Blueprint $table) {
-            //$table->dropForeign('contractors_site_uuid_foreign');
+            $table->dropForeign('contractors_site_uuid_foreign');
             $table->dropColumn('site_uuid');
             $table->string('site', 150);
         });

@@ -100,7 +100,7 @@ class SendLeadAssignNotification
                                 break;
                             }else{
                                 //if the leads assignment is less then the share count and the qnt leads 
-                                if($count < $contractor->plan->share_count && $count < $contractor->plan->qnt_leads){
+                                if($contractor->plan->qnt_leads == null || $contractor->plan->qnt_leads == 0 || $count < $contractor->plan->share_count && $count < $contractor->plan->qnt_leads){
                                     $contractor->leads()->syncWithoutDetaching($event->lead);
                                     Mail::to($contractor->user->email)->send(new LeadAssigned($event->lead));
                                     $contractor->decrement('wallet', (float) $price);

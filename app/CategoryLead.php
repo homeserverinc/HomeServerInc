@@ -40,7 +40,7 @@ class CategoryLead extends Model
     }
 
     public function plans(){
-        return $this->hasMany(Plan::class);
+        return $this->belongsToMany(Plan::class, 'plan_category_lead');
     }
 
     public function leads(){

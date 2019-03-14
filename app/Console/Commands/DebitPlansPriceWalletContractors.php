@@ -40,7 +40,9 @@ class DebitPlansPriceWalletContractors extends Command
     public function handle()
     {
         
-        $subs = Subscription::whereDate('ends_at', '=', \Carbon\Carbon::today())->where('closed', '=', 0)->get();
+        $subs = Subscription::whereHas('plan', function($query){
+            $query->where('plans.interval', '!=', 'lead');
+        })->whereDate('ends_at', '=', \Carbon\Carbon::today())->where('closed', '=', 0)->get();
         foreach($subs as $sub){
             if($sub->contractor->wallet >= $sub->plan->price){
                 $sub->contractor->decrement('wallet', $sub->plan->price);
@@ -68,6 +70,9 @@ class DebitPlansPriceWalletContractors extends Command
                 }
                 $sub->update(['ends_at' => $ends_at]);
 
+            }else{
+                $sub->contractor->update(['active' => false]);
+                $sub->update(['closed' => 1]);
             }
         }
 

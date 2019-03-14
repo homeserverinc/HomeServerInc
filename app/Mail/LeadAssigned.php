@@ -33,21 +33,13 @@ class LeadAssigned extends Mailable
      */
     public function build()
     {
-        $questions = json_encode('[
-            {
-                "uuid":"4691b118-ee23-4eb3-94ae-0edbda26a802","question":"Full house?","selected_answers":{"uuid":"36cb6c4d-624c-46fa-8abc-4b6f082c5752"}
-            },
-            {
-                "uuid":"e7e3e9d1-997d-4226-a1ec-7e14cc79da4c","question":"Do you like painting?","selected_answers":{"uuid":"e2eda581-2204-4143-87b0-9f28961366dc"}
-            }
-        ]');
-        $url = (string)URLShortener::shorten(route('lead.index'));
-        $questions = json_decode(json_decode($questions), true);
-        $qtemplate = "<ol>";
 
-        foreach($questions as $question){
+        $url = (string)URLShortener::shorten(route('lead.index'));
+        $questions = json_decode($this->lead->questions, true);
+        $qtemplate = "<ol>";
+        foreach ($questions['answeredQuestions'] as $question) {
             $qtemplate.='<li><b>'.$question['question'].'</b><ul>';
-            foreach ($question['selected_answers'] as $answer) {
+            foreach($question['selected_answers'] as $answer){
                 $ans = Answer::find($answer);
                 if($ans !== null && $ans->count() > 0){
                     $qtemplate.='<li>'.$ans->answer.'</li>';
@@ -55,6 +47,8 @@ class LeadAssigned extends Mailable
             }
             $qtemplate.='</ul></li>';
         }
+        
+        
         $qtemplate .= '</ol>';
         return $this->from('peersvc@peersvc.com')->view('emails.leads.assigned')->with(['url' => $url, 'questions' => $qtemplate]);
     }

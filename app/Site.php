@@ -71,7 +71,4 @@ class Site extends Model
         return $this->belongsTo(Phone::class);
     }
 
-    public function contractor() {
-        return $this->hasOne(Contractor::class);
-    }
 }

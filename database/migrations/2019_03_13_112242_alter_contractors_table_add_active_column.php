@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateLeadContractorTable extends Migration
+class AlterContractorsTableAddActiveColumn extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,8 @@ class CreateLeadContractorTable extends Migration
      */
     public function up()
     {
-        Schema::create('contractor_lead', function (Blueprint $table) {
-            $table->uuid('contractor_uuid');
-            $table->uuid('lead_uuid');
-            $table->primary(['contractor_uuid', 'lead_uuid']);
-            $table->timestamps();
+        Schema::table('contractors', function (Blueprint $table) {
+            $table->boolean('active')->default(true);
         });
     }
 
@@ -28,6 +25,8 @@ class CreateLeadContractorTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('contractor_lead');
+        Schema::table('contractors', function (Blueprint $table) {
+            $table->dropColumn('active');
+        });
     }
 }

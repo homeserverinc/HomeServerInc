@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Plan;
 use Stripe;
+use Config;
 use App\Contractor;
 use App\CategoryLead;
 use App\traits\ApiResponse;
@@ -25,7 +26,6 @@ class PlansController extends HomeServerController
         'interval' => 'Interval',
         'interval_count' => 'Interval Count',
         'qnt_leads' => 'Qnt. Leads',
-        'created_at' => 'Created',
     ];
 
     public $modelName = 'plan';
@@ -66,7 +66,7 @@ class PlansController extends HomeServerController
     public function create()
     {
         if (Auth::user()->canCreatePlan()) {
-            $intervals = ['day'=>'day', 'week'=>'week', 'year'=>'year'];
+            $intervals = Config::get('constants.intervals');
             $category_leads = CategoryLead::all();
             return View('plan.create', ['intervals' => $intervals, 'category_leads' => $category_leads]);
         } else {
@@ -86,27 +86,29 @@ class PlansController extends HomeServerController
             $this->validate($request, [
                 'name' => 'required|string|max:100',
                 'description' => 'required|string|between:10, 150',
-                'price' => 'required|numeric|min:0',
+                'price' => 'nullable|numeric|min:0|required_unless:interval,lead',
                 'interval_count' => 'nullable|numeric|digits_between:0,120',
                 'interval' => 'required|string',
-                'qnt_leads' => 'required|numeric|min:0',
+                'qnt_leads' => 'nullable|numeric|min:0|required_unless:interval,lead',
                 'unique_leads' => 'nullable|boolean',
                 'share_count' => 'nullable|numeric',
-                'category_lead_uuid' => 'required|string|exists:category_leads,uuid',
             ]);
             $request['unique_leads'] = $request['unique_leads'] ?? false;
+            $request['price'] = $request['interval'] == 'lead' ? 0 : $request['price'] ?? 0;
             
             try {
                 DB::beginTransaction();
 
                 $plan = new Plan($request->all());
-                $plan = $this->createRecord($plan, false);
+                $this->createRecord($plan, false);
+                $plan->category_leads()->sync($request->input("category_leads") ?? CategoryLead::all());
+
                 $stripe_plan = Stripe::plans()->create([
                     'id'                   => $plan->uuid,
                     'name'                 => $plan->name,
                     'amount'               => (float) $plan->price,
                     'currency'             => 'USD',
-                    'interval'             => $plan->interval ?? 'week',
+                    'interval'             => $plan->interval == 'lead' ? 'week' : $plan->interval,
                     'interval_count'       => $plan->interval_count ?? null,
                     'metadata'             => ['description' => $plan->description],
                 ]);
@@ -137,7 +139,7 @@ class PlansController extends HomeServerController
     public function edit(Plan $plan)
     {
         if (Auth::user()->canUpdatePlan()) {
-            $intervals = ['day'=>'day', 'week'=>'week', 'year'=>'year'];
+            $intervals = Config::get('constants.intervals');
             $category_leads = CategoryLead::all();
             return View('plan.edit', ['plan' => $plan, 'intervals' => $intervals, 'category_leads' => $category_leads]);
         } else {
@@ -158,19 +160,20 @@ class PlansController extends HomeServerController
             $this->validate($request, [
                 'name' => 'required|string|max:100',
                 'description' => 'required|string|between:10, 150',
-                'price' => 'required|numeric|min:0',
+                'price' => 'nullable|numeric|min:0|required_unless:interval,lead',
                 'interval_count' => 'nullable|numeric|digits_between:0,120',
                 'interval' => 'required|string',
-                'qnt_leads' => 'required|numeric|min:0',
+                'qnt_leads' => 'nullable|numeric|min:0|required_unless:interval,lead',
                 'unique_leads' => 'nullable|boolean',
                 'share_count' => 'nullable|numeric',
-                'category_lead_uuid' => 'required|string|exists:category_leads,uuid',
             ]);
             $request['unique_leads'] = $request['unique_leads'] ?? false;
+            $request['price'] = $request['interval'] == 'lead' ? 0 : $request['price'] ?? 0;
             try {
                 DB::beginTransaction();
 
                 $plan->fill($request->all());
+                $plan->category_leads()->sync($request->input("category_leads"));
                 
                 Stripe::plans()->update($plan->uuid, [
                     'name'                 => $plan->name,

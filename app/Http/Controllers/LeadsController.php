@@ -139,6 +139,10 @@ class LeadsController extends HomeServerController
                 //dd($request->category_uuid);
     
                 $lead->customer_uuid = $customer->uuid;
+
+                $lead->category_lead_uuid = $this->categorize_lead($lead)->uuid;
+                
+
                 $lead->questions = $request->questions;
                 $lead->category_uuid = $request->category_uuid;
     
@@ -300,7 +304,7 @@ class LeadsController extends HomeServerController
             event(new AssociateLeads($newLead));
             DB::commit();
 
-            return $this->getApiResponse($newLead);
+            //return $this->getApiResponse($newLead);
     
         } catch (\Exception $e) {
             DB::rollback();

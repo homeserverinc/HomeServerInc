@@ -25,6 +25,7 @@ class HomeServerController extends Controller
     protected function doOnException(\Exception $exception, bool $goToIndex = false) {
         switch ($exception->getCode()) {
             case 23000:
+                dd($exception->getMessage());
                 Session::flash('error', __('messages.fk_error'));
                 break;
             default:

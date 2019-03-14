@@ -41,7 +41,6 @@ class Plan extends Model
         'qnt_leads',
         'unique_leads',
         'share_count',
-        'category_lead_uuid'
     ];
 
     public function contractors() {
@@ -52,8 +51,8 @@ class Plan extends Model
         return $this->hasMany(Subscription::class);
     }
 
-    public function category_lead(){
-        return $this->belongsTo(CategoryLead::class);
+    public function category_leads(){
+        return $this->belongsToMany(CategoryLead::class, 'plan_category_lead');
     }
 
   

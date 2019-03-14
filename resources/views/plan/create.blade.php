@@ -28,15 +28,16 @@
                         'inputSize' => 4,
                     ],[
                         'type' => 'select',
-                        'field' => 'category_lead_uuid',
+                        'field' => 'category_leads[]',
                         'label' => 'Category Lead',
                         'required' => true,
                         'items' => $category_leads,
                         'displayField' => 'name',
                         'keyField' => 'uuid',
+                        'multiple' => true,
                         'liveSearch' => true,
-                        'defaultNone' => true,
-                        'inputSize' => 4
+                        'inputSize' => 4,
+                        'indexSelected' => old('category_leads') ?? null
                     ]
                 ]
             ])
@@ -61,7 +62,7 @@
                         'idDiv' => 'share_count_div',
                         'label' => 'Share count',
                         'inputSize' => 6,
-                        'div_css' => 'float-right '.(old('unique_leads') ? '' : 'invisible')
+                        'div_css' => 'float-right'
                     ])
                     @endcomponent
                 </div>
@@ -89,7 +90,7 @@
                         'keyField' => 'id',
                         'liveSearch' => true,
                         'defaultNone' => true,
-                        'indexSelected' => 'week',
+                        'indexSelected' => old('interval') ?? null,
                         'inputSize' => 4
                     ],[
                         'type' => 'text',
@@ -105,13 +106,3 @@
         @endsection
     @endcomponent
 @endsection
-
-@push('document-ready')
-    $("#unique_leads").change(function(){
-        if(!$(this).prop('checked')){
-            $("#share_count_div").removeClass('invisible')
-        }else{
-            $("#share_count_div").addClass('invisible')
-        }
-    })
-@endpush

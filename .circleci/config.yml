@@ -1,58 +1,169 @@
-# PHP CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-php/ for more details
-#
 version: 2
+
 jobs:
   build:
-    docker:
-      # Specify the version you desire here
-      - image: circleci/php:7.1-node-browsers
+    working_directory: ~/user/repo
 
-      # Specify service dependencies here if necessary
-      # CircleCI maintains a library of pre-built images
-      # documented at https://circleci.com/docs/2.0/circleci-images/
-      # Using the RAM variation mitigates I/O contention
-      # for database intensive operations.
-      # - image: circleci/mysql:5.7-ram
-      #
-      # - image: redis:2.8.19
+    environment:
+      BASH_ENV: ~/.bashrc
+
+    docker:
+      - image: circleci/php:7.1-node-browsers
+        environment:
+          APP_ENV: testing
+          DB_CONNECTION: mysql
+          DB_DATABASE: circle_test
+          DB_USERNAME: root
+          DB_PASSWORD: ubuntu
+          SESSION_DRIVER: database
+          CACHE_DRIVER: file
+
+      - image: circleci/mysql:5.7
+        environment:
+          - MYSQL_ALLOW_EMPTY_PASSWORD=true
+          - MYSQL_ROOT_PASSWORD=ubuntu
+          - MYSQL_USER=ubuntu
+          - MYSQL_PASSWORD=ubuntu
+          - MYSQL_DATABASE=circle_test
 
     steps:
+      - run:
+          name: Install System Dependencies
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y libmcrypt-dev libsqlite3-dev libfreetype6-dev libjpeg62-turbo-dev libpng-dev zlib1g-dev
+
+      - run:
+          name: Install PHP Extensions
+          command: |
+            sudo docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/
+            sudo docker-php-ext-install -j$(nproc) iconv mcrypt gd zip pdo_mysql pdo_sqlite
+            sudo rm /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+
+      - run:
+          name: Update Composer
+          command: sudo composer self-update
+
       - checkout
 
-      - run: sudo apt update # PHP CircleCI 2.0 Configuration File# PHP CircleCI 2.0 Configuration File sudo apt install zlib1g-dev libsqlite3-dev
-      - run: sudo docker-php-ext-install zip
-
-      # Download and cache dependencies
       - restore_cache:
           keys:
-            # "composer.lock" can be used if it is committed to the repo
-            - v1-dependencies-{{ checksum "composer.json" }}
-            # fallback to using the latest cache if no exact match is found
-            - v1-dependencies-
-
-      - run: composer install -n --prefer-dist
-
+            - composer-v1-{{ checksum "composer.lock" }}
+            - composer-v1-
+      - run:
+          name: Install Composer Dependencies
+          command: composer install -n --ignore-platform-reqs
       - save_cache:
-          key: v1-dependencies-{{ checksum "composer.json" }}
+          key: composer-v1-{{ checksum "composer.lock" }}
           paths:
-            - ./vendor
+            - vendor
+
+      - run:
+          name: Setup Environment
+          command: |
+            cp .env.testing .env
+            php artisan key:generate
+            php artisan passport:keys
+            touch ./storage/logs/laravel.log
+
       - restore_cache:
           keys:
             - node-v1-{{ checksum "package.json" }}
             - node-v1-
-      - run: npm install
+      - run:
+          name: Install Node Dependencies
+          command: |
+            node --version
+            npm --version
+            npm install
       - save_cache:
           key: node-v1-{{ checksum "package.json" }}
           paths:
             - node_modules
 
-      # prepare the database
-      - run: touch storage/testing.sqlite
-      - run: php artisan migrate --env=testing --database=sqlite_testing --force
+      - run:
+         name: Run Webpack
+         command: npm run prod
 
-      # run tests with phpunit or codecept
-      #- run: ./vendor/bin/phpunit
-      - run: ./vendor/bin/codecept build
-      - run: ./vendor/bin/codecept run
+      - run:
+         name: Migrate Database
+         command: php artisan migrate --force
+
+      - run:
+          name: PHP CS Fixer
+          command: vendor/bin/php-cs-fixer fix --config=.php_cs --diff --dry-run --verbose
+      - run:
+          name: PHPLOC
+          command: |
+            mkdir -p ./logs/phploc
+            vendor/bin/phploc app --no-interaction --log-xml=logs/phploc/junit.xml
+      - run:
+          name: PHPCS
+          command: |
+            mkdir -p ./logs/phpcs
+            vendor/bin/phpcs --standard="PSR1,PSR2" -v --report=junit --report-file=logs/phpcs/junit.xml app/
+      - run:
+          name: PHP Mess Detector
+          command: |
+            mkdir -p ./logs/phpmd
+            vendor/bin/phpmd app text phpmd-ruleset.xml > logs/phpmd/phpmd.log
+      - run:
+          name: ESLint
+          command: |
+            mkdir -p ./logs/eslint
+            node_modules/eslint/bin/eslint.js --ext .vue -o logs/eslint/junit.xml -f junit resources/assets/js
+      - run:
+          name: Run Unit Tests
+          environment:
+            DB_CONNECTION: sqlite-memory
+          command: |
+            mkdir -p ./logs/phpunit
+            vendor/bin/phpunit -d memory_limit=512M --log-junit logs/phpunit/junit.xml --testdox-html logs/phpunit/testdox.html
+
+      - run:
+          name: Start Chrome Driver
+          command: ./vendor/laravel/dusk/bin/chromedriver-linux
+          background: true
+
+      - run:
+          name: Run Laravel Server
+          command: php artisan serve
+          background: true
+
+      - run:
+          name: Run Laravel Dusk Tests
+          command: php artisan dusk
+          environment:
+            APP_URL: http://localhost:8000
+
+      - store_artifacts:
+          path: ./logs/phploc
+          destination: phploc
+
+      - store_artifacts:
+          path: ./logs/phpcs
+          destination: phpcs
+
+      - store_artifacts:
+          path: ./logs/phpmd
+          destination: phpmd
+
+      - store_artifacts:
+          path: ./logs/eslint
+          destination: eslint
+
+      - store_artifacts:
+          path: ./logs/phpunit
+          destination: phpunit
+
+      - store_artifacts:
+          path: ./tests/Browser/console
+          destination: console
+
+      - store_artifacts:
+          path: ./tests/Browser/screenshots
+          destination: screenshots
+
+      - store_artifacts:
+          path: ./storage/logs
+          destination: laravel

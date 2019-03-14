@@ -12,6 +12,7 @@ use App\Subscription;
 use App\Charge;
 use App\Card;
 use Stripe;
+use Config;
 use App\traits\ApiResponse;
 use Illuminate\Http\Request;
 use App\Events\NewContractor;
@@ -32,6 +33,7 @@ class ContractorsController extends HomeServerController
         'phone' => 'Phone',
         'address' => 'Address',
         'plan.name' => 'Plan',
+        'wallet' => 'Wallet',
         'created_at' => 'Created',
     ];
 
@@ -75,13 +77,12 @@ class ContractorsController extends HomeServerController
             $sites = Site::all();
             $plans = Plan::all();
             $categories = Category::all();
+            $recharge_values = Config::get('constants.recharge_values');
+            $recharge_triggers = Config::get('constants.recharge_triggers');
+            $months = Config::get('constants.months');
+            $years = Config::get('constants.years');
 
-            $months = [];
-            for($i=1; $i < 13; $i++) $months[$i] = $i;
-            $years = [];
-            for($i=date('Y'); $i < date('Y')+20; $i++) $years[$i] = $i;
-
-            return View('contractor.create', ['sites' => $sites, 'plans' => $plans, 'months' => $months, 'years' => $years, 'categories' => $categories]);
+            return View('contractor.create', ['sites' => $sites, 'plans' => $plans, 'months' => $months, 'years' => $years, 'categories' => $categories, 'recharge_values' => $recharge_values, 'recharge_triggers' => $recharge_triggers]);
         } else {
             return $this->accessDenied();
         }
@@ -105,8 +106,8 @@ class ContractorsController extends HomeServerController
                 'phone' => 'string|max:20',
                 'ein' => 'required_without_all:ssn|nullable|alpha_num|max:20|',
                 'ssn' => 'alpha_num|max:20|required_without_all:ein|nullable',
-                'site_uuid' => 'nullable|unique:sites,uuid',
-                'plan_uuid' => 'nullable|exists:plans,uuid',
+                'site' => 'nullable|string|max:150',
+                'plan_uuid' => 'required|exists:plans,uuid',
                 'charge' => 'nullable|numeric',
                 'automatic_recharge_amount' => 'nullable|numeric',
                 'automatic_recharge_trigger' => 'nullable|numeric',
@@ -194,6 +195,7 @@ class ContractorsController extends HomeServerController
                 }
 
                  //subscribe contractor to plan
+                $plan = Plan::find($request->input('plan_uuid'));
                 if($request->filled('plan_uuid') && $contractor->wallet >= $contractor->plan->price){
                     // $subscription = Stripe::subscriptions()->create($contractor->stripe_id, [
                     //     'plan' => $contractor->plan->uuid,
@@ -210,20 +212,21 @@ class ContractorsController extends HomeServerController
                             $ends_at = \Carbon\Carbon::today()->addYears($plan->interval_count);
                             break;
                         default:
-                            $ends_at = \Carbon\Carbon::today()->addWeeks(1);
+                            $ends_at = null;
                             break;
                     }
                     $subs = new Subscription([
                         'contractor_uuid' => $contractor->uuid,
-                        'plan_uuid' => $contractor->plan->uuid,
-                        'name' => $contractor->plan->name,
+                        'plan_uuid' => $plan->uuid,
+                        'name' => $plan->name,
                         'stripe_id' => null,
                         'closed' => 0,
                         'trial_ends_at' => null,
                         'ends_at' => $ends_at
                     ]);
 
-                    $contractor->decrement('wallet', $contractor->plan->price);
+                    if($plan->interval !== 'lead')
+                        $contractor->decrement('wallet', $plan->price);
 
                     $subs = $this->createRecord($subs);
                 }
@@ -233,6 +236,14 @@ class ContractorsController extends HomeServerController
                 DB::commit();
 
                 return $this->createSuccess($contractor);
+
+            } catch(\Stripe\Error\Card $e) {
+                Stripe::customers()->delete($contractor->stripe_id);
+                DB::rollback();
+                $body = $e->getJsonBody();
+                $err  = $body['error'];
+
+                return $this->warningMessage($err['message']);
 
             } catch (\Exception $e) {
                 Stripe::customers()->delete($contractor->stripe_id);
@@ -258,11 +269,12 @@ class ContractorsController extends HomeServerController
             $sites = Site::all();
             $plans = Plan::all();
             $categories = Category::all();
-            $months = [];
-            for($i=1; $i < 13; $i++) $months[$i] = $i;
-            $years = [];
-            for($i=date('Y'); $i < date('Y')+20; $i++) $years[$i] = $i;
-            return View('contractor.edit', ['contractor' => $contractor, 'sites' => $sites, 'plans' => $plans, 'years' => $years, 'months' => $months, 'categories' => $categories]);
+            $recharge_values = Config::get('constants.recharge_values');
+            $recharge_triggers = Config::get('constants.recharge_triggers');
+            $months = Config::get('constants.months');
+            $years = Config::get('constants.years');
+
+            return View('contractor.edit', ['contractor' => $contractor, 'sites' => $sites, 'plans' => $plans, 'years' => $years, 'months' => $months, 'categories' => $categories, 'recharge_values' => $recharge_values, 'recharge_triggers' => $recharge_triggers]);
         } else {
             return $this->accessDenied();
         }
@@ -298,13 +310,6 @@ class ContractorsController extends HomeServerController
                 'users.name' => 'required|string|max:100',
                 'users.email' => 'required|email|max:100|unique:users,email,'.$contractor->user->id,
                 'users.password' => 'nullable|alpha_num|min:6,20|confirmed',
-                'address' => 'required|string|max:100',
-                'company' => 'required|string|max:100',
-                'phone' => 'string|max:20',
-                'automatic_recharge_amount' => 'nullable|numeric',
-                'automatic_recharge_trigger' => 'nullable|numeric',
-                'ssn' => 'string|max:20|required_without:ein|nullable',
-                'ein' => 'string|max:20|required_without:ssn|nullable',
             ]);
             try {
                 DB::beginTransaction();
@@ -315,10 +320,6 @@ class ContractorsController extends HomeServerController
                 $contractor->user->email = $data['email'];
                 $contractor->user->password = $data['password'] !== null ? bcrypt($data['password']) : $contractor->user->password;
                 $user = $this->updateRecord($contractor->user, false);
-
-                $contractor->fill($request->all());
-            
-                $contractor = $this->updateRecord($contractor);
 
                 DB::commit();
 
@@ -351,11 +352,12 @@ class ContractorsController extends HomeServerController
                 'address' => 'required|string|max:100',
                 'company' => 'required|string|max:100',
                 'phone' => 'string|max:20',
+                'plan_uuid' => 'required|exists:plans,uuid',
                 'automatic_recharge_amount' => 'nullable|numeric',
                 'automatic_recharge_trigger' => 'nullable|numeric',
                 'ssn' => 'string|max:20|required_without:ein|nullable',
                 'ein' => 'string|max:20|required_without:ssn|nullable',
-                'site_uuid' => 'nullable|unique:sites',
+                'site' => 'nullable|string|max:150',
                 'card_number' => 'nullable|string|required_with_all:exp_month,exp_year',
                 'exp_month' => 'nullable|integer|required_with_all:card_number,exp_year',
                 'exp_year' => 'nullable|integer|required_with_all:card_number,exp_month',
@@ -370,8 +372,7 @@ class ContractorsController extends HomeServerController
                 $contractor->user->email = $data['email'];
                 $contractor->user->password = $data['password'] !== null ? bcrypt($data['password']) : $contractor->user->password;
                 $user = $this->updateRecord($contractor->user, false);
-                $contractor->categories()->detach();
-                $contractor->categories()->attach($request->input("categories"));
+                $contractor->categories()->sync($request->input("categories"));
                 $contractor->fill($request->all());
 
                 if($request->exists('card_number')){
@@ -381,6 +382,42 @@ class ContractorsController extends HomeServerController
                         'exp_month' => (int) $request->input('exp_month'),
                         'exp_year' => (int) $request->input('exp_year'),
                     ]);
+                }
+                $plan = Plan::find($request->input('plan_uuid'));
+                //subscribe contractor to plan
+                if($request->filled('plan_uuid') && $contractor->wallet >= $contractor->plan->price){
+                    // $subscription = Stripe::subscriptions()->create($contractor->stripe_id, [
+                    //     'plan' => $contractor->plan->uuid,
+                    // ]);
+                    //record subs to db
+                    switch ($plan->interval) {
+                        case 'day':
+                            $ends_at = \Carbon\Carbon::today()->addDays($plan->interval_count);
+                            break;
+                        case 'week':
+                            $ends_at = \Carbon\Carbon::today()->addWeeks($plan->interval_count);
+                            break;
+                        case 'year':
+                            $ends_at = \Carbon\Carbon::today()->addYears($plan->interval_count);
+                            break;
+                        default:
+                            $ends_at = null;
+                            break;
+                    }
+                    $subs = new Subscription([
+                        'contractor_uuid' => $contractor->uuid,
+                        'plan_uuid' => $plan->uuid,
+                        'name' => $plan->name,
+                        'stripe_id' => null,
+                        'closed' => 0,
+                        'trial_ends_at' => null,
+                        'ends_at' => $ends_at
+                    ]);
+
+                    if($plan->interval !== 'lead')
+                        $contractor->decrement('wallet', $plan->price);
+
+                    $subs = $this->createRecord($subs);
                 }
 
                 $contractor = $this->updateRecord($contractor);
@@ -486,7 +523,7 @@ class ContractorsController extends HomeServerController
                         ]);
 
                         $charge = new Charge([
-                            'amount' => -(float) $contractor->automatic_recharge_amount,
+                            'amount' => (float) $contractor->automatic_recharge_amount,
                             'contractor_uuid' => $contractor->uuid,
                             'stripe_id' => $stripeCharge['id'],
                             'description' => 'Automatic recharge trigger: $'.((float) $contractor->automatic_recharge_amount).' to '.$contractor->user->name.'.',
@@ -505,6 +542,78 @@ class ContractorsController extends HomeServerController
                     DB::commit();
                     return response()->json(['success' => true, 'message' => 'Plan acquired with success!']);
                 }else{
+                    if($contractor->wallet <= $contractor->automatic_recharge_trigger){
+                        return response()->json(['success' => true, 'message' => 'Plan acquired with success!']);
+                        $stripeCharge = Stripe::charges()->create([
+                            'customer' => $contractor->stripe_id,
+                            'currency' => 'USD',
+                            'amount'   => (float) $contractor->automatic_recharge_amount,
+                        ]);
+
+                        $charge = new Charge([
+                            'amount' => (float) $contractor->automatic_recharge_amount,
+                            'contractor_uuid' => $contractor->uuid,
+                            'stripe_id' => $stripeCharge['id'],
+                            'description' => 'Automatic recharge trigger: $'.((float) $contractor->automatic_recharge_amount).' to '.$contractor->user->name.'.',
+                            'card_uuid' => $contractor->default_card()->first()->uuid
+                        ]);
+
+                        $charge = $this->createRecord($charge, false);
+
+                        $contractor->increment('wallet', $contractor->automatic_recharge_amount);
+
+                        if($contractor->wallet >= $plan->price){
+                            $subs = Subscription::where('contractor_uuid' , '=', $contractor->uuid)->latest()->first();
+                            if($subs){
+                                $subs->closed = 1;
+                                $subs->update();
+
+                            }
+                            switch ($plan->interval) {
+                                case 'day':
+                                    $ends_at = \Carbon\Carbon::today()->addDays($plan->interval_count);
+                                    break;
+                                case 'week':
+                                    $ends_at = \Carbon\Carbon::today()->addWeeks($plan->interval_count);
+                                    break;
+                                case 'year':
+                                    $ends_at = \Carbon\Carbon::today()->addYears($plan->interval_count);
+                                    break;
+                                default:
+                                    $ends_at = \Carbon\Carbon::today()->addWeeks(1);
+                                    break;
+                            }
+                            $subs = new Subscription([
+                                'contractor_uuid' => $contractor->uuid,
+                                'plan_uuid' => $plan->uuid,
+                                'name' => $plan->name,
+                                'stripe_id' => null,
+                                'closed' => 0,
+                                'trial_ends_at' => null,
+                                'ends_at' => $ends_at,
+                            ]);
+
+                            $subs = $this->createRecord($subs);
+
+                            $contractor->plan_uuid = $plan->uuid;
+
+
+                            $charge = new Charge([
+                                'amount' => -(float) $plan->price,
+                                'contractor_uuid' => $contractor->uuid,
+                                'stripe_id' => null,
+                                'description' => 'Plan '.$plan->name.' activation: -$'.((float) $plan->price).' to '.$contractor->user->name.'.',
+                                'card_uuid' => $contractor->default_card()->first()->uuid
+                            ]);
+
+                            $charge = $this->createRecord($charge, false);
+
+                            $contractor->decrement('wallet', $plan->price);
+                            return response()->json(['success' => true, 'message' => 'Plan acquired with success!']);
+                        }else{
+                            return response()->json(['success' => false, 'message' => 'Insuficient founds!']);
+                        }
+                    }
                     return response()->json(['success' => false, 'message' => 'Insuficient founds!']);
                 }
                 

@@ -164,8 +164,7 @@ class CategoriesController extends HomeServerController
                 $category_leads = $category_leads->mapWithKeys(function($item) use($request){
                     return [$item['uuid'] => ['weight' => $request->input('weights')[$item->uuid], 'price' => $request->input('prices')[$item->uuid]]];
                 });
-                $category->category_leads()->detach();
-                $category->category_leads()->attach($category_leads->toArray());
+                $category->category_leads()->sync($category_leads->toArray());
                 $this->updateRecord($category);
 
                 DB::commit();

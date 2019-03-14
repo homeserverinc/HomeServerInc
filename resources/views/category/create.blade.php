@@ -36,7 +36,7 @@
             ])
             @endcomponent
             <div class="row">
-                <div class="col">
+                <div class="col-md-12">
                     <table class="table table-sm table-dark">
                         <thead>
                             <tr>
@@ -61,6 +61,7 @@
                                     <td>
                                         <input type="number" class="form-control" name="prices[{{$clead->uuid}}]" id="prices[{{$clead->uuid}}]" required value="{{ old('prices.'.$clead->uuid) ?? 0}}">
                                     </td>
+                                    
                                 </tr>
                             @endforeach
                         </tbody>

@@ -30,16 +30,17 @@
                         'inputValue' => $plan->qnt_leads
                     ],[
                         'type' => 'select',
-                        'field' => 'category_lead_uuid',
+                        'field' => 'category_leads[]',
                         'label' => 'Category Lead',
                         'required' => true,
                         'items' => $category_leads,
                         'displayField' => 'name',
                         'keyField' => 'uuid',
                         'liveSearch' => true,
-                        'defaultNone' => true,
+                        'multiple' => true,
+                        'defaultNone' => false,
                         'inputSize' => 4,
-                        'indexSelected' => $plan->category_lead_uuid,
+                        'indexSelected' => $plan->category_leads()->pluck('category_lead_uuid')->toArray()
                     ]
                 ]
             ])

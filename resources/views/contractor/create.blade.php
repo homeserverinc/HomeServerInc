@@ -88,15 +88,11 @@
                                         'required' => false,
                                         'inputSize' => 6
                                     ],[
-                                        'type' => 'select',
-                                        'field' => 'site_uuid',
+                                        'type' => 'text',
+                                        'field' => 'site',
                                         'label' => 'Site',
                                         'required' => false,
-                                        'items' => $sites,
-                                        'displayField' => 'name',
-                                        'keyField' => 'uuid',
-                                        'liveSearch' => true,
-                                        'defaultNone' => true
+                                        'inputSize' => 6
                                     ]
                                 ]
                             ])
@@ -132,15 +128,21 @@
                                         'label' => 'Charge amount',
                                         'required' => false,
                                     ],[
-                                        'type' => 'text',
+                                        'type' => 'select',
                                         'field' => 'automatic_recharge_amount',
                                         'label' => 'Automatic Charge amount',
                                         'required' => false,
+                                        'items' => $recharge_values,
+                                        'liveSearch' => true,
+                                        'defaultNone' => true
                                     ],[
-                                        'type' => 'text',
                                         'field' => 'automatic_recharge_trigger',
                                         'label' => 'Automatic Charge trigger',
+                                        'type' => 'select',
                                         'required' => false,
+                                        'items' => $recharge_triggers,
+                                        'liveSearch' => true,
+                                        'defaultNone' => true
                                     ]
                                 ]
                             ])

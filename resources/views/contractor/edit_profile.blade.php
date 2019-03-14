@@ -52,6 +52,7 @@
                                         'field' => 'automatic_recharge_amount',
                                         'label' => 'Automatic Charge amount',
                                         'required' => false,
+                                        'readOnly' => true,
                                         'inputValue' => $contractor->automatic_recharge_amount,
                                         'inputSize' => 6
                                     ],[
@@ -60,6 +61,7 @@
                                         'label' => 'Automatic Charge trigger',
                                         'required' => false,
                                         'inputSize' => 6,
+                                        'readOnly' => true,
                                         'inputValue' => $contractor->automatic_recharge_trigger
                                     ]
                                 ]
@@ -83,18 +85,21 @@
                                         'field' => 'company',
                                         'label' => 'Company',
                                         'required' => true,
+                                        'readOnly' => true,
                                         'inputValue' => $contractor->company
                                     ],[
                                         'type' => 'text',
                                         'field' => 'address',
                                         'label' => 'Address',
                                         'required' => true,
+                                        'readOnly' => true,
                                         'inputValue' => $contractor->address
                                     ],[
                                         'type' => 'text',
                                         'field' => 'phone',
                                         'label' => 'Phone',
                                         'required' => false,
+                                        'readOnly' => true,
                                         'inputValue' => $contractor->phone
                                     ],[
                                         'type' => 'text',
@@ -102,6 +107,7 @@
                                         'label' => 'SSN tax',
                                         'required' => false,
                                         'inputSize' => 6,
+                                        'readOnly' => true,
                                         'inputValue' => $contractor->ssn
                                     ],[
                                         'type' => 'text',
@@ -109,6 +115,7 @@
                                         'label' => 'EIN tax',
                                         'required' => false,
                                         'inputSize' => 6,
+                                        'readOnly' => true,
                                         'inputValue' => $contractor->ein
                                     ]
                                 ]

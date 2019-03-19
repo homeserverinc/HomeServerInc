@@ -268,7 +268,7 @@ class LeadsController extends HomeServerController
     public function apiStore(Request $request) {
         $data = json_decode(json_encode($request->all()));
 
-        //Log::debug(json_decode(json_encode($request->all()), true));
+        Log::debug(json_decode(json_encode($request->all()), true));
         
         try {
             DB::beginTransaction();

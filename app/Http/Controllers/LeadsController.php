@@ -270,10 +270,6 @@ class LeadsController extends HomeServerController
 
         $data->customer = json_decode($data->customer);
         $data->questions = json_decode($data->questions);
-
-        //Log::debug($request->all());
-
-        //Log::debug(json_decode(json_encode($request->all()), true));
         
         try {
             DB::beginTransaction();
@@ -286,8 +282,6 @@ class LeadsController extends HomeServerController
                     'email1' => $data->customer->email1
                 ]);            
             }
-
-            //Log::debug(json_decode(json_encode($data->customer), true));
 
             $customer->fill(json_decode(json_encode($data->customer), true));
 
@@ -309,7 +303,7 @@ class LeadsController extends HomeServerController
             event(new AssociateLeads($newLead));
             DB::commit();
 
-            //return $this->getApiResponse($newLead);
+            return $this->getApiResponse('Ok');
     
         } catch (\Exception $e) {
             DB::rollback();
@@ -321,6 +315,8 @@ class LeadsController extends HomeServerController
     public function apiPreLeadStore(Request $request) {
         try {
             $data = json_decode(json_encode($request->all()));
+            $data->customer = json_decode($data->customer);
+            
             DB::beginTransaction();
 
             $customer = Customer::firstOrNew([

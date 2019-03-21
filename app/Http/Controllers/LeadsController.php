@@ -49,7 +49,7 @@ class LeadsController extends HomeServerController
     {
         if (Auth::user()->canReadLead()) {
             
-            if(Auth::user()->hasRole('superadministrator')){
+            if(!Auth::user()->hasRole('contractor')){
                 if ($request->searchField) {
                     $leads = Lead::whereHas('customer', function($query) use($request) {
                         $query->where('customers.first_name', 'like', '%'.$request->searchField.'%');
@@ -268,7 +268,8 @@ class LeadsController extends HomeServerController
     public function apiStore(Request $request) {
         $data = json_decode(json_encode($request->all()));
 
-        //Log::debug(json_decode(json_encode($request->all()), true));
+        $data->customer = json_decode($data->customer);
+        $data->questions = json_decode($data->questions);
         
         try {
             DB::beginTransaction();
@@ -281,8 +282,6 @@ class LeadsController extends HomeServerController
                     'email1' => $data->customer->email1
                 ]);            
             }
-
-            //Log::debug(json_decode(json_encode($data->customer), true));
 
             $customer->fill(json_decode(json_encode($data->customer), true));
 
@@ -304,7 +303,7 @@ class LeadsController extends HomeServerController
             event(new AssociateLeads($newLead));
             DB::commit();
 
-            //return $this->getApiResponse($newLead);
+            return $this->getApiResponse('Ok');
     
         } catch (\Exception $e) {
             DB::rollback();
@@ -316,6 +315,8 @@ class LeadsController extends HomeServerController
     public function apiPreLeadStore(Request $request) {
         try {
             $data = json_decode(json_encode($request->all()));
+            $data->customer = json_decode($data->customer);
+            
             DB::beginTransaction();
 
             $customer = Customer::firstOrNew([

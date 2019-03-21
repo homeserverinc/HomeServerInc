@@ -49,7 +49,7 @@ class LeadsController extends HomeServerController
     {
         if (Auth::user()->canReadLead()) {
             
-            if(Auth::user()->hasRole('superadministrator')){
+            if(!Auth::user()->hasRole('contractor')){
                 if ($request->searchField) {
                     $leads = Lead::whereHas('customer', function($query) use($request) {
                         $query->where('customers.first_name', 'like', '%'.$request->searchField.'%');

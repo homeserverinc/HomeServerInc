@@ -40,10 +40,23 @@ class LeadAssigned extends Mailable
         foreach ($questions['answeredQuestions'] as $question) {
             $qtemplate.='<li><b>'.$question['question'].'</b><ul>';
             foreach($question['selected_answers'] as $answer){
-                $ans = Answer::find($answer);
-                if($ans !== null && $ans->count() > 0){
-                    $qtemplate.='<li>'.$ans->answer.'</li>';
+                if (is_array($answer)) {
+                    /* Multi options question */
+                    foreach($answer as $checkedAnswer) {
+                        $ans = Answer::find($checkedAnswer);
+                        if($ans !== null && $ans->count() > 0){
+                            $qtemplate.='<li>'.$ans->answer.'</li>';
+                        }
+                    }
+                } else {
+                    /* Single choice question */
+                    $ans = Answer::find($answer);
+                    if($ans !== null && $ans->count() > 0){
+                        $qtemplate.='<li>'.$ans->answer.'</li>';
+                    }
                 }
+                
+                
             }
             $qtemplate.='</ul></li>';
         }

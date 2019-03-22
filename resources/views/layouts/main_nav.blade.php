@@ -92,13 +92,31 @@
             </li>
             @endability
 
-            {{--  cities  --}}
-            @permission('read-lead')
+            {{--  leads  --}}
+        
+            @ability(Auth::user()->roles->first()->name, 'read-lead|read-filtered-lead', ['validate_all' => true])
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownServices" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Leads
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdownServices">
+                    @permission('read-lead')
+                    <a class="dropdown-item" href="{{route('lead.index')}}">Leads</a>
+                    @endpermission
+                    @permission('read-filtered-lead')
+                    <a class="dropdown-item" href="{{route('filtered_lead.index')}}">Filtered Leads</a>
+                    @endpermission
+                </div>
+            </li>
+            @endability
+
+            {{-- disputes --}}
+            @permission('read-dispute')
             <li class="nav-item">
-                <a class="nav-link" href="{{route('lead.index')}}">Leads</a>
+                <a class="nav-link" href="{{route('dispute.index')}}">Disputes</a>
             </li>  
             @endpermission
-
+            
             {{-- plans --}}
             @permission('read-plan')
             <li class="nav-item">

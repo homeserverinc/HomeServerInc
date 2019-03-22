@@ -143,28 +143,54 @@
                 <div class="card mt-3 mb-3">
                     <div class="card-header">Extra information</div>
                     <div class="card-body pb-0">
-                        @component('components.form-group', [
-                            'inputs' => [
-                                [
-                                    'type' => 'select',
-                                    'field' => 'deadline',
-                                    'label' => 'When you need this done?',
-                                    'items' => [
-                                        'im-flexible' => 'I\'m flexible',
-                                        'within-48-hours' => 'Within 48 hours',
-                                        'within-a-week' => 'Within a week',
-                                        'within-a-month' => 'Within a month',
-                                        'within-a-year' => 'Within a year'
+                        <div class="col-md-4 ">
+                            @component('components.input-checkbox', [
+                                'field' => 'verified_data',
+                                'id' => 'verified_data',
+                                'label' => 'Verified?',
+                                'required' => true,
+                                'inputSize' => 4,
+                                'inputValue' => old('verified_data') ?? 0,
+                                'value' => 1,
+                            ])
+                            @endcomponent
+                        </div>
+                        <div class="col-md-4 ">
+                            @component('components.input-checkbox', [
+                                'field' => 'unique',
+                                'id' => 'unique',
+                                'label' => 'Unique lead?',
+                                'required' => true,
+                                'inputSize' => 4,
+                                'inputValue' => old('unique') ?? 0,
+                                'value' => 1,
+                            ])
+                            @endcomponent
+                        </div>
+                        <div class="col-md-12 ">
+                            @component('components.form-group', [
+                                'inputs' => [
+                                    [
+                                        'type' => 'select',
+                                        'field' => 'deadline',
+                                        'label' => 'When you need this done?',
+                                        'items' => [
+                                            'im-flexible' => 'I\'m flexible',
+                                            'within-48-hours' => 'Within 48 hours',
+                                            'within-a-week' => 'Within a week',
+                                            'within-a-month' => 'Within a month',
+                                            'within-a-year' => 'Within a year'
+                                        ]
+                                    ],
+                                    [
+                                        'type' => 'textarea',
+                                        'field' => 'project_details',
+                                        'label' => 'Explain the project'
                                     ]
-                                ],
-                                [
-                                    'type' => 'textarea',
-                                    'field' => 'project_details',
-                                    'label' => 'Explain the project'
                                 ]
-                            ]
-                        ])
-                        @endcomponent
+                            ])
+                            @endcomponent
+                        </div>
                     </div>
                 </div>
             </div>

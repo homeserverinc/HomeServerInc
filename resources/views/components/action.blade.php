@@ -22,12 +22,18 @@
 ?>
 @php
     $displayField = isset($displayField) ? $displayField : 'name';
+    $relations = explode('.', $keyField);
+                                    
+    $attr = $row;
+    foreach($relations as $relation){
+        $attr = $attr->$relation;
+    }
     $keyField = isset($keyField) ? $keyField : 'id';
 @endphp
 
 @permission($permission)
 @if($action == 'destroy')    
-    <form id="deleteForm{{$row->$keyField}}" action="{{route($model.'.'.$action, ['$model' => $row->$keyField])}}" method="POST" style="display: inline">
+    <form id="deleteForm{{$attr}}" action="{{route($model.'.'.$action, ['$model' => $attr])}}" method="POST" style="display: inline">
         <span data-toggle="tooltip" data-placement="top" title="{{$tooltip}}" data-original-title="{{$tooltip}}">
              <button class="btn btn-sm btn-danger" type="button" data-toggle="modal" data-target="#confirmDelete" data-title="{{__('Remove Confirmation') }}" 
                 data-message="{{ __('strings.Remove').' '.__('models.'.$model).': "'.$row->$displayField.'"'}}?">
@@ -39,7 +45,7 @@
     </form>
 @else
     <span data-toggle="tooltip" data-placement="top" title="{{$tooltip}}" data-original-title="{{$tooltip}}">
-        <a href="{{route($model.'.'.$action, [$model => $row->$keyField])}}" class="btn btn-sm {{$btn_style}}"><span class="fas fa-{{$btn_icon}}" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="{{$tooltip}}" data-original-title="{{$tooltip}}"></span></a>
+        <a href="{{route($model.'.'.$action, [$model => $attr])}}" class="btn btn-sm {{$btn_style}}"><span class="fas fa-{{$btn_icon}}" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="{{$tooltip}}" data-original-title="{{$tooltip}}"></span></a>
     </span>
 @endif
 @endpermission

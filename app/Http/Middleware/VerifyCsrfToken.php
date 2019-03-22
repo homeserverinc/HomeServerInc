@@ -15,6 +15,7 @@ class VerifyCsrfToken extends Middleware
         '/enqueue-call',
         '/workflow-callback',
         '/pusher-presence',
-        '/workspace-events'
+        '/workspace-events',
+        '/stripe-webhook'
     ];
 }

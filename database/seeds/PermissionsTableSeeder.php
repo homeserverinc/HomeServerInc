@@ -456,6 +456,48 @@ class PermissionsTableSeeder extends Seeder
                 'display_name'  => 'Delete category-leads',
                 'description'   => 'Allow a User to Delete category-leads',
             ],
+            //FilteredLeads
+            [
+                'name'          => 'list-filtered-leads',
+                'display_name'  => 'List filtered-leads',
+                'description'   => 'Allow a User to List filtered-leads',
+            ],
+            [
+                'name'          => 'create-filtered-leads',
+                'display_name'  => 'Create filtered-leads',
+                'description'   => 'Allow a User to Create filtered-leads',
+            ],
+            [
+                'name'          => 'update-filtered-leads',
+                'display_name'  => 'Update filtered-leads',
+                'description'   => 'Allow a User to Update filtered-leads',
+            ],
+            [
+                'name'          => 'delete-filtered-leads',
+                'display_name'  => 'Delete filtered-leads',
+                'description'   => 'Allow a User to Delete filtered-leads',
+            ],
+             //Disputes
+            [
+                'name'          => 'list-disputes',
+                'display_name'  => 'List disputes',
+                'description'   => 'Allow a User to List disputes',
+            ],
+            [
+                'name'          => 'create-disputes',
+                'display_name'  => 'Create disputes',
+                'description'   => 'Allow a User to Create disputes',
+            ],
+            [
+                'name'          => 'update-disputes',
+                'display_name'  => 'Update disputes',
+                'description'   => 'Allow a User to Update disputes',
+            ],
+            [
+                'name'          => 'delete-disputes',
+                'display_name'  => 'Delete disputes',
+                'description'   => 'Allow a User to Delete disputes',
+            ],
         ]);
 
         /* define super administratir permissions */

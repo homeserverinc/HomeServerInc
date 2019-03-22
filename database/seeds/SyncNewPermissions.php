@@ -26,7 +26,7 @@ class SyncNewPermissions extends Seeder
 
         // Reading role permission modules
         foreach ($modules as $module => $value) {
-
+            $this->command->info($module);
             foreach (explode(',', $value) as $p => $perm) {
 
                 $permissionValue = $mapPermission->get($perm);
@@ -37,7 +37,7 @@ class SyncNewPermissions extends Seeder
                     'description' => ucfirst($permissionValue) . ' ' . ucfirst($module),
                 ])->id;
 
-                $this->command->info('Creating Permission to '.$permissionValue.' for '. $module);
+                //$this->command->info('Creating Permission to '.$permissionValue.' for '. $module);
             }
         }
 

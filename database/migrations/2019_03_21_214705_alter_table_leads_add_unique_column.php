@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AlterContractorsTableAddActiveColumn extends Migration
+class AlterTableLeadsAddUniqueColumn extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class AlterContractorsTableAddActiveColumn extends Migration
      */
     public function up()
     {
-        Schema::table('contractors', function (Blueprint $table) {
-            $table->boolean('active')->default(true);
+        Schema::table('leads', function (Blueprint $table) {
+            $table->boolean('unique')->nullable();
         });
     }
 
@@ -25,8 +25,8 @@ class AlterContractorsTableAddActiveColumn extends Migration
      */
     public function down()
     {
-        Schema::table('contractors', function (Blueprint $table) {
-            $table->dropColumn('active');
+        Schema::table('leads', function (Blueprint $table) {
+            $table->dropColumn('unique');
         });
     }
 }

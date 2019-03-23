@@ -13,6 +13,8 @@ return [
             'category-lead' => 'c,r,u,d',
             'question' => 'c,r,u,d',
             'lead' => 'c,r,u,d',
+            'filtered-lead' => 'c,r,u,d',
+            'dispute' => 'c,r,u,d',
             'site' => 'c,r,u,d',
             'quiz' => 'c,r,u,d',
             'phone' => 'c,r,u,d',
@@ -48,7 +50,6 @@ return [
             'plan' => 'r',
             'card' => 'c,r,u,d',
             'charge' => 'c,r,u,d',
-            'subscription' => 'c,r,u,d',
             'contractor' => 'u',
         ]
     ],

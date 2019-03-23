@@ -39,6 +39,9 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\AssociateLeads' => [
             'App\Listeners\SendLeadAssignNotification',
         ],
+        'App\Events\EmailNotification' => [
+            'App\Listeners\SendEmailNotification',
+        ],
     ];
 
     /**

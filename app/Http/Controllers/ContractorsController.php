@@ -27,13 +27,14 @@ class ContractorsController extends HomeServerController
     use ApiResponse;
 
     public $fields = [
-        'uuid' => 'UUID',
         'user.name' => 'Name',
         'company' => 'Company',
         'phone' => 'Phone',
         'address' => 'Address',
         'plan.name' => 'Plan',
         'wallet' => 'Wallet',
+        'blocked_reason' => 'Blocked Reason',
+        'payment_attempts' => 'Payment Attempts',
         'created_at' => 'Created',
     ];
 
@@ -49,12 +50,12 @@ class ContractorsController extends HomeServerController
         if (Auth::user()->canReadContractor()) {
             if ($request->searchField) {
                 $contractors = Contractor::where('name', 'like', '%'.$request->searchField.'%')
-                    ->orWhere('company', 'like', '%'.$request->searchField.'%')
-                    ->orderBy('created_at', 'desc')
-                    ->paginate();
+                ->orWhere('company', 'like', '%'.$request->searchField.'%')
+                ->orderBy('created_at', 'desc')
+                ->paginate();
             } else {
                 $contractors = Contractor::orderBy('created_at', 'desc')
-                    ->paginate();
+                ->paginate();
             }
         } else {
             return $this->accessDenied();
@@ -180,82 +181,109 @@ class ContractorsController extends HomeServerController
                         'amount'   => (float) $request->input('charge'),
                     ]);
 
-                   $charge = new Charge([
+                    $charge = new Charge([
                         'amount' => (float) $request->input('charge'),
                         'contractor_uuid' => $contractor->uuid,
                         'stripe_id' => $charge['id'],
                         'description' => 'Charge of '.((float) $request->input('charge')).' to '.$contractor->user->name.'.',
                         'card_uuid' => $card->uuid
-                   ]);
+                    ]);
 
-                   $charge = $this->createRecord($charge, false);
+                    $charge = $this->createRecord($charge, false);
 
-                   $contractor->increment('wallet', $charge->amount);
-                   
+                    $contractor->increment('wallet', $charge->amount);
+
                 }
 
-                 //subscribe contractor to plan
                 $plan = Plan::find($request->input('plan_uuid'));
-                if($request->filled('plan_uuid') && $contractor->wallet >= $contractor->plan->price){
+                if(!$request->filled('charge') && $request->filled('plan_uuid')){
+                    try{
+                       $charge = Stripe::charges()->create([
+                            'customer' => $contractor->stripe_id,
+                            'currency' => 'USD',
+                            'amount'   => (float) $plan->price
+                        ]);
+
+                        $charge = new Charge([
+                            'amount' => (float) $plan->price,
+                            'contractor_uuid' => $contractor->uuid,
+                            'stripe_id' => $charge['id'],
+                            'description' => 'Charge of '.((float) $plan->price).' to '.$contractor->user->name.'.',
+                            'card_uuid' => $card->uuid
+                        ]);
+
+                       $charge = $this->createRecord($charge, false);
+
+                       $contractor->increment('wallet', $charge->amount);
+                   }catch(\Stripe\Error\Card $e) {
+                        // Since it's a decline, \Stripe\Error\Card will be caught
+                        $body = $e->getJsonBody();
+                        $err  = $body['error'];
+                        return $this->warningMessage($err['message']);
+                   }
+               }
+
+                //subscribe contractor to plan
+               if($request->filled('plan_uuid') && $contractor->wallet >= $contractor->plan->price){
                     // $subscription = Stripe::subscriptions()->create($contractor->stripe_id, [
                     //     'plan' => $contractor->plan->uuid,
                     // ]);
                     //record subs to db
-                    switch ($plan->interval) {
-                        case 'day':
-                            $ends_at = \Carbon\Carbon::today()->addDays($plan->interval_count);
-                            break;
-                        case 'week':
-                            $ends_at = \Carbon\Carbon::today()->addWeeks($plan->interval_count);
-                            break;
-                        case 'year':
-                            $ends_at = \Carbon\Carbon::today()->addYears($plan->interval_count);
-                            break;
-                        default:
-                            $ends_at = null;
-                            break;
-                    }
-                    $subs = new Subscription([
-                        'contractor_uuid' => $contractor->uuid,
-                        'plan_uuid' => $plan->uuid,
-                        'name' => $plan->name,
-                        'stripe_id' => null,
-                        'closed' => 0,
-                        'trial_ends_at' => null,
-                        'ends_at' => $ends_at
-                    ]);
-
-                    if($plan->interval !== 'lead')
-                        $contractor->decrement('wallet', $plan->price);
-
-                    $subs = $this->createRecord($subs);
+                switch ($plan->interval) {
+                    case 'day':
+                    $ends_at = \Carbon\Carbon::today()->addDays($plan->interval_count);
+                    break;
+                    case 'week':
+                    $ends_at = \Carbon\Carbon::today()->addWeeks($plan->interval_count);
+                    break;
+                    case 'year':
+                    $ends_at = \Carbon\Carbon::today()->addYears($plan->interval_count);
+                    break;
+                    default:
+                    $ends_at = null;
+                    break;
                 }
+                $subs = new Subscription([
+                    'contractor_uuid' => $contractor->uuid,
+                    'plan_uuid' => $plan->uuid,
+                    'name' => $plan->name,
+                    'stripe_id' => null,
+                    'closed' => 0,
+                    'trial_ends_at' => null,
+                    'ends_at' => $ends_at
+                ]);
 
-                
-                $contractor = $this->updateRecord($contractor, false);
-                DB::commit();
+                if($plan->interval !== 'lead')
+                    $contractor->decrement('wallet', $plan->price);
 
-                return $this->createSuccess($contractor);
-
-            } catch(\Stripe\Error\Card $e) {
-                Stripe::customers()->delete($contractor->stripe_id);
-                DB::rollback();
-                $body = $e->getJsonBody();
-                $err  = $body['error'];
-
-                return $this->warningMessage($err['message']);
-
-            } catch (\Exception $e) {
-                Stripe::customers()->delete($contractor->stripe_id);
-                DB::rollback();
-                return $this->doOnException($e);
+                $subs = $this->createRecord($subs);
             }
-        } else {
-            return $this->accessDenied();
-        }
-    }
 
-   
+
+            $contractor = $this->updateRecord($contractor, false);
+            DB::commit();
+
+            return $this->createSuccess($contractor);
+
+        } catch(\Stripe\Error\Card $e) {
+            Stripe::customers()->delete($contractor->stripe_id);
+            DB::rollback();
+            $body = $e->getJsonBody();
+            $err  = $body['error'];
+
+            return $this->warningMessage($err['message']);
+
+        } catch (\Exception $e) {
+            Stripe::customers()->delete($contractor->stripe_id);
+            DB::rollback();
+            return $this->doOnException($e);
+        }
+    } else {
+        return $this->accessDenied();
+    }
+}
+
+
     /**
      * Show the form for editing the specified resource.
      *
@@ -332,7 +360,7 @@ class ContractorsController extends HomeServerController
         } else {
             return $this->accessDenied();
         }
-    
+
     }
 
     /**
@@ -392,17 +420,17 @@ class ContractorsController extends HomeServerController
                     //record subs to db
                     switch ($plan->interval) {
                         case 'day':
-                            $ends_at = \Carbon\Carbon::today()->addDays($plan->interval_count);
-                            break;
+                        $ends_at = \Carbon\Carbon::today()->addDays($plan->interval_count);
+                        break;
                         case 'week':
-                            $ends_at = \Carbon\Carbon::today()->addWeeks($plan->interval_count);
-                            break;
+                        $ends_at = \Carbon\Carbon::today()->addWeeks($plan->interval_count);
+                        break;
                         case 'year':
-                            $ends_at = \Carbon\Carbon::today()->addYears($plan->interval_count);
-                            break;
+                        $ends_at = \Carbon\Carbon::today()->addYears($plan->interval_count);
+                        break;
                         default:
-                            $ends_at = null;
-                            break;
+                        $ends_at = null;
+                        break;
                     }
                     $subs = new Subscription([
                         'contractor_uuid' => $contractor->uuid,
@@ -445,7 +473,7 @@ class ContractorsController extends HomeServerController
     {
         if (Auth::user()->canDeleteContractor()) {
             //all dependecies are deleted in model
-            
+
             Stripe::customers()->delete($contractor->stripe_id);
             
             return $this->deleteRecord($contractor);
@@ -460,12 +488,12 @@ class ContractorsController extends HomeServerController
     public function subscribe_plan(Request $request){
 
         if (Auth::user()->canCreateSubscription()) {
-            
+
             $plan = Plan::find($request->input('plan'));
             $contractor = $request->user()->contractor;
 
             try {
-            
+
                 DB::beginTransaction();
                 if($contractor->wallet >= $plan->price){
                     $subs = Subscription::where('contractor_uuid' , '=', $contractor->uuid)->latest()->first();
@@ -476,17 +504,17 @@ class ContractorsController extends HomeServerController
                     }
                     switch ($plan->interval) {
                         case 'day':
-                            $ends_at = \Carbon\Carbon::today()->addDays($plan->interval_count);
-                            break;
+                        $ends_at = \Carbon\Carbon::today()->addDays($plan->interval_count);
+                        break;
                         case 'week':
-                            $ends_at = \Carbon\Carbon::today()->addWeeks($plan->interval_count);
-                            break;
+                        $ends_at = \Carbon\Carbon::today()->addWeeks($plan->interval_count);
+                        break;
                         case 'year':
-                            $ends_at = \Carbon\Carbon::today()->addYears($plan->interval_count);
-                            break;
+                        $ends_at = \Carbon\Carbon::today()->addYears($plan->interval_count);
+                        break;
                         default:
-                            $ends_at = \Carbon\Carbon::today()->addWeeks(1);
-                            break;
+                        $ends_at = \Carbon\Carbon::today()->addWeeks(1);
+                        break;
                     }
                     $subs = new Subscription([
                         'contractor_uuid' => $contractor->uuid,
@@ -516,29 +544,36 @@ class ContractorsController extends HomeServerController
                     $contractor->decrement('wallet', $plan->price);
 
                     if($contractor->wallet <= $contractor->automatic_recharge_trigger){
-                        $stripeCharge = Stripe::charges()->create([
-                            'customer' => $contractor->stripe_id,
-                            'currency' => 'USD',
-                            'amount'   => (float) $contractor->automatic_recharge_amount,
-                        ]);
+                        try {
+                            $stripeCharge = Stripe::charges()->create([
+                                'customer' => $contractor->stripe_id,
+                                'currency' => 'USD',
+                                'amount'   => (float) $contractor->automatic_recharge_amount,
+                            ]);
 
-                        $charge = new Charge([
-                            'amount' => (float) $contractor->automatic_recharge_amount,
-                            'contractor_uuid' => $contractor->uuid,
-                            'stripe_id' => $stripeCharge['id'],
-                            'description' => 'Automatic recharge trigger: $'.((float) $contractor->automatic_recharge_amount).' to '.$contractor->user->name.'.',
-                            'card_uuid' => $contractor->default_card()->first()->uuid
-                        ]);
+                            $charge = new Charge([
+                                'amount' => (float) $contractor->automatic_recharge_amount,
+                                'contractor_uuid' => $contractor->uuid,
+                                'stripe_id' => $stripeCharge['id'],
+                                'description' => 'Automatic recharge trigger: $'.((float) $contractor->automatic_recharge_amount).' to '.$contractor->user->name.'.',
+                                'card_uuid' => $contractor->default_card()->first()->uuid
+                            ]);
 
-                        $charge = $this->createRecord($charge, false);
+                            $charge = $this->createRecord($charge, false);
 
-                        $contractor->increment('wallet', $contractor->automatic_recharge_amount);
+                            $contractor->increment('wallet', $contractor->automatic_recharge_amount);
+                        } catch(\Stripe\Error\Card $e) {
+                            // Since it's a decline, \Stripe\Error\Card will be caught
+                            $body = $e->getJsonBody();
+                            $err  = $body['error'];
+                            $this->warningMessage($err['message']);
+                        }
 
                     }
-                
+
                     $this->updateRecord($contractor);
 
-                   
+
                     DB::commit();
                     return response()->json(['success' => true, 'message' => 'Plan acquired with success!']);
                 }else{
@@ -571,17 +606,17 @@ class ContractorsController extends HomeServerController
                             }
                             switch ($plan->interval) {
                                 case 'day':
-                                    $ends_at = \Carbon\Carbon::today()->addDays($plan->interval_count);
-                                    break;
+                                $ends_at = \Carbon\Carbon::today()->addDays($plan->interval_count);
+                                break;
                                 case 'week':
-                                    $ends_at = \Carbon\Carbon::today()->addWeeks($plan->interval_count);
-                                    break;
+                                $ends_at = \Carbon\Carbon::today()->addWeeks($plan->interval_count);
+                                break;
                                 case 'year':
-                                    $ends_at = \Carbon\Carbon::today()->addYears($plan->interval_count);
-                                    break;
+                                $ends_at = \Carbon\Carbon::today()->addYears($plan->interval_count);
+                                break;
                                 default:
-                                    $ends_at = \Carbon\Carbon::today()->addWeeks(1);
-                                    break;
+                                $ends_at = \Carbon\Carbon::today()->addWeeks(1);
+                                break;
                             }
                             $subs = new Subscription([
                                 'contractor_uuid' => $contractor->uuid,
@@ -634,9 +669,9 @@ class ContractorsController extends HomeServerController
         if ($validator->fails()) {
             return $this->getApiResponse($validator, 'fail', $request->all());
         }
-       
+
         try {
-            
+
             DB::beginTransaction();
             
             $contractor = new Contractor($request->all());
@@ -649,7 +684,7 @@ class ContractorsController extends HomeServerController
 
             return $this->getApiResponse($contractor);
         } catch (\Exception $e) {
-            
+
             DB::rollback();
             return $this->getApiResponse($e->getMessage(), 'error', $request->all());
         }

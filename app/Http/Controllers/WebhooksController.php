@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Site;
 use App\User;
 use App\Agent;
+use App\Dispute;
 use App\Language;
+use App\Charge;
 use App\MissedCall;
 use App\TwilioWorker;
 use App\UserActivity;
@@ -107,6 +109,29 @@ class WebhooksController extends Controller
             event(new NewMissedCall($missedCall, env('SMS_TO_NUMBER')));
         } catch (\Exception $e) {
             Log::error('taskCanceled@WebhooksController: '.$e->getMessage());
+        }
+    }
+
+    public function stripeWebhook(Request $request){
+        try{     
+            $charge = Charge::where('stripe_id', '=', $request->input('data.object.charge'))->first();
+            if($charge){
+                Dispute::Create(
+                    [
+                        'charge_uuid' => $charge->uuid,
+                        'stripe_id' => $request->input('data.object.id'),
+                        'reason' => $request->input('data.object.reason'),
+                        'type' => $request->input('type'),
+                        'status' => $request->input('data.object.status'),
+                        'evidences' => json_encode($request->input('data.object.evidence')),
+                    ]
+                );
+                $charge->contractor->update(['active' => 0, 'blocked_reason' => $request->input('type')]);
+            }
+
+        } catch(\Exception $e){
+            response()->json($e->getMessage());
+            Log::error('stripeWebhook@WebhooksController: '.$e->getMessage());
         }
     }
 }

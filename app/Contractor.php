@@ -44,7 +44,10 @@ class Contractor extends Model
         'wallet',
         'automatic_recharge_amount',
         'automatic_recharge_trigger',
-        'active'
+        'active',
+        'payment_attempts',
+        'block_reason',
+
     ];
 
     public static function boot() {

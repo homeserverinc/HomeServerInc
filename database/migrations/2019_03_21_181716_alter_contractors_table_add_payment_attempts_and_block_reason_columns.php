@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AlterContractorsTableAddActiveColumn extends Migration
+class AlterContractorsTableAddPaymentAttemptsAndBlockReasonColumns extends Migration
 {
     /**
      * Run the migrations.
@@ -14,7 +14,9 @@ class AlterContractorsTableAddActiveColumn extends Migration
     public function up()
     {
         Schema::table('contractors', function (Blueprint $table) {
-            $table->boolean('active')->default(true);
+            $table->integer('payment_attempts')->nullable();
+            $table->string('block_reason', 250)->nullable();
+
         });
     }
 
@@ -26,7 +28,7 @@ class AlterContractorsTableAddActiveColumn extends Migration
     public function down()
     {
         Schema::table('contractors', function (Blueprint $table) {
-            $table->dropColumn('active');
+            $table->dropColumns(['payment_attempts', 'block_reason']);
         });
     }
 }

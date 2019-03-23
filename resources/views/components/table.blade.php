@@ -99,16 +99,17 @@
                                 @endif
                             @else
                                 @php
-                                    $relation = explode('.', $field);
-                                    $attr = '';
-                                    if(count($relation) > 1){
-                                        $field = $relation[0];
-                                        $attr = $relation[1];
+                                    $relations = explode('.', $field);
+                                    
+                                    $attr = $row;
+                                    foreach($relations as $relation){
+                                        $attr = $attr->$relation;
                                     }
+                                    
                                 @endphp
                                 <td scope="row">
-                                    <div {{ is_numeric($row->$field) ? 'align=right' : ''}}>
-                                        {{ $row->$field->$attr ?? ($row->$field ?? 'Null')}}
+                                    <div {{ is_numeric($attr) ? 'align=right' : ''}}>
+                                        {{ $attr ?? 'Null'}}
                                     </div>
                                 </td>
                             @endif

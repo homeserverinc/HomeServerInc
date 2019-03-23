@@ -41,7 +41,8 @@ class Lead extends Model
         'questions',
         'verified_data',
         'closed',
-        'category_lead_uuid'
+        'category_lead_uuid',
+        'unique'
     ];
 
     public function customer() {
@@ -54,6 +55,10 @@ class Lead extends Model
 
     public function category_lead() {
         return $this->belongsTo(CategoryLead::class);
+    }
+
+    public function filtered_lead() {
+        return $this->hasOne(FilteredLead::class);
     }
 
     public function contractors() {

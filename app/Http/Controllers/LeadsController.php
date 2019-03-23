@@ -10,6 +10,7 @@ use App\Contact;
 use App\Answer;
 use App\Category;
 use App\CategoryLead;
+use App\FilteredLead;
 use App\Customer;
 use App\traits\ApiResponse;
 use Illuminate\Http\Request;
@@ -20,6 +21,8 @@ use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Session;
 use App\Http\Controllers\HomeServerController;
 use App\Events\AssociateLeads;
+use App\Events\EmailNotification;
+use Faker\Factory as Faker;
 
 class LeadsController extends HomeServerController
 {
@@ -30,11 +33,14 @@ class LeadsController extends HomeServerController
         'uuid' => 'UUID',
         'category.category' => 'Category',
         'customer.first_name' => 'Customer',
-        'created_at' => 'Created',
+        'customer.email1' => 'Email',
+        'customer.phone1' => 'Phone',
         'closed' => [
             'label' => 'Closed',
             'type' => 'bool'
-        ]
+        ],
+        'created_at' => 'Created',
+        
     ];
 
     protected $modelName = 'lead';
@@ -55,9 +61,9 @@ class LeadsController extends HomeServerController
                         $query->where('customers.first_name', 'like', '%'.$request->searchField.'%');
                     })->orWhereHas('category', function($query) use($request){
                         $query->where('categories.category', 'like', '%'.$request->searchField.'%');
-                    })->orderBy('leads.created_at', 'desc')->paginate();
+                    })->orderBy('leads.created_at', 'desc')->doesntHave('filtered_lead')->doesntHave('contractors')->paginate();
                 } else {
-                    $leads = Lead::orderBy('leads.created_at', 'desc')
+                    $leads = Lead::orderBy('leads.created_at', 'desc')->doesntHave('filtered_lead')->doesntHave('contractors')
                                 ->paginate();
                 }
                 
@@ -120,15 +126,18 @@ class LeadsController extends HomeServerController
         
         if (Auth::user()->canCreateLead()) {
             $this->validate($request, [
-            
+                'phone1' => 'string|required|max:25',
+                'email1' => 'email|required|max:100|unique:customers,email1',
+                'first_name' => 'string|required',
             ]);
             try {
                 DB::beginTransaction();
-
+                $request['verified_data'] = $request['verified_data'] ?? false;
+                $request['unique'] = $request['unique'] ?? false;
                 $customer = Customer::firstOrNew([
                     'first_name' => $request->first_name,
                     'email1' => $request->email1
-                ]);            
+                ]); 
     
                 $customer->fill($request->all());
     
@@ -148,6 +157,7 @@ class LeadsController extends HomeServerController
     
                 $lead = $this->createRecord($lead, false);
 
+                event( new EmailNotification($lead->customer));
                 event(new AssociateLeads($lead));
                 
                 DB::commit();
@@ -200,11 +210,14 @@ class LeadsController extends HomeServerController
     public function update(Request $request, Lead $lead)
     {
         $this->validate($request, [
-
+            'phone1' => 'string|required|max:25',
+            'email1' => 'email|required|max:100|unique:customers,email1,'.$lead->customer->uuid.',uuid',
+            'first_name' => 'string|required',
         ]);
         try {
             DB::beginTransaction();
-
+            $request['verified_data'] = $request['verified_data'] ?? false;
+            $request['unique'] = $request['unique'] ?? false;
             $customer = Customer::firstOrNew([
                 'first_name' => $request->first_name,
                 'email1' => $request->email1
@@ -222,7 +235,9 @@ class LeadsController extends HomeServerController
             $lead->category_uuid = $request->category_uuid;
 
             $lead = $this->updateRecord($lead, false);
-
+            if($request->filled('verified_data') && $lead->verified_data){
+                $lead->filtered_lead->update(['user_id' => Auth::id(), 'accepted' => true]);
+            }
             
             DB::commit();
 
@@ -284,7 +299,10 @@ class LeadsController extends HomeServerController
             }
 
             $customer->fill(json_decode(json_encode($data->customer), true));
-
+            if(!$customer->email1){
+                $faker = Faker::create();
+                $customer->email1 = $faker->email;
+            }
             $customer = $this->createRecord($customer, false);
             
             $lead = Lead::firstOrNew([
@@ -300,7 +318,11 @@ class LeadsController extends HomeServerController
             $lead->questions = json_encode($data->questions);
             $lead->category_lead_uuid = $this->categorize_lead($lead)->uuid;
             $newLead = $this->createRecord($lead, false);
+            if(!isset($faker)){
+                event( new EmailNotification($newLead->customer));
+            }
             event(new AssociateLeads($newLead));
+
             DB::commit();
 
             return $this->getApiResponse('Ok');
@@ -398,4 +420,21 @@ class LeadsController extends HomeServerController
             return $this->getApiResponse($e, 'error');
         }
     }
+
+    public function dispatch_lead(Request $request){
+        if (Auth::user()->canUpdateLead()) {
+            try{
+                $lead = Lead::findOrFail($request->input('lead'));
+                $lead->closed=1;
+                $lead->verified_data=1;
+                $lead->update();
+                event(new AssociateLeads($lead));
+                return response()->json(['success' => true, 'message' => 'Lead dispatched!']);
+
+            }catch(\Exception $e){
+                return $this->getApiResponse($e, 'Lead not found or cannot be dispatched');
+            }
+        }
+    }
+
 }

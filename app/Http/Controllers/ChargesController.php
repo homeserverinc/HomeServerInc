@@ -19,7 +19,7 @@ class ChargesController extends HomeServerController
 
     use ApiResponse;
 
-     public $fields = [
+    public $fields = [
         'description' => 'Description',
         'amount' => 'Amount (USD)',
         'card.card_last_four' => 'Card last four',
@@ -38,18 +38,18 @@ class ChargesController extends HomeServerController
      */
     public function index(Request $request)
     {
-         if (Auth::user()->canReadCharge()) {
+       if (Auth::user()->canReadCharge()) {
             if ($request->searchField) {
                 if(Auth::user()->hasRole('superadministrator'))
                     $charges = Charge::where('description', 'like', '%'.$request->searchField.'%')
-                    ->orWhere('amount', 'like', '%'.$request->searchField.'%')
-                    ->orderBy('created_at', 'desc')
-                    ->paginate();
+                ->orWhere('amount', 'like', '%'.$request->searchField.'%')
+                ->orderBy('created_at', 'desc')
+                ->paginate();
                 else
                     $charges = Charge::where('contractor_uuid', '=', $request->user()->contractor->uuid)
-                    ->where('description', 'like', '%'.$request->searchField.'%')                    
-                    ->orderBy('created_at', 'desc')
-                    ->paginate();
+                ->where('description', 'like', '%'.$request->searchField.'%')                    
+                ->orderBy('created_at', 'desc')
+                ->paginate();
             } else {
                 $charges = Auth::user()->hasRole('superadministrator') ? Charge::orderBy('created_at', 'desc')->paginate()  : Charge::orderBy('created_at', 'desc')->where('contractor_uuid', '=', $request->user()->contractor->uuid)->paginate();
             }
@@ -91,7 +91,7 @@ class ChargesController extends HomeServerController
                 'charge' => 'required|numeric',
                 'card' => 'required|exists:cards,uuid'
             ]);
-                    
+
             try {
                 DB::beginTransaction();
 
@@ -102,33 +102,43 @@ class ChargesController extends HomeServerController
                         $amount = (float) $request->input('charge');
                         if($amount >= 300)
                             $amount += ceil($amount * 0.10);
-                        $charge = Stripe::charges()->create([
-                            'customer' => $contractor->stripe_id,
-                            'currency' => 'USD',
-                            'amount'   => $amount,
-                            'source' => $card->stripe_id
-                        ]);
+                        try{
+                            $charge = Stripe::charges()->create([
+                                'customer' => $contractor->stripe_id,
+                                'currency' => 'USD',
+                                'amount'   => $amount,
+                                'source' => $card->stripe_id
+                            ]);
+                            
+                            $charge = new Charge([
+                                'amount' => $amount,
+                                'contractor_uuid' => $contractor->uuid,
+                                'stripe_id' => $charge['id'],
+                                'description' => 'Charge of '.($amount).' to '.$contractor->user->name.'.',
+                                'card_uuid' => $card->uuid
+                            ]);
 
-                        $charge = new Charge([
-                            'amount' => $amount,
-                            'contractor_uuid' => $contractor->uuid,
-                            'stripe_id' => $charge['id'],
-                            'description' => 'Charge of '.($amount).' to '.$contractor->user->name.'.',
-                            'card_uuid' => $card->uuid
-                        ]);
+                            $chargeUpdated = $this->createRecord($charge);
+                            $contractor->increment('wallet', $charge->amount);
 
+                        }catch(\Stripe\Error\Card $e) {
+                            // Since it's a decline, \Stripe\Error\Card will be caught
+                            $body = $e->getJsonBody();
+                            $err  = $body['error'];
+
+                            if($contractor->payment_attempts < 3)
+                                $contractor->increment('payment_attempts', 1);
+                            else
+                                $contractor->update(['active' => 0, 'block_reason' => $err['message']]);
+                        } catch(\Exception $e){
+                            return $this->doOnException($e);
+                        }
                     }else{
-
                         return $this->warningMessage("Card desactivated. Can't charge with this card.");
                     }
-
-                   $chargeUpdated = $this->createRecord($charge);
-
-                   $contractor->increment('wallet', $charge->amount);
-
                 }
 
-            
+
                 DB::commit();
 
                 return $chargeUpdated;

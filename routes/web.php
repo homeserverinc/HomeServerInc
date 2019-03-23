@@ -39,6 +39,7 @@ Route::post('dequeue', 'CallsController@dequeueCall');
 Route::post('/workspace-events', 'WebhooksController@workspaceEvents');
 
 Route::post('/pusher-presence', 'WebhooksController@pusherPresenceEvent');
+Route::post('/stripe-webhook', 'WebhooksController@stripeWebhook');
 
 
 Route::prefix('/user')->group(function() {
@@ -112,12 +113,15 @@ Route::prefix('/admin')->middleware(['auth:web'])->group(function() {
     
 
     Route::post('/contractor/subscribe_plan', 'ContractorsController@subscribe_plan')->name('subscribe_plan');
+    Route::post('/lead/dispatch_lead', 'LeadsController@dispatch_lead')->name('dispatch_lead');
+    
     Route::get('/contractor/edit_profile', 'ContractorsController@edit_profile')->name('contractor_edit_profile');
     Route::match(['put', 'patch'], '/contractor/update_profile/{contractor}', 'ContractorsController@update_profile')->name('contractor_update_profile');
     Route::resource('/card', 'CardsController')->except('show');
     Route::resource('/plan', 'PlansController')->except('show');
-
+    Route::resource('/filtered_lead', 'FilteredLeadsController');
     Route::resource('/charge', 'ChargesController')->except('show');
+    Route::resource('/dispute', 'DisputesController')->except('show');
 
     /* methods used by Vue */
     Route::post('/crud-questions/add_question', 'QuestionsController@vueAddQuestion');

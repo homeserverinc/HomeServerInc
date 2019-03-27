@@ -72,10 +72,8 @@ class CardsController extends HomeServerController
     public function create()
     {
         if (Auth::user()->canCreateCard()) {
-            $months = [];
-            for($i=1; $i < 13; $i++) $months[$i] = $i;
-            $years = [];
-            for($i=date('Y'); $i < date('Y')+20; $i++) $years[$i] = $i;
+            $months = Config::get('constants.months');
+            $years = Config::get('constants.years');
             return View('card.create', ['months' => $months, 'years' => $years]);
         } else {
             return $this->accessDenied();
@@ -159,10 +157,8 @@ class CardsController extends HomeServerController
     public function edit(Card $card)
     {
         if (Auth::user()->canUpdateCard()) {
-            $months = [];
-            for($i=1; $i < 13; $i++) $months[$i] = $i;
-            $years = [];
-            for($i=date('Y'); $i < date('Y')+20; $i++) $years[$i] = $i;
+            $months = Config::get('constants.months');
+            $years = Config::get('constants.years');
             return View('card.edit', [
                 'card' => $card,
                 'months' => $months,
@@ -233,7 +229,7 @@ class CardsController extends HomeServerController
      */
     public function destroy(Card $card)
     {
-        if (Auth::user()->canDeleteContractor()) {
+        if (Auth::user()->canDeleteCard()) {
 
             Stripe::cards()->delete($card->contractor->stripe_id, $card->stripe_id);
             

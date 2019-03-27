@@ -5,16 +5,14 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\Uuidable;
 
-class Dispute extends Model
+class ImageType extends Model
 {
     use Uuidable;
-
 	/**
      * The primary key for the model.
      *
      * @var string
      */
-
     protected $primaryKey = 'uuid';
 
     /**
@@ -22,28 +20,25 @@ class Dispute extends Model
      *
      * @var string
      */
-
     protected $keyType = 'string';
      /**
      * Indicates if the IDs are auto-incrementing.
      *
      * @var bool
      */
-
     public $incrementing = false;
 
     public $fillable = [
-        'evidences',
-        'status',
-        'type',
-        'reason',
-        'stripe_id',
-        'charge_uuid'
+        'type'
     ];
 
+    protected $dates = [
+        'created_at',
+        'update_at'
+    ];
 
-    public function charge(){
-        return $this->belongsTo(Charge::class);
+    public function images(){
+    	return $this->hasMany(Image::class);
     }
-    
+
 }

@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateDisputesTable extends Migration
+class CreateImageTypesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,17 +13,10 @@ class CreateDisputesTable extends Migration
      */
     public function up()
     {
-        Schema::create('disputes', function (Blueprint $table) {
+        Schema::create('image_types', function (Blueprint $table) {
             $table->uuid('uuid')->primary();
-            $table->uuid('charge_uuid');
-            $table->string('stripe_id');
-            $table->string('reason');
             $table->string('type');
-            $table->string('status');
-            $table->string('evidences');
             $table->timestamps();
-
-            // $table->foreign('charge_uuid')->references('uuid')->on('charges');
         });
     }
 
@@ -34,6 +27,6 @@ class CreateDisputesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('disputes');
+        Schema::dropIfExists('image_types');
     }
 }

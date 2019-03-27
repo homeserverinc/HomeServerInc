@@ -122,6 +122,10 @@ Route::prefix('/admin')->middleware(['auth:web'])->group(function() {
     Route::resource('/filtered_lead', 'FilteredLeadsController');
     Route::resource('/charge', 'ChargesController')->except('show');
     Route::resource('/dispute', 'DisputesController')->except('show');
+    Route::resource('/text', 'TextsController')->except('show');
+    Route::resource('/text_type', 'TextTypesController')->except('show');
+    Route::resource('/image', 'ImagesController')->except('show');
+    Route::resource('/image_type', 'ImageTypesController')->except('show');
 
     /* methods used by Vue */
     Route::post('/crud-questions/add_question', 'QuestionsController@vueAddQuestion');

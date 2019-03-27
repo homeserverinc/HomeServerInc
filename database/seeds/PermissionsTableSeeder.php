@@ -497,6 +497,90 @@ class PermissionsTableSeeder extends Seeder
                 'name'          => 'delete-disputes',
                 'display_name'  => 'Delete disputes',
                 'description'   => 'Allow a User to Delete disputes',
+            ],             
+            //Texts
+            [
+                'name'          => 'list-texts',
+                'display_name'  => 'List texts',
+                'description'   => 'Allow a User to List texts',
+            ],
+            [
+                'name'          => 'create-texts',
+                'display_name'  => 'Create texts',
+                'description'   => 'Allow a User to Create texts',
+            ],
+            [
+                'name'          => 'update-texts',
+                'display_name'  => 'Update texts',
+                'description'   => 'Allow a User to Update texts',
+            ],
+            [
+                'name'          => 'delete-texts',
+                'display_name'  => 'Delete texts',
+                'description'   => 'Allow a User to Delete texts',
+            ],             
+            //TextTypes
+            [
+                'name'          => 'list-text-types',
+                'display_name'  => 'List text-types',
+                'description'   => 'Allow a User to List text-types',
+            ],
+            [
+                'name'          => 'create-text-types',
+                'display_name'  => 'Create text-types',
+                'description'   => 'Allow a User to Create text-types',
+            ],
+            [
+                'name'          => 'update-text-types',
+                'display_name'  => 'Update text-types',
+                'description'   => 'Allow a User to Update text-types',
+            ],
+            [
+                'name'          => 'delete-text-types',
+                'display_name'  => 'Delete text-types',
+                'description'   => 'Allow a User to Delete text-types',
+            ],
+            //ImageTypes
+            [
+                'name'          => 'list-image-types',
+                'display_name'  => 'List image-types',
+                'description'   => 'Allow a User to List image-types',
+            ],
+            [
+                'name'          => 'create-image-types',
+                'display_name'  => 'Create image-types',
+                'description'   => 'Allow a User to Create image-types',
+            ],
+            [
+                'name'          => 'update-image-types',
+                'display_name'  => 'Update image-types',
+                'description'   => 'Allow a User to Update image-types',
+            ],
+            [
+                'name'          => 'delete-image-types',
+                'display_name'  => 'Delete image-types',
+                'description'   => 'Allow a User to Delete image-types',
+            ],
+            //Image
+            [
+                'name'          => 'list-image',
+                'display_name'  => 'List image',
+                'description'   => 'Allow a User to List image',
+            ],
+            [
+                'name'          => 'create-image',
+                'display_name'  => 'Create image',
+                'description'   => 'Allow a User to Create image',
+            ],
+            [
+                'name'          => 'update-image',
+                'display_name'  => 'Update image',
+                'description'   => 'Allow a User to Update image',
+            ],
+            [
+                'name'          => 'delete-image',
+                'display_name'  => 'Delete image',
+                'description'   => 'Allow a User to Delete image',
             ],
         ]);
 

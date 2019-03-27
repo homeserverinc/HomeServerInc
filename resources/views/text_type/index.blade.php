@@ -3,12 +3,12 @@
 @section('content')
     @component('components.table', [
         'captions' => $fields, 
-        'rows' => $disputes, 
-        'model' => 'dispute',
-        'tableTitle' => 'Disputes',
-        'displayField' => 'reason',
+        'rows' => $text_types, 
+        'model' => 'text_type',
+        'tableTitle' => 'Text Types',
+        'displayField' => 'type',
         'keyField' => 'uuid',
-        'actions' => []
+        'actions' => ['edit', 'destroy']
         ]);
     @endcomponent
 @endsection

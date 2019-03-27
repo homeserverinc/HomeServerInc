@@ -60,6 +60,6 @@ window.Echo = new Echo({
     wsPort: process.env.MIX_PUSHER_SRV_PORT,
     wssPort: process.env.MIX_PUSHER_SRV_PORT,
     disableStats: false,
-    encrypted: true,
+    encrypted: true, 
     enabledTransports: ['ws', 'wss']
 });

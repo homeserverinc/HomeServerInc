@@ -12,4 +12,5 @@
     @yield('content-no-app')
     @include('layouts.bottom_scripts')
     @stack('bottom-scripts')
+    
 @endsection

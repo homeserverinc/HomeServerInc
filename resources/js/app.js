@@ -33,13 +33,13 @@ const app = new Vue({
         Echo.join('OnlineUsers')
             .here((users) => {
                 //console.log(users);
-            })
+            }) 
             .joining((user) => {
                 //console.log('Joining ' + user.name)
             })
             .leaving((user) => {
                 //console.log('Leaving ' + user.name)
-            })
+            });
     },
     components: {
         'agent-status-component': AgentStatusComponent,

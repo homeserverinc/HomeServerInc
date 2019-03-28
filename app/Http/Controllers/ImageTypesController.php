@@ -19,7 +19,7 @@ class ImageTypesController extends HomeServerController
     ];
 
     public $modelName = 'image_type';
-    public $recordName = 'uuid';
+    public $recordName = 'type';
 
     /**
      * Display a listing of the resource.

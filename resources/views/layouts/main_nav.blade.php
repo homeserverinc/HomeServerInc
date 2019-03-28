@@ -52,8 +52,26 @@
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownSites" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Sites
                 </a>
-                <div class="dropdown-menu" aria-labelledby="navbarDropdownSites">
+                <ul class="dropdown-menu" aria-labelledby="navbarDropdownSites">
                     <a class="dropdown-item" href="{{ route('site.index') }}">Sites</a>
+                    <li>
+                        <a class="dropdown-item dropdown-toggle" href="#">Resources</a>
+                        <ul class="dropdown-menu">
+                            @permission('read-image')
+                            <li><a class="dropdown-item" href="{{ route('image.index') }}">Images</a></li>
+                            @endpermission
+                            @permission('read-image-type')
+                            <li><a class="dropdown-item" href="{{ route('image_type.index') }}">Image Types</a></li>
+                            @endpermission
+                            <div class="dropdown-divider"></div>
+                            @permission('read-text')
+                            <li><a class="dropdown-item" href="{{ route('text.index') }}">Texts</a></li>
+                            @endpermission
+                            @permission('read-text-type')
+                            <li><a class="dropdown-item" href="{{ route('text_type.index') }}">Text Types</a></li>
+                            @endpermission
+                        </ul>
+                    </li>
                     <div class="dropdown-divider"></div>
                     @permission('read-site-contact') 
                         <a class="dropdown-item" href="{{ route('site_contact.index') }}">Contacts</a>
@@ -64,7 +82,7 @@
                     {{--  <a class="dropdown-item" href="#">Another action</a>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item" href="#">Something else here</a>  --}}
-                </div>
+                </ul>
             </li>
             @endability
 

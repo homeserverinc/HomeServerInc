@@ -19,7 +19,7 @@ class TextTypesController extends HomeServerController
     ];
 
     public $modelName = 'text_type';
-    public $recordName = 'uuid';
+    public $recordName = 'type';
 
     /**
      * Display a listing of the resource.

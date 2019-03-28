@@ -23,5 +23,10 @@ return [
     'missed_call' => 'Missed Call',
     'quiz' => 'Quiz',
     'site_contact' => 'Site Contact',
-    'contractor' => 'Contractor'
+    'contractor' => 'Contractor',
+    'text' => 'Text',
+    'text_type' => 'Text Type',
+    'image' => 'Image',
+    'image_type' => 'Image Type',
+    'page' => 'Page'
 ];

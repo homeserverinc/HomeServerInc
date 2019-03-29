@@ -112,6 +112,12 @@ Route::prefix('/admin')->middleware(['auth:web'])->group(function() {
     Route::post('/get-current-worker-activity', 'TwilioWorkersController@getCurrentTwilioActivity')->name('get-current-worker-activity');
     
 
+    /**
+     * Twilio Client Routes
+     */
+
+    Route::get('/twilio_client/get_token/{agent}', 'TwilioApiController@getToken');
+
     Route::post('/contractor/subscribe_plan', 'ContractorsController@subscribe_plan')->name('subscribe_plan');
     Route::post('/lead/dispatch_lead', 'LeadsController@dispatch_lead')->name('dispatch_lead');
     

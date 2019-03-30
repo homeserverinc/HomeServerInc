@@ -103,7 +103,7 @@
                                     
                                     $attr = $row;
                                     foreach($relations as $relation){
-                                        $attr = $attr->$relation;
+                                        $attr = $attr->$relation ?? '';
                                     }
                                     
                                 @endphp

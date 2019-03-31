@@ -318,12 +318,13 @@ class LeadsController extends HomeServerController
             $lead->questions = json_encode($data->questions);
             $lead->category_lead_uuid = $this->categorize_lead($lead)->uuid;
             $newLead = $this->createRecord($lead, false);
+
+            DB::commit();
+
             if(!isset($faker)){
                 event( new EmailNotification($newLead->customer));
             }
-            event(new AssociateLeads($newLead));
-
-            DB::commit();
+            event(new AssociateLeads($newLead));            
 
             return $this->getApiResponse('Ok');
     

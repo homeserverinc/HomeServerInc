@@ -299,10 +299,19 @@ class LeadsController extends HomeServerController
             }
 
             $customer->fill(json_decode(json_encode($data->customer), true));
-            if(!$customer->email1){
+            
+            /**
+             * ToDo:
+             * Make a method that gerenate email address with 
+             * random mail providers and random patterns (regex)
+             * based on the customer data.
+             */
+
+            /* if(!$customer->email1){
                 $faker = Faker::create();
                 $customer->email1 = $faker->email;
-            }
+            } */
+
             $customer = $this->createRecord($customer, false);
             
             $lead = Lead::firstOrNew([
@@ -321,8 +330,8 @@ class LeadsController extends HomeServerController
 
             DB::commit();
 
-            if(!isset($faker)){
-                event( new EmailNotification($newLead->customer));
+            if($customer->email1) {
+                event(new EmailNotification($newLead->customer));
             }
             event(new AssociateLeads($newLead));            
 

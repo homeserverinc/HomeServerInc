@@ -14,7 +14,7 @@ return [
             'question' => 'c,r,u,d',
             'lead' => 'c,r,u,d',
             'filtered-lead' => 'c,r,u,d',
-            'dispute' => 'c,r,u,d',
+            'dispute' => 'r',
             'text' => 'c,r,u,d',
             'text-type' => 'c,r,u,d',
             'image-type' => 'c,r,u,d',

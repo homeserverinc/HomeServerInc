@@ -112,7 +112,7 @@
 
             {{--  leads  --}}
         
-            @ability(Auth::user()->roles->first()->name, 'read-lead|read-filtered-lead', ['validate_all' => true])
+            @ability(Auth::user()->roles->first()->name, 'read-lead|read-filtered-lead', ['validate_all' => false])
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownServices" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Leads

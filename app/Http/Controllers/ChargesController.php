@@ -71,7 +71,11 @@ class ChargesController extends HomeServerController
     public function create()
     {
         if (Auth::user()->canCreateCharge()) {
-            $cards = Auth::user()->contractor->cards;
+            if (Auth::user()->hasRole('contractor')) {
+                $cards = Auth::user()->contractor->cards->active;
+            } else {
+                $cards = Card::Active()->paginate();
+            }
             return View('charge.create', ['cards' => $cards]);
         } else {
             return $this->accessDenied();

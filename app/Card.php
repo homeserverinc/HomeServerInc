@@ -51,4 +51,8 @@ class Card extends Model
     	return $this->belongsTo(Contractor::class);
     }
 
+    public function scopeActive($query) {
+        return $query->where('active', true);
+    }
+
 }

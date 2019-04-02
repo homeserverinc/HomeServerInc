@@ -40,18 +40,18 @@ class ChargesController extends HomeServerController
     {
        if (Auth::user()->canReadCharge()) {
             if ($request->searchField) {
-                if(Auth::user()->hasRole('superadministrator'))
-                    $charges = Charge::where('description', 'like', '%'.$request->searchField.'%')
-                ->orWhere('amount', 'like', '%'.$request->searchField.'%')
-                ->orderBy('created_at', 'desc')
-                ->paginate();
-                else
+                if(Auth::user()->hasRole('contractor'))
                     $charges = Charge::where('contractor_uuid', '=', $request->user()->contractor->uuid)
-                ->where('description', 'like', '%'.$request->searchField.'%')                    
-                ->orderBy('created_at', 'desc')
-                ->paginate();
+                        ->where('description', 'like', '%'.$request->searchField.'%')                    
+                        ->orderBy('created_at', 'desc')
+                        ->paginate();
+                else
+                    $charges = Charge::where('description', 'like', '%'.$request->searchField.'%')
+                        ->orWhere('amount', 'like', '%'.$request->searchField.'%')
+                        ->orderBy('created_at', 'desc')
+                        ->paginate();    
             } else {
-                $charges = Auth::user()->hasRole('superadministrator') ? Charge::orderBy('created_at', 'desc')->paginate()  : Charge::orderBy('created_at', 'desc')->where('contractor_uuid', '=', $request->user()->contractor->uuid)->paginate();
+                $charges = Auth::user()->hasRole('contractor') ? Charge::orderBy('created_at', 'desc')->where('contractor_uuid', '=', $request->user()->contractor->uuid)->paginate() : Charge::orderBy('created_at', 'desc')->paginate();
             }
         } else {
             return $this->accessDenied();

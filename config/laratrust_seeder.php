@@ -26,7 +26,7 @@ return [
             'contractor' => 'c,r,u,d',
             'plan' => 'c,r,u,d',
             'card' => 'c,r,u,d',
-            'charge' => 'c,r,u,d',
+            'charge' => 'c,r',
             'subscription' => 'c,r,u,d',
             'twilio-configuration' => 'r,u',
             'sip-domain' => 'c,r,u,d',

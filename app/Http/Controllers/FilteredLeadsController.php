@@ -30,8 +30,8 @@ class FilteredLeadsController extends HomeServerController
      */
     public function index(Request $request)
     {
-        if (Auth::user()->canReadLead()) {
-            if (Auth::user()->canReadContractor()) {
+        if (Auth::user()->canReadFilteredLead()) {
+            /* if (Auth::user()->canReadContractor()) { */
                 if ($request->searchField) {
                     $leads = FilteredLead::where('reason', 'like', '%'.$request->searchField.'%')
                     ->where('accepted', '=', 0)
@@ -41,9 +41,9 @@ class FilteredLeadsController extends HomeServerController
                     $leads = FilteredLead::orderBy('created_at', 'desc')->where('accepted', '=', 0)
                     ->paginate();
                 }
-            } else {
+            /* } else {
                 return $this->accessDenied();
-            }
+            } */
             return View('filtered_leads.index', ['filtered_leads' => $leads,'fields' => $this->fields]);
         } else {
             return $this->accessDenied();

@@ -32,15 +32,7 @@ class CardsController extends HomeServerController
     public function index(Request $request)
     {
         if (Auth::user()->canReadCard()) {
-            if(Auth::user()->hasRole('superadministrator')){
-                if ($request->searchField) {
-                    $cards = Card::where('brand', 'like', '%'.$request->searchField.'%')
-                    ->orWhere('card_last_four', 'like', '%'.$request->searchField.'%')
-                    ->paginate();
-                } else {
-                    $cards = Card::paginate();
-                }
-            }elseif(Auth::user()->hasRole('contractor')){
+            if(Auth::user()->hasRole('contractor')){
                 if ($request->searchField) {
                     $cards = 
                     Card::where('contractor_uuid', '=', Auth::user()->contractor->uuid)
@@ -51,6 +43,14 @@ class CardsController extends HomeServerController
                     ->paginate();
                 } else {
                     $cards = Card::where('contractor_uuid', '=', Auth::user()->contractor->uuid)->paginate();
+                }
+            } else {
+                if ($request->searchField) {
+                    $cards = Card::where('brand', 'like', '%'.$request->searchField.'%')
+                    ->orWhere('card_last_four', 'like', '%'.$request->searchField.'%')
+                    ->paginate();
+                } else {
+                    $cards = Card::paginate();
                 }
             }
            

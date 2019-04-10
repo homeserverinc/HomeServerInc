@@ -49,9 +49,9 @@ class CallsController extends Controller
         if (isset($request->To)) {
             $numberTo = explode('@', $request->To)[0];
             $numberTo = explode(':', $numberTo)[1];
-            $spelledNumber = join(',', str_split($request->to));
+            /* $spelledNumber = join(',', str_split($request->to));
             $spelledNumber = join(',', str_split($numberTo));
-            $response->say('Calling to '.$spelledNumber);
+            $response->say('Calling to '.$spelledNumber); */
             $response->dial([
                 'callerId' => '+1 857-214-2300'
             ])->number($numberTo);

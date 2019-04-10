@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\User;
 use App\Phone;
 use App\SipDomain;
+use App\MusicOnHold;
 use App\TwilioWorker;
 use App\SipCredential;
 use App\TwilioActivity;
@@ -14,6 +15,7 @@ use App\SipCredentialList;
 use Twilio\Jwt\ClientToken;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Twilio\TwiML\VoiceResponse;
 use App\SipCredentialListSipDomain;
 use Illuminate\Support\Facades\Log;
 use Twilio\Rest\Api\V2010\Account\IncomingPhoneNumberInstance;
@@ -219,5 +221,12 @@ class TwilioApiController extends Controller
                                 ->workspaces($twilioWorkspace->sid)
                                 ->activities
                                 ->read();
+    }
+
+    public function playMoH() {
+        $moh = MusicOnHold::first();
+        $response = new VoiceResponse();
+        $response->play($moh->short_url);
+        return $response;
     }
 }

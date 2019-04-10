@@ -34,7 +34,8 @@ Route::post('/workflow-callback', 'CallsController@workflowCallbak');
 Route::get('/callstatus', 'CallsController@callStatus');
 Route::get('/outgoing', 'CallsController@outgoing');
 Route::get('/sipstatus', 'CallsController@sipStatus');
-Route::post('dequeue', 'CallsController@dequeueCall');
+Route::post('/dequeue', 'CallsController@dequeueCall');
+Route::get('/playmoh', 'TwilioApiController@playMoH');
 
 Route::post('/workspace-events', 'WebhooksController@workspaceEvents');
 

@@ -17,4 +17,12 @@ class TwilioActivity extends Model
     public function twilio_workspace() {
         return $this->belongsTo(TwilioWorkspace::class);
     }
+
+    public function scopeActivityName($query, $activity) {
+        return $query->where('friendly_name', $activity);
+    }
+
+    public function scopedActivitySid($query, $sid) {
+        return $query->where('sid', $sid);
+    }
 }

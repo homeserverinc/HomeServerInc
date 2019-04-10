@@ -20,15 +20,12 @@ window.Vue = require('vue');
 //var csrf_token = $('meta[name="csrf-token"]').attr('content');
 
 Vue.prototype.$csrf_token = $('meta[name="csrf-token"]').attr('content');
-//console.log(csrf_token);
+
 import AgentStatusComponent from './components/AgentStatusComponent';
-import IncomingCallComponent from './components/IncomingCallComponent';
+import PhoneCallComponent from './components/phone_calls/PhoneCallComponent';
 
 const app = new Vue({
     el: '#app',
-   /*  props: [
-        workerSid
-    ], */
     mounted() {
         Echo.join('OnlineUsers')
             .here((users) => {
@@ -43,6 +40,6 @@ const app = new Vue({
     },
     components: {
         'agent-status-component': AgentStatusComponent,
-        'incoming-call-component': IncomingCallComponent
+        PhoneCallComponent
     }
 });

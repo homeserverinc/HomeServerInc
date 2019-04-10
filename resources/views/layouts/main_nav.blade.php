@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom border-secondary">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <a class="navbar-brand" href="{{ url('/') }}">
         {{--  <img src="{{ asset('images/company_logo.png') }}">  --}}
         {{ env('APP_NAME') }}
@@ -194,6 +194,9 @@
                     @permission('read-missed-call')
                     <a class="dropdown-item" href="{{route('missed_call.index')}}">Missed Calls</a>
                     @endpermission
+                    @permission('read-music-on-hold')
+                    <a class="dropdown-item" href="{{route('music_on_hold.index')}}">Music on Hold</a>
+                    @endpermission
                 </div> 
             </li> 
             @endability
@@ -211,7 +214,7 @@
             <li class="nav-item">
                 <agent-status-component 
                     worker-sid='{!! session()->get("_WORKER")->sid !!}'
-                    workspace-sid="'{!! session()->get('_WORKER')->twilio_workspace->sid !!}'"
+                    workspace-sid='{!! session()->get("_WORKER")->twilio_workspace->sid !!}'
                     user-id="{!! Auth::id() !!}">
                 </agent-status-component>
             </li>
@@ -221,7 +224,7 @@
                     <i class="fas fa-user-circle fa-lg"></i>  {{ Auth::user()->name }} 
                 </a>
                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarUser">
-                    <a class="dropdown-item" href="{{ Auth::user()->hasRole('contractor') ? route('contractor_edit_profile') : route('user.profile')}}"><i class="fas fa-user-cog"></i> Minha Conta</a>
+                    <a class="dropdown-item" href="{{ Auth::user()->hasRole('contractor') ? route('contractor_edit_profile') : route('user.profile')}}"><i class="fas fa-user-cog"></i> My Account</a>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item" href="{{ route('logout') }}"
                         onclick="event.preventDefault();
@@ -237,7 +240,7 @@
         </ul>
     </div>
 </nav>
-<incoming-call-component
-    user-id="{{ Auth::id() }}" 
-    dst-route="{{ route('lead.create') }}">
-</incoming-call-component>
+<phone-call-component
+            user-id="{{ Auth::id() }}" 
+            dst-route="{{ route('lead.create') }}">
+</phone-call-component>

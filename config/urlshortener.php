@@ -13,6 +13,5 @@ return [
 		
 		// Use a prefix for the generated URL code
 		'url_prefix_code' => env('URLSHORTENER_URL_PREFIX_CODE', "__")
-		
 ];
 

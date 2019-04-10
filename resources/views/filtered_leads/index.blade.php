@@ -4,7 +4,7 @@
     @component('components.table', [
         'captions' => $fields, 
         'rows' => $filtered_leads, 
-        'model' => 'lead',
+        'model' => 'filtered_lead',
         'tableTitle' => 'Leads filtered',
         'displayField' => 'reason',
         'keyField' => 'lead.uuid',

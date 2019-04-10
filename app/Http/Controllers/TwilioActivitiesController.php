@@ -7,6 +7,7 @@ use App\TwilioWorkspace;
 use App\TwilioConfiguration;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use App\Http\Controllers\HomeServerController;
@@ -146,5 +147,13 @@ class TwilioActivitiesController extends HomeServerController
         } else {
             return $this->accessDenied();
         }
+    }
+
+    public function getActivityByName(Request $request) {
+        $workspace = TwilioWorkspace::where('sid', $request->workspace)->first();
+        $twilioActivity = TwilioActivity::ActivityName($request->activity)
+                                        ->where('twilio_workspace_id', $workspace->id)
+                                        ->first();
+        return response()->json($twilioActivity);
     }
 }

@@ -2,12 +2,10 @@
 
 namespace App;
 
-use App\City;
-use App\Lead;
 use App\Traits\Uuidable;
 use Illuminate\Database\Eloquent\Model;
 
-class Customer extends Model
+class MusicOnHold extends Model
 {
     use Uuidable;
 
@@ -31,21 +29,6 @@ class Customer extends Model
      * @var bool
      */
     public $incrementing = false;
-    
-    public $fillable = [
-        'first_name',
-        'last_name',
-        'street',
-        'city',
-        'state',
-        'zip',
-        'email1',
-        'email2',
-        'phone1', 
-        'phone2',
-    ];
 
-    public function leads() {
-        return $this->hasMany(Lead::class);
-    }
+    protected $guarded = [];
 }

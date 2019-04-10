@@ -16,6 +16,7 @@ class TwilioWorkspace extends Model
     ];
 
     protected $visible = [
+        'id',
         'sid',
         'friendly_name'
     ];

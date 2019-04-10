@@ -29,7 +29,7 @@ class CallsController extends Controller
     public function getToken() {
         $capability = new ClientToken(env('TWILIO_ACCOUNT_SID'), env('TWILIO_AUTH_TOKEN'));
         $capability->allowClientOutgoing(env('TWILIO_APP_SID'));
-        //$capability->allowClientIncoming('teste');
+        //$capability->allowClientIncoming(Auth::user()->agent->client_name);
         return $capability->generateToken();
     }
 
@@ -44,20 +44,22 @@ class CallsController extends Controller
     public function outgoing(Request $request) {
         $response = new Twiml();
 
-        //Log::info($request);
+        //Log::debug($request->all());
 
         if (isset($request->To)) {
             $numberTo = explode('@', $request->To)[0];
             $numberTo = explode(':', $numberTo)[1];
             $spelledNumber = join(',', str_split($request->to));
             $spelledNumber = join(',', str_split($numberTo));
-            //$response->say('Calling to '.$spelledNumber);
+            $response->say('Calling to '.$spelledNumber);
             $response->dial([
                 'callerId' => '+1 857-214-2300'
             ])->number($numberTo);
         } else {
             $response->say('The number to call is missing!');
         }
+
+        Log::debug($response);
         return $response;
     }
 
@@ -283,6 +285,8 @@ class CallsController extends Controller
     public function ura(Request $request) {
         $response = new Twiml();
         
+        Log::debug($request->all());
+
         $site = Phone::where('phone_number', $request->Called)->first()->site;
 
         //Log::debug($request->all());

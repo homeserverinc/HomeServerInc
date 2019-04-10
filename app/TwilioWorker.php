@@ -18,7 +18,8 @@ class TwilioWorker extends Model
     protected $visible = [
         'id',
         'sid',
-        'friendly_name'
+        'friendly_name',
+        'twilio_workspace_id'
     ];
 
     public function twilio_workspace() {

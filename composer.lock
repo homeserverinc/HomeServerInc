@@ -1,10 +1,10 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "77337849f6b24feca879f3cacc89568c",
+    "content-hash": "0c43e48dc1ae2f44ad364c0446855002",
     "packages": [
         {
             "name": "arietimmerman/laravel-url-shortener",

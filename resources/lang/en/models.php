@@ -28,5 +28,6 @@ return [
     'text_type' => 'Text Type',
     'image' => 'Image',
     'image_type' => 'Image Type',
-    'page' => 'Page'
+    'page' => 'Page',
+    'music_on_hold' => 'Music On Hold'
 ];

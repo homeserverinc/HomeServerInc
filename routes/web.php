@@ -110,6 +110,7 @@ Route::prefix('/admin')->middleware(['auth:web'])->group(function() {
     Route::get('/quiz/{quiz_uuid}/questions', 'QuestionsController@getQuestionsFromQuiz');
     Route::post('/update-worker-activity', 'TwilioWorkersController@updateTwilioActivity')->name('update-worker-activity');
     Route::post('/get-current-worker-activity', 'TwilioWorkersController@getCurrentTwilioActivity')->name('get-current-worker-activity');
+    Route::post('/get-activity-by-name', 'TwilioActivitiesController@getActivityByName');
     
 
     /**
@@ -174,6 +175,7 @@ Route::prefix('/admin')->middleware(['auth:web'])->group(function() {
     Route::resource('/twilio_workflow', 'TwilioWorkflowsController')->except(['show', 'create', 'store', 'destroy']);
     Route::resource('/twilio_activity', 'TwilioActivitiesController')->except(['show', 'create', 'store', 'destroy']);
     Route::resource('/twilio_configuration', 'TwilioConfigurationsController')->except(['show', 'create', 'store', 'destroy']);
+    Route::resource('/music_on_hold', 'MusicOnHoldsController')->except('show');
 
 
     /* Route::get('/teste', function() {

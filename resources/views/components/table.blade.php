@@ -83,19 +83,32 @@
                         @foreach($captions as $field => $caption)
                             @if(is_array($caption))
                                 @if($caption['type'] == 'bool')
-                                <td scope="row">{{ __(($row->$field == '1') ? 'Yes' : 'No') }}</td>
+                                <td scope="row" class="align-middle">{{ __(($row->$field == '1') ? 'Yes' : 'No') }}</td>
                                 @endif
                                 @if($caption['type'] == 'datetime')
-                                <td scope="row">{{ date_format(date_create($row->$field), 'd/m/Y H:i:s') }}</td>
+                                <td scope="row" class="align-middle">{{ date_format(date_create($row->$field), 'd/m/Y H:i:s') }}</td>
                                 @endif
                                 @if($caption['type'] == 'date')
-                                <td scope="row">{{ date_format(date_create($row->$field), 'd/m/Y') }}</td>
+                                <td scope="row" class="align-middle">{{ date_format(date_create($row->$field), 'd/m/Y') }}</td>
                                 @endif
                                 @if($caption['type'] == 'decimal')
-                                <td scope="row"><div align="right">{{ number_format($row->$field, $caption['decimais'], ',', '.') }}</div></td>
+                                <td scope="row" class="align-middle"><div align="right">{{ number_format($row->$field, $caption['decimais'], ',', '.') }}</div></td>
                                 @endif
                                 @if($caption['type'] == 'list')
-                                <td scope="row"><div align="right">{{ $caption['values'][$row->$field] }}</div></td>
+                                <td scope="row" class="align-middle"><div align="right">{{ $caption['values'][$row->$field] }}</div></td>
+                                @endif
+                                @if($caption['type'] == 'audio') 
+                                <td scope="row" class="text-center align-middle">
+                                    <audio controls="controls" style="outline: none">
+                                        <source src="{{ url($row->$field)}}" type="audio/ogg">
+                                        Your browser does not support the audio element.
+                                    </audio>                                
+                                </td>
+                                @endif
+                                @if($caption['type'] == 'url')
+                                    <td scope="row" class="align-middle">
+                                        {{ str_replace(env('APP_URL'), env('APP_SHORT_URL'), url($row->$field)) }}
+                                    </td>
                                 @endif
                             @else
                                 @php
@@ -107,7 +120,7 @@
                                     }
                                     
                                 @endphp
-                                <td scope="row">
+                                <td scope="row" class="align-middle">
                                     <div {{ is_numeric($attr) ? 'align=right' : ''}}>
                                         {{ $attr ?? 'Null'}}
                                     </div>
@@ -115,7 +128,7 @@
                             @endif
                         @endforeach
                         
-                        <td scope="row" class="text-center">
+                        <td scope="row" class="text-center align-middle">
                             @if(is_array($actions))
                                 @foreach($actions as $action)
                                     @if(is_array($action))

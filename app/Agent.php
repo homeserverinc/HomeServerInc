@@ -14,6 +14,7 @@ class Agent extends Model
 {
     protected $fillable = [
         'user_id', 
+        'client_name',
         'agent_status_id', 
         'app_client_type', 
         'sip_credential_id',

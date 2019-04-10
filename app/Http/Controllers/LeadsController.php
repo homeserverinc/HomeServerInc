@@ -157,7 +157,7 @@ class LeadsController extends HomeServerController
     
                 $lead = $this->createRecord($lead, false);
 
-                event( new EmailNotification($lead->customer));
+                event(new EmailNotification($lead->customer));
                 event(new AssociateLeads($lead));
                 
                 DB::commit();
@@ -289,14 +289,10 @@ class LeadsController extends HomeServerController
         try {
             DB::beginTransaction();
 
-            if ($data->customer->uuid) {
-                $customer = Customer::find($data->customer->uuid);
-            } else {
-                $customer = Customer::firstOrNew([
-                    'first_name' => $data->customer->first_name,
-                    'email1' => $data->customer->email1
-                ]);            
-            }
+            $customer = Customer::firstOrNew([
+                'first_name' => $data->customer->first_name,
+                'email1' => $data->customer->email1
+            ]);            
 
             $customer->fill(json_decode(json_encode($data->customer), true));
             
@@ -315,7 +311,9 @@ class LeadsController extends HomeServerController
             $customer = $this->createRecord($customer, false);
             
             $lead = Lead::firstOrNew([
-                'uuid' => $data->lead_uuid
+                'customer_uuid' => $customer->uuid,
+                'closed' => false,
+                'verified_data' => false
             ]);
 
             $lead->deadline = $data->deadline;

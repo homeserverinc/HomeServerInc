@@ -27,19 +27,22 @@
                                         'label' => 'Image',
                                         'required' => true,
                                         'inputSize' => 4
-                                    ],[
+                                    ],
+                                    [
                                         'type' => 'text',
                                         'field' => 'width',
                                         'label' => 'Width',
                                         'required' => true,
                                         'inputSize' => 4
-                                    ],[
+                                    ],
+                                    [
                                         'type' => 'text',
                                         'field' => 'height',
                                         'label' => 'Height',
                                         'required' => true,
                                         'inputSize' => 4
-                                    ],[
+                                    ],
+                                    [
                                         'type' => 'select',
                                         'field' => 'category_uuid',
                                         'label' => 'Categories',
@@ -50,7 +53,8 @@
                                         'liveSearch' => true,
                                         'defaultNone' => true,
                                         'inputSize' => 6
-                                    ],[
+                                    ],
+                                    [
                                         'type' => 'select',
                                         'field' => 'image_type_uuid',
                                         'label' => 'Image type',

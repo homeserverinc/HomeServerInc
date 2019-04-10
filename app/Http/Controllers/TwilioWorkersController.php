@@ -90,27 +90,33 @@ class TwilioWorkersController extends HomeServerController
 
     public function updateTwilioActivity(Request $request)
     {
+        Log::debug($request->all());
         $twilioWorker = TwilioWorker::where('sid', $request->twilio_worker_sid)->first();
         $twilioWorkspace = $twilioWorker->twilio_workspace;
-        $twilioActivity = TwilioActivity::find($request->twilio_activity_id);
+        $twilioActivity = TwilioActivity::where('sid', $request->twilio_activity_sid)->first();
 
-        return (new TwilioApiController)->updateTaskRouterWorkerActivity(
+        $twilioWorker = (new TwilioApiController)->updateTaskRouterWorkerActivity(
                     $twilioWorkspace,
                     $twilioWorker,
                     $twilioActivity
         );
+
+
+        return $twilioWorker;
     }
 
     public function getCurrentTwilioActivity(Request $request) {
         $twilioWorker = TwilioWorker::where('sid', $request->twilio_worker_sid)->first();
         $twilioWorkspace = $twilioWorker->twilio_workspace;
 
-        $result = (new TwilioApiController)->getTaskRouterWorkerCurrentActivity(
+        $twilioActivitySid = (new TwilioApiController)->getTaskRouterWorkerCurrentActivity(
                     $twilioWorkspace,
                     $twilioWorker
                 );
 
-        Log::debug('getCurrentTwilioActivity: '.$result->activityName);
+        return response()->json(TwilioActivity::where('sid', $twilioActivitySid->activitySid)->first());
+        //return response()->json($result);
+        /* Log::debug('getCurrentTwilioActivity: '.$result->activityName);
         switch ($result->activityName) {
             case 'Offline':
                 $st = 0;
@@ -126,7 +132,7 @@ class TwilioWorkersController extends HomeServerController
                 break;
         }
 
-        return $st;
+        return $st; */
     }
 
 }

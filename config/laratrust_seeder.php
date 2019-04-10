@@ -32,6 +32,7 @@ return [
             'sip-domain' => 'c,r,u,d',
             'sip-credential-list' => 'c,r,u,d',
             'sip-credential' => 'c,r,u,d',
+            'music-on-hold' => 'c,r,u,d',
             'twilio-workspace' => 'r,u,d',
             'missed-call' => 'r,u',
             'twilio-activity' => 'r,u',

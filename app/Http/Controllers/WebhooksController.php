@@ -45,7 +45,7 @@ class WebhooksController extends Controller
 
     public function workspaceEvents(Request $request) {
         try {
-            Log::debug($request->EventType);
+            Log::debug($request->all());
             switch ($request->EventType) {
                 case 'worker.activity.update':
                     $this->workerActivityUpdate($request);

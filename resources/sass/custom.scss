@@ -45,3 +45,13 @@
 .pagination{
     margin-bottom: 0px !important;
 } 
+
+.phone-alert-box {
+    z-index: 20000;
+    min-width: 25.90rem;
+    max-width: 30rem;
+    max-height: 25rem;
+    position: absolute;
+    padding: 0.25rem;
+    right: 0;
+}

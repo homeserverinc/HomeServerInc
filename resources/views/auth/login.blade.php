@@ -51,6 +51,7 @@ html,body{
         </div>
     </div>
 </div>
+@endsection
 <script type="text/javascript">
 var owa_baseUrl = "https://owa.homeserverinc.com";
 document.write(unescape("<script src='" + owa_baseUrl + "modules/base/js/owa.tracker-combined-min.js' type='text/javascript'> </script>"));
@@ -68,4 +69,3 @@ try {
     console.log(err);
 }
 </script>
-@endsection

@@ -52,14 +52,11 @@ html,body{
     </div>
 </div>
 <script type="text/javascript">
-//<![CDATA[
 var owa_baseUrl = "https://owa.homeserverinc.com";
 document.write(unescape("<script src='" + owa_baseUrl + "modules/base/js/owa.tracker-combined-min.js' type='text/javascript'> </script>"));
-//]]>
 </script>
 
 <script type="text/javascript">
-//<![CDATA[
 try {
    OWA.setSetting('baseUrl', owa_baseUrl);
    OWATracker = new OWA.tracker();
@@ -70,6 +67,5 @@ try {
 } catch(err) {
     console.log(err);
 }
-//]]>
 </script>
 @endsection

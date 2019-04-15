@@ -52,20 +52,3 @@ html,body{
     </div>
 </div>
 @endsection
-<script type="text/javascript">
-var owa_baseUrl = "https://owa.homeserverinc.com";
-document.write(unescape("<script src='" + owa_baseUrl + "modules/base/js/owa.tracker-combined-min.js' type='text/javascript'> </script>"));
-</script>
-
-<script type="text/javascript">
-try {
-   OWA.setSetting('baseUrl', owa_baseUrl);
-   OWATracker = new OWA.tracker();
-   OWATracker.setSiteId('c79c0258e4b5b759ccb7c4f3f3c2b738');
-   OWATracker.trackPageView();
-   OWATracker.trackClicks();
-   OWATracker.trackDomStream();
-} catch(err) {
-    console.log(err);
-}
-</script>

@@ -252,10 +252,10 @@ class CallsController extends Controller
 
     public function callStatus(Request $request) {
         Log::debug($request);
-        if ($request->CallStatus == 'completed') {
+        /* if ($request->CallStatus == 'completed') {
             $agent = $this->getAgentByCall($this->getCallBySid($request->CallSid));
             event(new CallEnded($agent->user_id));
-        }
+        } */
     }
 
     public function getCallBySid($sid) {

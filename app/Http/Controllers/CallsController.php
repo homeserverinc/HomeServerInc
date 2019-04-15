@@ -251,8 +251,8 @@ class CallsController extends Controller
     }
 
     public function callStatus(Request $request) {
+        Log::debug($request);
         if ($request->CallStatus == 'completed') {
-            Log::debug($request);
             $agent = $this->getAgentByCall($this->getCallBySid($request->CallSid));
             event(new CallEnded($agent->user_id));
         }

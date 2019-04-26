@@ -393,6 +393,7 @@ class LeadsController extends HomeServerController
                 }
             }
         }
+        Log::debug("weight: ".$weight);
         $category = Category::find($lead->category_uuid);
         $selected = null;
         if($category !== null){
@@ -400,6 +401,8 @@ class LeadsController extends HomeServerController
             $min = 0;
             $max = $category_leads->shift();
             foreach($category_leads as $category_lead){
+                Log::debug("min: ".$min);
+                Log::debug("max: ".$max->pivot->weight);
                 if($weight >= $min && $weight <= $max->pivot->weight){
                     $selected = $max;
                     break;
@@ -413,8 +416,7 @@ class LeadsController extends HomeServerController
                 }
             }
         }
-        
-
+        Log::debug("category lead selected: ".$selected->name);
         return $selected;
     }
 

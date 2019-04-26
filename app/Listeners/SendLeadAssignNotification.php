@@ -139,6 +139,9 @@ class SendLeadAssignNotification
                         }else{
                             //get lead price
                             $price = $event->lead->category->category_leads()->where('category_lead_uuid', '=', $event->lead->category_lead->uuid)->first()->pivot->price;
+                            //new rule = if is by lead, take the individual price of category_lead and divide by 4.8
+                            if($contractor->plan->interval === 'lead')
+                                $price = round($price / 4.8, 2);
                             //if has enough in wallet
                             if($contractor->wallet >= $price){
                                 //if plan is unique leads

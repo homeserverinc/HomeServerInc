@@ -189,6 +189,7 @@ const actions = {
     updateExistingAnswer({commit}, answer) {
         Axios.post('/admin/crud-questions/edit_answer', qs.stringify(answer))
             .then(async r => {
+                console.log(qs.stringify(answer));
                 console.log(r);
                 commit(VALID_MUTATIONS.UPDATE_ANSWER, r.data);
             })

@@ -317,7 +317,7 @@ export default {
             };
         },
         showEditAnswer() {
-            this.populateEditAnswer();
+            this.populateEditAnswer(this.answer.next_question_uuid);
             this.$refs.editAnswerRef.show();
         },
         showLinkQuestionModal() {

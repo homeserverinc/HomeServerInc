@@ -7,6 +7,7 @@ use App\Plan;
 use App\Charge;
 use App\Customer;
 use App\FilteredLead;
+use App\Events\NewLeadSms;
 use App\Events\AssociateLeads;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -86,7 +87,7 @@ class SendLeadAssignNotification
      * @return void
      */
     public function handle(AssociateLeads $event)
-    {   
+    {      
         //verify if is all ok
         if(!$this->badWords($event->lead) && !$this->duplicity($event->lead) && $event->lead->verified_data && $event->lead->closed){
             $count = 0;
@@ -126,11 +127,13 @@ class SendLeadAssignNotification
                                     if($contractor->plan->unique_leads || $event->lead->unique){
                                         $contractor->leads()->syncWithoutDetaching($event->lead);
                                         Mail::to($contractor->user->email)->send(new LeadAssigned($event->lead));
+                                        event(new NewLeadSms($contractor->phone, $event->lead->customer->first_name, $event->lead->customer->last_name, $event->lead->customer->street, $event->lead->customer->phone1 ));
                                         break;
                                     }else{
                                         if($count < $contractor->plan->share_count){
                                             $contractor->leads()->syncWithoutDetaching($event->lead);
                                             Mail::to($contractor->user->email)->send(new LeadAssigned($event->lead));
+                                            event(new NewLeadSms($contractor->phone, $event->lead->customer->first_name, $event->lead->customer->last_name, $event->lead->customer->street, $event->lead->customer->phone1 ));
                                             $count++;
                                         }
                                     }
@@ -147,7 +150,6 @@ class SendLeadAssignNotification
                                 //if plan is unique leads
                                 if($contractor->plan->unique_leads || $event->lead->unique){
                                     $contractor->leads()->syncWithoutDetaching($event->lead);
-                                    Mail::to($contractor->user->email)->send(new LeadAssigned($event->lead));
                                     $contractor->decrement('wallet', (float) $price);
                                     $count++;
                                     $charge = new Charge([
@@ -158,12 +160,13 @@ class SendLeadAssignNotification
                                         'card_uuid' => $contractor->default_card()->first()->uuid
                                     ]);
                                     $charge->save();
+                                    Mail::to($contractor->user->email)->send(new LeadAssigned($event->lead));
+                                    event(new NewLeadSms($contractor->phone, $event->lead->customer->first_name, $event->lead->customer->last_name, $event->lead->customer->street, $event->lead->customer->phone1 ));
                                     break;
                                 }else{
                                     //if the leads assignment is less then the share count and the qnt leads 
                                     if($contractor->plan->qnt_leads == null || $contractor->plan->qnt_leads == 0 || $count < $contractor->plan->share_count && $count < $contractor->plan->qnt_leads){
                                         $contractor->leads()->syncWithoutDetaching($event->lead);
-                                        Mail::to($contractor->user->email)->send(new LeadAssigned($event->lead));
                                         $contractor->decrement('wallet', (float) $price);
                                         $count++;
                                         $charge = new Charge([
@@ -174,6 +177,8 @@ class SendLeadAssignNotification
                                             'card_uuid' => $contractor->default_card()->first()->uuid
                                         ]);
                                         $charge->save();
+                                        Mail::to($contractor->user->email)->send(new LeadAssigned($event->lead));
+                                        event(new NewLeadSms($contractor->phone, $event->lead->customer->first_name, $event->lead->customer->last_name, $event->lead->customer->street, $event->lead->customer->phone1 ));
                                     }
                                 }
                                 
@@ -219,7 +224,6 @@ class SendLeadAssignNotification
                                         //if plan is unique leads
                                         if($contractor->plan->unique_leads || $event->lead->unique){
                                             $contractor->leads()->syncWithoutDetaching($event->lead);
-                                            Mail::to($contractor->user->email)->send(new LeadAssigned($event->lead));
                                             $contractor->decrement('wallet', (float) $price);
                                             $count++;
                                             $charge = new Charge([
@@ -229,13 +233,14 @@ class SendLeadAssignNotification
                                                 'description' => 'New Lead '.$event->lead->category_lead->name.' assigned : -$'.((float) $price).' to '.$contractor->user->name.'.',
                                                 'card_uuid' => $contractor->default_card()->first()->uuid
                                             ]);
+                                            Mail::to($contractor->user->email)->send(new LeadAssigned($event->lead));
+                                            event(new NewLeadSms($contractor->phone, $event->lead->customer->first_name, $event->lead->customer->last_name, $event->lead->customer->street, $event->lead->customer->phone1 ));
                                             $charge->save();
                                             break;
                                         }else{
                                             //if the leads assignment is less then the share count and the qnt leads 
                                             if($count < $contractor->plan->share_count && $count < $contractor->plan->qnt_leads){
                                                 $contractor->leads()->syncWithoutDetaching($event->lead);
-                                                Mail::to($contractor->user->email)->send(new LeadAssigned($event->lead));
                                                 $contractor->decrement('wallet', (float) $price);
                                                 $count++;
                                                 $charge = new Charge([
@@ -246,6 +251,8 @@ class SendLeadAssignNotification
                                                     'card_uuid' => $contractor->default_card()->first()->uuid
                                                 ]);
                                                 $charge->save();
+                                                Mail::to($contractor->user->email)->send(new LeadAssigned($event->lead));
+                                                event(new NewLeadSms($contractor->phone, $event->lead->customer->first_name, $event->lead->customer->last_name, $event->lead->customer->street, $event->lead->customer->phone1 ));
                                             }
                                         }
                                         

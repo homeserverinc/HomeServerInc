@@ -36,7 +36,7 @@ class MissedCallsController extends HomeServerController
                 $missedCalls = DB::table('missed_calls')
                                     ->select('missed_calls.*', 'sites.name as to', 'languages.language')
                                     ->join('sites', 'sites.uuid', 'missed_calls.site_uui')
-                                    ->join('languages', 'languages.id', 'missed_calls.language_id')
+                                    ->leftJoin('languages', 'languages.id', 'missed_calls.language_id')
                                     ->where(function($query) use ($agent) {
                                         $query->where('agent_id', $agent)
                                               ->orWhereNull('agent_id');
@@ -49,7 +49,7 @@ class MissedCallsController extends HomeServerController
                 $missedCalls = DB::table('missed_calls')
                                     ->select('missed_calls.*', 'sites.name as to', 'languages.language')
                                     ->join('sites', 'sites.uuid', 'missed_calls.site_uuid')
-                                    ->join('languages', 'languages.id', 'missed_calls.language_id')
+                                    ->leftJoin('languages', 'languages.id', 'missed_calls.language_id')
                                     ->where(function($query) use ($agent) {
                                         $query->where('agent_id', $agent)
                                               ->orWhereNull('agent_id');

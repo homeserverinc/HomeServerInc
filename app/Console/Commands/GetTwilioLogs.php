@@ -40,7 +40,7 @@ class GetTwilioLogs extends Command
     {
         try {
             $callLogsController = new CallLogsController;
-            $callLogsController->syncLogs($this->option('notify'));
+            $callLogsController->syncLogs(($this->option('notify') == "true"));
         } catch (\Exception $e) {
             Log::error("Error getting Twilio call logs: " . $e->getMessage());
         }

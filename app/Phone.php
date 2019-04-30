@@ -25,4 +25,8 @@ class Phone extends Model
     public function site() {
         return $this->hasOne(Site::class);
     }
+
+    public function scopeNumber($query, $number) {
+        return $query->where('phone_number', $number);
+    }
 }

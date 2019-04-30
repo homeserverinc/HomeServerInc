@@ -255,7 +255,7 @@ class CallsController extends Controller
         /* if ($request->CallStatus == 'completed') {
             $agent = $this->getAgentByCall($this->getCallBySid($request->CallSid));
             event(new CallEnded($agent->user_id));
-        } */
+        }  */
     }
 
     public function getCallBySid($sid) {
@@ -359,5 +359,12 @@ class CallsController extends Controller
         //Log::debug($response);
 
         return $response;
+    }
+
+    public function getCallLogs($from = null, $to = '+17813125934', $callStatus = 'no-answer') {
+        dd($this->getClient()->calls->read(array(
+            'status' => $callStatus,
+            'to' => $to
+        ), 20));
     }
 }

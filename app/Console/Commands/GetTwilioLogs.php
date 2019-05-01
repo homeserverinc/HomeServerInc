@@ -39,6 +39,7 @@ class GetTwilioLogs extends Command
     public function handle()
     {
         try {
+            Log::debug('Executing GetTwilioLogs command...');
             $callLogsController = new CallLogsController;
             $callLogsController->syncLogs(($this->option('notify') == "true"));
         } catch (\Exception $e) {

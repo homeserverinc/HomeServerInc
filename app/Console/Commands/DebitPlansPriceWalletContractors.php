@@ -42,7 +42,7 @@ class DebitPlansPriceWalletContractors extends Command
 
         $subs = Subscription::whereHas('plan', function($query){
             $query->where('plans.interval', '!=', 'lead');
-        })->whereDate('ends_at', '=', \Carbon\Carbon::today())->where('closed', '=', 0)->where('interval', '!=', 'lead')->get();
+        })->whereDate('ends_at', '=', \Carbon\Carbon::today())->where('closed', '=', 0)->get();
         foreach($subs as $sub){
             if($sub->contractor->wallet >= $sub->plan->price){
                 $sub->contractor->decrement('wallet', $sub->plan->price);

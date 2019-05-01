@@ -4,7 +4,6 @@ namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
-use App\Console\Commands\DebitPlansPriceWalletContractors;
 
 class Kernel extends ConsoleKernel
 {
@@ -14,7 +13,7 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        Commands\DebitPlansPriceWalletContractors::class
+        //
     ];
 
     /**
@@ -27,8 +26,8 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')
         //          ->hourly();
-        $schedule->command('DebitPlansPriceWalletContractors --force')->daily();
-        $schedule->command('twilio:call-logs --notify=true --force')->everyFiveMinutes();
+        $schedule->command('debitplan')->daily();
+        $schedule->command('twilio:call-logs --notify=true')->everyFiveMinutes();
     }
 
     /**

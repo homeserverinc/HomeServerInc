@@ -331,4 +331,9 @@ class QuestionsController extends HomeServerController
         $answer->next_question_uuid = $request->next_question_uuid;
         $answer->save();
     }
+
+    public function vueDelAnswer(Request $request) {
+        $answer = Answer::find($request->uuid);
+        $answer->delete();
+    }
 }

@@ -142,6 +142,7 @@ Route::prefix('/admin')->middleware(['auth:web'])->group(function() {
     Route::post('/crud-questions/add_answer', 'QuestionsController@vueAddAnswer');
     Route::post('/crud-questions/link_answer_questinon', 'QuestionsController@vueLinkOnAnswer');
     Route::post('/crud-questions/edit_answer', 'QuestionsController@vueEditAnswer');
+    Route::post('/crud-questions/del_answer', 'QuestionsController@vueDelAnswer');
     Route::get('/quiz-get-categories', 'CategoriesController@vueGetCategories');
     Route::get('/quiz-get-quiz/{category}', 'QuizzesController@apiGetQuiz');
     Route::get('/quiz-get-lead/{lead}', 'LeadsController@apiGetLead');

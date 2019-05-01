@@ -115,13 +115,20 @@ const getters = {
 
 const actions = {
     delAnswer({ getters, commit }, answer) {
-        commit(VALID_MUTATIONS.DEL_ANSWER, answer);
-        var i = 1;
-        getters.question(answer.question_uuid).answers.forEach(a => {
-            a.order = i * 10;
-            i++;
-            commit(VALID_MUTATIONS.UPDATE_ANSWER, a);
-        });
+        Axios.post('/admin/crud-questions/del_answer', qs.stringify(answer))
+            .then(async r => {
+                commit(VALID_MUTATIONS.DEL_ANSWER, answer);
+
+                var i = 1;
+                getters.question(answer.question_uuid).answers.forEach(a => {
+                    a.order = i * 10;
+                    i++;
+                    commit(VALID_MUTATIONS.UPDATE_ANSWER, a);
+                });
+            })
+            .catch(r => {
+                console.log(r);
+            });
     },
     getQuizzes({ commit }) {
         Axios.get("/admin/quizzes/json").then(async res => {

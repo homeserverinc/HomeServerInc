@@ -33,7 +33,7 @@ class SendNewMissedCallNotification
                         ->messages
                         ->create($event->to, [
                             'from' => $event->missedCall->site->phone->phone_number,
-                            'body' => 'Missed call from '.$event->missedCall->from.' ('.$event->missedCall->site->name.'). '.action('MissedCallsController@index')
+                            'body' => 'Missed call from '.$event->missedCall->from.' ('.$event->missedCall->site->name.'). at '.$event->missedCall->datetime_call.'. '.action('MissedCallsController@index')
                         ]);
     }
 }

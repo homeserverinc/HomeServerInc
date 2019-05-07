@@ -27,7 +27,7 @@ class Kernel extends ConsoleKernel
         // $schedule->command('inspire')
         //          ->hourly();
         $schedule->command('debitplan')->daily();
-        $schedule->command('twilio:call-logs --notify=true')->everyFiveMinutes();
+        $schedule->command('twilio:call-logs --notify=true')->everyMinute();
     }
 
     /**

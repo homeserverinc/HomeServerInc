@@ -11,6 +11,7 @@
         "doctrine/dbal": "^2.9",
         "fideloper/proxy": "^4.0",
         "guzzlehttp/guzzle": "^6.3",
+        "irazasyed/telegram-bot-sdk": "^2.0",
         "kalnoy/nestedset": "^4.3.3",
         "laravel/framework": "5.7.*",
         "laravel/tinker": "^1.0",

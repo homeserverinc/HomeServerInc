@@ -6,10 +6,11 @@ use App\Events\NewMissedCall;
 use App\Traits\TwimlClientTrait;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use App\Traits\TelegramTrait;
 
 class SendNewMissedCallNotification
 {
-    use TwimlClientTrait;
+    use TwimlClientTrait, TelegramTrait;
     
     /**
      * Create the event listener.
@@ -29,11 +30,12 @@ class SendNewMissedCallNotification
      */
     public function handle(NewMissedCall $event)
     {
-        $twilio = $this->getClient()
+        /* $twilio = $this->getClient()
                         ->messages
                         ->create($event->to, [
                             'from' => $event->missedCall->site->phone->phone_number,
                             'body' => 'Missed call from '.$event->missedCall->from.' ('.$event->missedCall->site->name.'). at '.$event->missedCall->datetime_call.'. '.action('MissedCallsController@index')
-                        ]);
+                        ]); */
+        $this->sendMessage('Missed call from '.$event->missedCall->from.' ('.$event->missedCall->site->name.'). at '.$event->missedCall->datetime_call.'. '.action('MissedCallsController@index'));
     }
 }

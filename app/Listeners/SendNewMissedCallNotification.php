@@ -36,6 +36,7 @@ class SendNewMissedCallNotification
                             'from' => $event->missedCall->site->phone->phone_number,
                             'body' => 'Missed call from '.$event->missedCall->from.' ('.$event->missedCall->site->name.'). at '.$event->missedCall->datetime_call.'. '.action('MissedCallsController@index')
                         ]); */
-        $this->sendMessage('Missed call from '.$event->missedCall->from.' ('.$event->missedCall->site->name.'). at '.$event->missedCall->datetime_call.'. '.action('MissedCallsController@index'));
+        $this->sendMessage('Hey partners, we have a new missed call from <b>'.$event->missedCall->from.'</b><br /> ('
+                            .$event->missedCall->site->name.'). at '.$event->missedCall->datetime_call.'. '.action('MissedCallsController@index'));
     }
 }

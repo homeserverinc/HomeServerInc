@@ -81,7 +81,9 @@ class CallLogsController extends Controller
                 'end_time' => $callLog->endTime
             ]);     
             
-            Log::debug('New call Log: '.$logs);
+            if (env('APP_ENV', 'local') != 'production') {
+                Log::debug('New call Log: '.$logs);
+            }
 
         }
         $this->storeMissedCalls($notify);
@@ -90,13 +92,17 @@ class CallLogsController extends Controller
     public function storeMissedCalls(bool $notify) {
         try {
             DB::beginTransaction();
-            $logs = CallLog::notNotified()->get();
+            $logs = CallLog::notAnswered()
+                            ->notNotified()
+                            ->orderBy('start_time', 'DESC')
+                            ->get();
+
             foreach ($logs as $log) {
                 $missedCall = new MissedCall;
                 try {
                     $siteUuid = Phone::Number($log->forwarded_from)->first()->site->uuid;
                 } catch (\Exception $e) {
-                    Log::error('Error getting related site with the Number: '.$log->forwarded_from.'. Exception: '.$e->getMessage());
+                    Log::warning('Error getting related site with the Number: '.$log->forwarded_from.'. Exception: '.$e->getMessage());
                     continue;
                 }
                 $missedCall->fill([

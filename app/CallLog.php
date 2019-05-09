@@ -40,4 +40,12 @@ class CallLog extends Model
     public function scopeNotNotified($query) {
         return $query->where('notified', false);
     }
-}
+
+    public function scopeNotAnswered($query) {
+        return $query->where('status', 'no-answer');
+    }
+
+    public function scopeCompleted($query) {
+        return $query->where('status', 'completed');
+    }
+} 
